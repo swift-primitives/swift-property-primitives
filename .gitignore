@@ -75,8 +75,3 @@ Thumbs.db
 # ========== LOCAL OVERRIDES ==========
 # Package-specific rules below (managed by sync-gitignore.sh)
 
-# Audit artifacts — track per [HANDOFF-015]. The canonical `*.md` block
-# plus `/*` root-only whitelist currently ignores `AUDIT-*.md`; release
-# audits (e.g., AUDIT-0.1.0-release-readiness.md) belong in git history.
-!/AUDIT-*.md
-
