@@ -34,10 +34,10 @@ buffer.push.front(0)          // same namespace, different method
 let head = buffer.peek.front  // Property.View.Read — non-mutating
 let tail = buffer.peek.back   // same namespace, different property
 
-let first = buffer.pop.front()  // separate namespace; consuming
+let first = buffer.pop.front()  // separate namespace; removes and returns
 ```
 
-Four namespaces (`push`, `peek`, `pop`, `remove`) on the same `~Copyable` container, each discriminated by a phantom `Tag` enum and each extensible independently. The stdlib has no equivalent for grouped mutating accessors on `~Copyable` containers: `Array.append(_:)` exists, but `buffer.push.back(_:)` / `buffer.push.front(_:)` as sibling extensions on one namespace is not something you can cleanly express without `Property.View`.
+Four namespaces (`push`, `peek`, `pop`, `remove`) on the same `~Copyable` container, each discriminated by a phantom `Tag` enum and each extensible independently. The stdlib has no equivalent shape: it cannot group sibling mutating methods (`.push.back(_:)`, `.push.front(_:)`) under one namespace that third-party code can extend, and it has no analog at all for ~Copyable bases.
 
 Call-sites verbatim from `swift-buffer-primitives`, target `Buffer_Ring_Inline_Primitives`.
 
@@ -96,7 +96,7 @@ Intra-package target graph — variant decomposition along the ownership / acces
 | Target | Contents | Public product |
 |--------|----------|----------------|
 | `Property Primitives Core` | `Property` (owned base, `~Copyable`-preserving) | internal |
-| `Property Typed Primitives` | `Property.Typed`, `.Valued`, `.Valued.Valued` | yes |
+| `Property Typed Primitives` | `Property.Typed` | yes |
 | `Property Consuming Primitives` | `Property.Consuming` (state-tracked) | yes |
 | `Property View Primitives` | `Property.View`, `.Typed`, `.Typed.Valued`, `.Typed.Valued.Valued` | yes |
 | `Property View Read Primitives` | `Property.View.Read`, `.Typed`, `.Typed.Valued` | yes |
