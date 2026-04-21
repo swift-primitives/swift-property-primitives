@@ -1,0 +1,103 @@
+@Tutorial(time: 7) {
+    @Intro(title: "Getting Started with Property Primitives") {
+        By the end of this tutorial, your `Stack<Element>` will support call
+        sites like this:
+
+        ```swift
+        stack.push.back(1)
+        stack.push.back(2)
+        let top = stack.peek.back      // Optional(2)
+        let size = stack.peek.count    // 2
+        ```
+
+        Fluent verb-noun call sites without a bespoke proxy struct per verb.
+        The `Property` type and a phantom `Tag` enum do the work; your Stack
+        contributes only the enums and a five-line accessor.
+
+        You'll follow the five-move pattern every Property consumer uses —
+        define tags, add a typealias, declare accessors, write extensions,
+        call from a site — and see why the pattern collapses the
+        boilerplate.
+    }
+
+    @Section(title: "Set up the container") {
+        @ContentAndMedia {
+            Start with a simple Stack holding an array of `Copyable` elements.
+            No Property accessors yet — just storage and an init.
+        }
+
+        @Steps {
+            @Step {
+                Import the umbrella and declare `Stack<Element>` with its
+                internal storage and a public initializer.
+
+                @Code(name: "Stack.swift", file: "step-01-starting-struct.swift")
+            }
+
+            @Step {
+                Add the two phantom tags — `Push` and `Peek` — nested on the
+                Stack. Then add a `typealias Property<Tag>` that binds
+                `Base` to `Stack<Element>`. The typealias removes `Base`
+                repetition from every accessor declaration.
+
+                @Code(name: "Stack.swift", file: "step-02-tags-and-typealias.swift")
+            }
+        }
+    }
+
+    @Section(title: "Add the push accessor") {
+        @ContentAndMedia {
+            `push` is a method-case accessor — its extensions are methods that
+            introduce their own generic parameters. Use `Property<Push>` (no
+            `.Typed`) and the CoW-safe `_modify` recipe.
+        }
+
+        @Steps {
+            @Step {
+                Declare the accessor with the five-step `_modify` recipe:
+                transfer `self` into the property, clear `self`, restore on
+                `defer`, yield. Then add an extension on `Property_Primitives.Property`
+                with a method-level generic parameter `<E>` so it can
+                constrain `Tag == Stack<E>.Push`.
+
+                @Code(name: "Stack.swift", file: "step-03-push-accessor.swift")
+            }
+        }
+    }
+
+    @Section(title: "Add the peek accessor") {
+        @ContentAndMedia {
+            `peek` is a property-case accessor — its extensions return
+            `Element?`. Use `Property<Peek>.Typed<Element>` so the property
+            extensions can bind `Element` in their where-clauses.
+        }
+
+        @Steps {
+            @Step {
+                Declare the `peek` accessor returning `Property<Peek>.Typed<Element>`.
+                Then add an extension on `Property.Typed` with
+                `Element` bound through the where-clause. The extension's
+                properties can now return `Element?` directly.
+
+                @Code(name: "Stack.swift", file: "step-04-peek-accessor.swift")
+            }
+        }
+    }
+
+    @Section(title: "Use it") {
+        @ContentAndMedia {
+            The container is complete. Call the fluent accessors from any
+            call site that has a `Stack<Int>`.
+        }
+
+        @Steps {
+            @Step {
+                Push two values and peek at the top element and the count.
+                The Stack implementation from the previous step stays the
+                same; only the usage at the bottom is new.
+
+                @Code(name: "Stack.swift", file: "step-05-use-it.swift")
+            }
+        }
+    }
+}

@@ -1,0 +1,87 @@
+# ``Property_Primitives/Property/View-swift.struct/Typed``
+
+@Metadata {
+    @DisplayName("Property.View.Typed")
+    @TitleHeading("Swift Primitives")
+}
+
+A mutable view on a `~Copyable` base with an `Element` parameter.
+
+## Overview
+
+`Property<Tag, Base>.View.Typed<Element>` is the `~Copyable` equivalent of
+`Property.Typed` (in `Property Typed Primitives`): it combines
+``Property/View-swift.struct``'s pointer access with an `Element` type
+parameter so `var` extensions can bind to `Element` in a where-clause.
+
+## Example
+
+`~Copyable` container, typed property-case extension:
+
+```swift
+extension Container where Element: ~Copyable {
+    typealias Property<Tag> = Property_Primitives.Property<Tag, Self>
+
+    enum Access {}
+
+    var access: Property<Access>.View.Typed<Element> {
+        mutating _read {
+            yield unsafe Property<Access>.View.Typed(&self)
+        }
+        mutating _modify {
+            var view = unsafe Property<Access>.View.Typed<Element>(&self)
+            yield &view
+        }
+    }
+}
+
+extension Property_Primitives.Property.View.Typed
+where Tag == Container<Element>.Access, Base == Container<Element>,
+      Element: ~Copyable
+{
+    var count: Int { unsafe base.pointee.count }
+}
+```
+
+## Rationale
+
+The language asymmetry that motivates `Property.Typed` in the `Copyable`
+world applies equally in the `~Copyable` world: property extensions cannot
+introduce their own generic parameters, so extensions that return `Element?`
+or bind `Element` must have it in the type's generic signature.
+
+`Property.View.Typed<Element>` smuggles `Element` in by parameterizing the
+view type itself. Extensions on `Property.View.Typed` write
+`where Element: ~Copyable` in the where-clause and access the base through
+`base.pointee`. The parameter shape (`Typed<Element>`) mirrors the
+`Copyable`-world `Property.Typed` exactly; only the storage mechanism
+(`UnsafeMutablePointer` vs. by-value) differs.
+
+When the container also has value generics (`Buffer<Element>.Linked<N>`,
+`Array<Element>.Inline<capacity>`), append `.Valued<n>` for each lifted
+integer — see ``Property/View-swift.struct/Typed/Valued``.
+
+## Topics
+
+### Construction
+
+- ``Property/View-swift.struct/Typed/init(_:)``
+
+### Access
+
+- ``Property/View-swift.struct/Typed/base``
+
+## Research
+
+- [Property Type Family](../../../Research/property-type-family.md) — Section on property-case extensions for `~Copyable` containers. Status: DECISION.
+- [Variant Decomposition Rationale](../../../Research/variant-decomposition-rationale.md) — Why `View.Typed` is a sibling variant within the View family. Status: DECISION.
+
+## Experiments
+
+- [property-typed-noncopyable-test](../../../Experiments/property-typed-noncopyable-test/) — Validates `Property.View.Typed<Element: ~Copyable>` enables property extensions with `Element` in scope. Status: SUPERSEDED (pattern shipped).
+- [view-typed-overload-coexistence](../../../Experiments/view-typed-overload-coexistence/) — Validates `.Typed<Element>` coexists with `.Valued<n>` overloads for value-generic containers. Status: SUPERSEDED (pattern shipped).
+
+## See Also
+
+- ``Property/View-swift.struct``
+- ``Property/View-swift.struct/Typed/Valued``

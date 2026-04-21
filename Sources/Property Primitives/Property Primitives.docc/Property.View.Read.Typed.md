@@ -1,0 +1,76 @@
+# ``Property_Primitives/Property/View-swift.struct/Read/Typed``
+
+@Metadata {
+    @DisplayName("Property.View.Read.Typed")
+    @TitleHeading("Swift Primitives")
+}
+
+A read-only view on a `~Copyable` base with an `Element` parameter.
+
+## Overview
+
+`Property<Tag, Base>.View.Read.Typed<Element>` is the read-only counterpart
+of `Property.View.Typed` (in `Property View Primitives`). The borrowing-init
+overload works from non-mutating `_read` accessors and `borrowing`
+functions, so `let`-bound `~Copyable` containers are valid call sites.
+
+## Example
+
+```swift
+extension Container where Element: ~Copyable {
+    typealias Property<Tag> = Property_Primitives.Property<Tag, Self>
+
+    enum Peek {}
+
+    var peek: Property<Peek>.View.Read.Typed<Element> {
+        _read {
+            yield unsafe Property<Peek>.View.Read.Typed(self)
+        }
+    }
+}
+
+extension Property_Primitives.Property.View.Read.Typed
+where Tag == Container<Element>.Peek, Base == Container<Element>,
+      Element: ~Copyable
+{
+    var count: Int { unsafe base.pointee.storage.count }
+}
+
+let size = container.peek.count      // works on `let`-bound ~Copyable containers
+```
+
+## Rationale
+
+`Property.View.Read.Typed` covers the read-only case of the
+`Element`-in-scope requirement: `var` extensions on the read-only view
+cannot introduce their own generic parameters, so `Element` must appear in
+the view type's generic signature.
+
+The borrowing-init overload preserves the `let`-bound-callable property
+that makes `Read` suitable for non-mutating use. This is what distinguishes
+the Read family from the mutable View family: mutable `.Typed` requires
+`&self`, which is not available in `_read` accessors or on `let` bindings.
+
+Switch to `Property.View.Typed` (in `Property View Primitives`) when
+extensions need mutation. For a value generic alongside `Element`, see
+``Property/View-swift.struct/Read/Typed/Valued``.
+
+## Topics
+
+### Access
+
+- ``Property/View-swift.struct/Read/Typed/base``
+
+## Research
+
+- [Borrowing Label Drop Rationale](../../../Research/borrowing-label-drop-rationale.md) — Applies across the Read family. Status: DECISION.
+- [Property.View ~Escapable Removal](../../../Research/property-view-escapable-removal.md) — Context for why the Read family exists as a separate type rather than a Mode-parameterized View. Status: DECISION.
+
+## Experiments
+
+- [borrowing-read-accessor-test](../../../Experiments/borrowing-read-accessor-test/) — Validates `withUnsafePointer(to: borrowing T, _:)` on `~Copyable` for `init(_ base: borrowing Base)`. Pattern shipped across the Read.Typed family. Status: CONFIRMED.
+
+## See Also
+
+- ``Property/View-swift.struct/Read``
+- ``Property/View-swift.struct/Read/Typed/Valued``
