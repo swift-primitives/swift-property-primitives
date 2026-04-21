@@ -72,7 +72,7 @@ Add the umbrella product to your target (recommended for most consumers — re-e
 
 For narrower compile-time surface, depend on an individual variant product — `Property View Primitives`, `Property View Read Primitives`, or `Property Consuming Primitives`.
 
-Requires Swift 6.3 and macOS 26 / iOS 26 / tvOS 26 / watchOS 26 / visionOS 26 (or the corresponding Linux / Windows toolchain).
+Requires Swift 6.3.1 and macOS 26 / iOS 26 / tvOS 26 / watchOS 26 / visionOS 26 (or the corresponding Linux / Windows toolchain).
 
 ---
 
