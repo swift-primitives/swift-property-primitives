@@ -164,9 +164,9 @@ extension verbosity (variadic value generics, macros, protocol-based
 extensions) either don't exist in Swift yet or violate other constraints
 (tier-0 dependency rules, naming conventions).
 
-Extensions are written once per verb per type and read infrequently. The
+Extensions are written once per namespace per type and read infrequently. The
 canonical pattern minimises verbosity where it matters most — the accessor
-site, which is read and written at every verb addition.
+site, which is read and written at every namespace addition.
 
 ## When to apply it
 

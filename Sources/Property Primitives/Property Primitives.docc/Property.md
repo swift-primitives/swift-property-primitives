@@ -13,7 +13,7 @@ An owned property for CoW-safe mutation namespacing.
 phantom `Tag` discriminates which extensions apply, so one base value can expose
 multiple namespaces (`push`, `pop`, `peek`) each with its own extension surface.
 The base can be any type — a collection, a parser, an I/O session, a
-configuration context — that benefits from verb-namespaced operations.
+configuration context — that benefits from namespaced operations.
 
 `Property` is the anchor of the type family. Four variants extend it along
 orthogonal axes: `Property.Typed` (in `Property Typed Primitives`) adds an
@@ -62,7 +62,7 @@ stack.push.back(element)
 ## Rationale
 
 Before `Property`, each accessor namespace required a bespoke proxy struct:
-one per verb per container, each with its own storage, init, `.base` accessor,
+one per namespace per container, each with its own storage, init, `.base` accessor,
 and conditional `Sendable` / `Copyable` conformances. Five verbs on a stack
 meant five structs. The mechanical boilerplate hid the distinction between
 verbs; the vocabulary proliferated without earning its keep.

@@ -41,10 +41,10 @@ The distinction is what the phantom tag *discriminates*.
 | | `Tagged` | `Property` |
 |---|----------|------------|
 | What the tag discriminates | **Domain identity** of the value | **Verb namespace** dispatched via extensions |
-| Example | `Index<Graph>` ≠ `Index<Bit>` — different indices in different domains | `Property<Push, Stack>` vs `Property<Pop, Stack>` — same stack, different verb |
+| Example | `Index<Graph>` ≠ `Index<Bit>` — different indices in different domains | `Property<Push, Stack>` vs `Property<Pop, Stack>` — same stack, different namespace |
 | Tag values typical | Existing domain types (`Graph`, `Bit`, `UserID`) | Empty enums defined per-container (`enum Push {}`) |
 | Meaningful ops on tag | `retag<NewTag>` (phantom coercion is meaningful) | None — retagging `Push` to `Pop` would be semantically nonsensical |
-| Extension surface | Per-domain API (`extension Tagged where Tag == Ordinal { ... }`) | Per-verb API (`extension Property where Tag == Stack<E>.Push { mutating func back(...) }`) |
+| Extension surface | Per-domain API (`extension Tagged where Tag == Ordinal { ... }`) | Per-namespace API (`extension Property where Tag == Stack<E>.Push { mutating func back(...) }`) |
 
 `Tagged` gives values *identity* — the same operations apply; the tag says
 what kind of thing the value is. Bring a `rawValue` through without losing
@@ -55,7 +55,7 @@ a value from one domain to another explicitly.
 says what you can do with it. `stack.push` and `stack.pop` both wrap the same
 `Stack`, differing only in which extensions apply. `retag<NewTag>` makes no
 semantic sense — rebranding a Push proxy as a Pop proxy would apply a
-different verb namespace to an operation that was already picked.
+different namespace to an operation that was already picked.
 
 ## Why two types instead of one
 
@@ -68,7 +68,7 @@ been considered and rejected. The problem is extension-namespace pollution:
 Keeping them as separate nominal types preserves extension-namespace
 isolation. Extensions on `Property<Push, Stack>` cannot be seen from `Tagged`
 consumers; extensions on `Tagged<Ordinal, Int>` cannot be seen from Property
-consumers. That isolation is what makes the verb-namespace pattern work.
+consumers. That isolation is what makes the accessor-namespace pattern work.
 
 Property could in principle compose its storage on top of `Tagged` (the top
 struct only — the variants `Property.View`, `.View.Read`, `.Consuming` have
@@ -80,7 +80,7 @@ The ecosystem has chosen not to pursue composition.
 
 ### Property tags
 
-- **One empty enum per verb**, nested on the container.
+- **One empty enum per namespace**, nested on the container.
 - **No `*Tag` suffix** — use `Push`, not `PushTag` (per
   `feedback_no_tag_suffix`).
 - **No cases, no stored state** — the tag is phantom; it exists only to
@@ -108,7 +108,7 @@ public enum Push { case immediate }  // ❌ Tags are phantom; no cases.
   `UserID`, `Bit`, `Ordinal`.
 - **`retag<NewTag>` is a real operation** — crossing from `Index<Graph>` to
   `Index<Bit>` is a meaningful explicit coercion.
-- **Extensions are per-domain, not per-verb**.
+- **Extensions are per-domain, not per-namespace**.
 
 ```swift
 // Tagged usage:
@@ -247,7 +247,7 @@ Shape B' failure by compiler output.
 
 ## Decision test
 
-If your tag is a purpose-built empty enum that names a verb (`Push`,
+If your tag is a purpose-built empty enum that names an operation (`Push`,
 `Peek`, `Insert`, `ForEach`) and you want a distinct set of extensions for
 it — you want ``Property``.
 
@@ -263,4 +263,4 @@ The two are co-abstractions, not competitors. Many primitives consume both.
 - <doc:Choosing-A-Property-Variant>
 - <doc:GettingStarted>
 - [Property and Tagged: Two Semantic Roles of the Phantom-Type Wrapper](../../../Research/property-tagged-semantic-roles.md) — Authoritative analysis of the two roles (Group A vs Group B), with literature survey. Status: RECOMMENDATION.
-- [Property Type Family](../../../Research/property-type-family.md) — Phantom-type pattern for verb namespaces. Status: DECISION.
+- [Property Type Family](../../../Research/property-type-family.md) — Phantom-type pattern for accessor namespaces. Status: DECISION.

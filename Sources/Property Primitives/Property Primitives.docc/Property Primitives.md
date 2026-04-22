@@ -11,9 +11,9 @@
     )
 }
 
-Fluent accessor property type primitives — `value.verb.method(_:)` — for any
-base type that benefits from verb-namespaced operations, without writing a
-bespoke proxy struct per verb. Examples include collections (`stack.push.back(x)`,
+Fluent accessor property type primitives — `value.namespace.method(_:)` — for any
+base type that benefits from namespaced operations, without writing a
+bespoke proxy struct per namespace. Examples include collections (`stack.push.back(x)`,
 `deque.peek.front`), parsers, I/O sessions, and configuration contexts.
 
 ## Overview

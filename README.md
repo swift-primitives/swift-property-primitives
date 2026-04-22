@@ -3,14 +3,14 @@
 ![Development Status](https://img.shields.io/badge/status-active--development-blue.svg)
 [![CI](https://github.com/swift-primitives/swift-property-primitives/actions/workflows/ci.yml/badge.svg)](https://github.com/swift-primitives/swift-property-primitives/actions/workflows/ci.yml)
 
-Fluent accessor namespaces — `base.verb.method(_:)` — declared as extensions on one `Property<Tag, Base>` family. `Property` is generic over the base type: collections, parsers, I/O sessions, configuration contexts, or any value that benefits from verb-namespaced operations, whether `Copyable` or `~Copyable`.
+Fluent accessor namespaces — `base.namespace.method(_:)` — declared as extensions on one `Property<Tag, Base>` family. `Property` is generic over the base type: collections, parsers, I/O sessions, configuration contexts, or any value that benefits from namespaced operations, whether `Copyable` or `~Copyable`.
 
 ---
 
 ## Key Features
 
 - **One type family, five variants** — `Property`, `Property.Typed`, `Property.Consuming`, `Property.View`, `Property.View.Read` span `Copyable`/`~Copyable` bases and method-vs-property extension shapes.
-- **`~Copyable` mutation through `_read`** — `Property.View` yields a writable pointer from a non-mutating `_read` coroutine, so `base.verb.method(x)` works on a `~Copyable` base accessed from a `let` namespace.
+- **`~Copyable` mutation through `_read`** — `Property.View` yields a writable pointer from a non-mutating `_read` coroutine, so `base.namespace.method(x)` works on a `~Copyable` base accessed from a `let` namespace.
 - **CoW-safe `_modify` recipe** — The five-step coroutine (uniqueness → transfer → clear → restore → yield) preserves copy-on-write uniqueness without auxiliary flag state.
 - **Zero runtime footprint** — All views are `~Copyable, ~Escapable` with `@inlinable` accessors; no heap allocation on non-consuming paths.
 
@@ -20,7 +20,7 @@ Fluent accessor namespaces — `base.verb.method(_:)` — declared as extensions
 
 ### Using Property on a downstream base type
 
-A `~Copyable` fixed-capacity ring buffer with four verb namespaces, each a `Property.View` extension surface — no bespoke proxy structs. This is the call-site shape; declaration shape is shown in the next section.
+A `~Copyable` fixed-capacity ring buffer with four accessor namespaces, each a `Property.View` extension surface — no bespoke proxy structs. This is the call-site shape; declaration shape is shown in the next section.
 
 ```swift
 import Buffer_Ring_Inline_Primitives
@@ -43,7 +43,7 @@ Call-sites verbatim from `swift-buffer-primitives`, target `Buffer_Ring_Inline_P
 
 ### Adopting Property on your own base type
 
-Each verb namespace you expose is one phantom `Tag` type nested on the base type, one accessor property returning `Property<Tag, Self>` (or `Property.Typed<Element>`, or `Property.View<…>`, …), and one extension block on that `Property` variant declaring the methods or properties for that tag. The five-step CoW-safe `_modify` recipe (uniqueness → transfer → clear → restore → yield) is common to every mutating namespace; `Property.View` supplies the `~Copyable` pointer form without further work.
+Each accessor namespace you expose is one phantom `Tag` type nested on the base type, one accessor property returning `Property<Tag, Self>` (or `Property.Typed<Element>`, or `Property.View<…>`, …), and one extension block on that `Property` variant declaring the methods or properties for that tag. The five-step CoW-safe `_modify` recipe (uniqueness → transfer → clear → restore → yield) is common to every mutating namespace; `Property.View` supplies the `~Copyable` pointer form without further work.
 
 The **Getting Started** tutorial walks through the declaration one tag at a time, builds a `Stack<Element>` with `push.back(_:)` and `peek.back`, and ends with the final-step file mirrored by `Tests/Tutorial/` so tutorial-step API drift breaks the test suite.
 

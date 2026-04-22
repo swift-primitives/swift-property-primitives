@@ -18,7 +18,7 @@ applies_to:
 # Property Primitives
 
 `Property<Tag, Base>` gives your container type a fluent accessor namespace without
-you having to write a bespoke proxy struct for each verb. One container can expose
+you having to write a bespoke proxy struct for each namespace. One container can expose
 many namespaces (`push`, `pop`, `peek`, `insert`, `forEach`) — each is a `Property`
 specialized on a phantom `Tag` type, each with its own extension surface.
 

@@ -10,7 +10,7 @@
         let size = stack.peek.count    // 2
         ```
 
-        Fluent verb-noun call sites without a bespoke proxy struct per verb.
+        Fluent verb-noun call sites without a bespoke proxy struct per namespace.
         The `Property` type and a phantom `Tag` type do the work; your Stack
         contributes only the enums and a five-line accessor.
 
