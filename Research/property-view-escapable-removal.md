@@ -90,7 +90,7 @@ The compiler team acknowledges this limitation in a TODO comment at `OSSACanonic
 
 ## Outcome
 
-**Status**: DECISION — Option C (remove `~Escapable`)
+**Status**: DECISION — Option C (remove `~Escapable`). **SUPERSEDED** by restoration on 2026-03-25 (commit `43247e3`) after Swift 6.3 fixed [swiftlang/swift#88022](https://github.com/swiftlang/swift/issues/88022). See [Resolution](#resolution-2026-03-25) below.
 
 Applied 2026-03-22. Changes:
 - 7 struct declarations: removed `~Escapable`
@@ -99,6 +99,12 @@ Applied 2026-03-22. Changes:
 - 149 consumer functions: removed `@_optimize(none)`
 - 4 async static methods: inlined back into closures (were extracted as workaround for `@_optimize(none)` not propagating to closures)
 - `swift build -c release` passes clean with zero workarounds
+
+### Resolution (2026-03-25)
+
+Swift 6.3 shipped the fix for `mark_dependence` canonicalisation in CopyPropagation ([swiftlang/swift#88022](https://github.com/swiftlang/swift/issues/88022)) — the Resumption Trigger condition 1 below was met. `~Escapable` + `@_lifetime(borrow base)` was restored across all seven Property.View* types in commit `43247e3`, and all 149 `@_optimize(none)` workaround sites were removed. The 4 async static methods that were inlined as a further workaround were returned to their original extracted form. `swift test -c release` on Swift 6.3.1 passes with zero workarounds.
+
+The sections below (Resumption Trigger, Monitoring) are preserved as the historical audit trail describing the conditions under which this restoration was planned and verified.
 
 ### Resumption Trigger
 

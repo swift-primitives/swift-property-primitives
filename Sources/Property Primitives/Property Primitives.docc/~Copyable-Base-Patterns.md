@@ -178,27 +178,25 @@ call-site `borrowing x` expression form — only `consume x` and `copy x` exist
 as expression-level ownership markers — so the argument label could not
 offer expression-level explicitness either.
 
-## `~Escapable` state
+## `~Escapable` history
 
-As of 2026-03-22, the Property.View* types are `~Copyable` but NOT
-`~Escapable`. An earlier design had `~Escapable` + `@_lifetime(borrow base)`
-for defence-in-depth against view escape, but that combination triggered a
-SIL CopyPropagation false positive (`OSSACanonicalizeOwned` bail-out on
-`mark_dependence`) that required unbounded `@_optimize(none)` workarounds on
-downstream `@inlinable` consumers.
+The View family currently ships as `~Copyable, ~Escapable` with
+`@_lifetime(borrow base)` on initializers — the shape shown in the
+patterns above. That wasn't always the case.
 
-The coroutine scope (`begin_apply` / `end_apply` at SIL level) already
-confines the view's lifetime to the `_read` / `_modify` body. `~Copyable`
-prevents copies. The only escape path would be direct `Property.View(&ptr)`
-construction in `unsafe` territory where compiler-provided lifetime
-guarantees are already absent. Removing `~Escapable` eliminated the
-workarounds at the cost of a theoretical escape window that no real code
-was hitting.
-
-The `~Escapable` annotation should be restored when the compiler bug
-(`OSSACanonicalizeOwned` `mark_dependence` canonicalisation TODO) is fixed.
-Monitor the standalone reproducer at
-`swift-buffer-primitives/Experiments/copypropagation-nonescapable-mark-dependence/`.
+Between 2026-03-22 and 2026-03-25, Property.View* shipped without
+`~Escapable`. The combination `~Escapable` + `@_lifetime(borrow base)`
+triggered a SIL CopyPropagation false positive (`OSSACanonicalizeOwned`
+bail-out on `mark_dependence`) that required unbounded
+`@_optimize(none)` workarounds on downstream `@inlinable` consumers,
+so the annotation was temporarily dropped — leaning on the coroutine
+scope (`begin_apply` / `end_apply`) plus `~Copyable` alone to confine
+the view's lifetime. Swift 6.3 fixed the underlying compiler bug
+([swiftlang/swift#88022](https://github.com/swiftlang/swift/issues/88022)),
+and the annotation was restored across all seven View types in
+commit `43247e3`, along with removal of the 149 `@_optimize(none)`
+workaround sites. The full decision record is in the Research link
+below.
 
 ## `.consuming()` namespace-method pattern on View
 
