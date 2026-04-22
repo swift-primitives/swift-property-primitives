@@ -178,26 +178,6 @@ call-site `borrowing x` expression form — only `consume x` and `copy x` exist
 as expression-level ownership markers — so the argument label could not
 offer expression-level explicitness either.
 
-## `~Escapable` history
-
-The View family currently ships as `~Copyable, ~Escapable` with
-`@_lifetime(borrow base)` on initializers — the shape shown in the
-patterns above. That wasn't always the case.
-
-Between 2026-03-22 and 2026-03-25, Property.View* shipped without
-`~Escapable`. The combination `~Escapable` + `@_lifetime(borrow base)`
-triggered a SIL CopyPropagation false positive (`OSSACanonicalizeOwned`
-bail-out on `mark_dependence`) that required unbounded
-`@_optimize(none)` workarounds on downstream `@inlinable` consumers,
-so the annotation was temporarily dropped — leaning on the coroutine
-scope (`begin_apply` / `end_apply`) plus `~Copyable` alone to confine
-the view's lifetime. Swift 6.3 fixed the underlying compiler bug
-([swiftlang/swift#88022](https://github.com/swiftlang/swift/issues/88022)),
-and the annotation was restored across all seven View types in
-commit `43247e3`, along with removal of the 149 `@_optimize(none)`
-workaround sites. The full decision record is in the Research link
-below.
-
 ## `.consuming()` namespace-method pattern on View
 
 For `~Copyable` bases, the dual-call-site idiom
@@ -226,5 +206,3 @@ where Tag == Buffer<Element>.ForEach, Base == Buffer<Element>, Element: ~Copyabl
 - ``Property/View-swift.struct/Read/Typed``
 - <doc:Choosing-A-Property-Variant>
 - <doc:Value-Generic-Verbosity-And-The-Tag-Enum-View-Pattern>
-- [Property.View ~Escapable Removal](../../../Research/property-view-escapable-removal.md) — The CopyPropagation decision record. Status: DECISION.
-- [Borrowing Label Drop Rationale](../../../Research/borrowing-label-drop-rationale.md) — Why the `borrowing:` label was dropped in 0.1.0. Status: DECISION.

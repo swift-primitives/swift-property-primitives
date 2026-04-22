@@ -69,15 +69,6 @@ chain a second suffix into ``Property/View-swift.struct/Typed/Valued/Valued``.
 
 - ``Property/View-swift.struct/Typed/Valued/base``
 
-## Research
-
-- [Property.View .Valued.Valued Verbosity](../../../Research/property-view-valued-verbosity.md) — Full trade-off analysis of `.Valued.Valued` chain (13 variants considered). Status: RECOMMENDATION.
-
-## Experiments
-
-- [valued-verbosity-best-of-all-worlds](../../../Experiments/valued-verbosity-best-of-all-worlds/) — 13 variants validating approaches to reduce `.Valued.Valued` verbosity. V10 (tag-enum-`View`) is the shipped canonical pattern, applied across 333 tests in buffer-primitives. Status: SUPERSEDED (pattern shipped).
-- [view-typed-overload-coexistence](../../../Experiments/view-typed-overload-coexistence/) — Validates `.Valued<N>.Valued<m>` composes correctly. Status: SUPERSEDED (pattern shipped).
-
 ## See Also
 
 - ``Property/View-swift.struct/Typed``

@@ -187,4 +187,3 @@ is sufficient there.
 - ``Property/View-swift.struct/Read/Typed/Valued``
 - <doc:Choosing-A-Property-Variant>
 - <doc:~Copyable-Base-Patterns>
-- [Property.View .Valued.Valued Verbosity](../../../Research/property-view-valued-verbosity.md) — 13-variant trade-off analysis; V10 is the canonical pattern. Status: RECOMMENDATION (DECISION).

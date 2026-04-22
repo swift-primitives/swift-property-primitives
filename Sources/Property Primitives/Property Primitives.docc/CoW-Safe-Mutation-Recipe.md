@@ -145,4 +145,3 @@ there is no transfer. The uniqueness and pre-allocation concerns don't apply —
 - <doc:GettingStarted>
 - <doc:Choosing-A-Property-Variant>
 - <doc:~Copyable-Base-Patterns>
-- [Property Type Family](../../../Research/property-type-family.md) — Section 6.1 "CoW Mutation Recipe". Status: DECISION.

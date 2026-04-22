@@ -92,16 +92,6 @@ which eliminates `Base` repetition at every accessor declaration.
 
 - ``Property/base``
 
-## Research
-
-- [Property Type Family](../../../Research/property-type-family.md) — Flagship paper: three-category accessor taxonomy, phantom type pattern, protocol-conformance investigation. Status: DECISION.
-- [Protocol Conformance and Phantom Type Generalization](../../../Research/problem-protocol-conformance-and-phantom-type-generalization.md) — Why `Property` cannot easily carry protocol conformances; motivates the sibling variants. Status: ANALYSIS.
-- [Variant Decomposition Rationale](../../../Research/variant-decomposition-rationale.md) — Why five targets along the ownership / access-model axis. Status: DECISION.
-
-## Experiments
-
-- [property-generic-property-test](../../../Experiments/property-generic-property-test/) — Validates the `typealias Property<Tag>` shorthand eliminates redundant `Element` repetition at call sites. Status: CONFIRMED.
-
 ## See Also
 
 The variant types (`Property.Typed`, `Property.Consuming`, `Property.View`,

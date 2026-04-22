@@ -262,5 +262,3 @@ The two are co-abstractions, not competitors. Many primitives consume both.
 - ``Property``
 - <doc:Choosing-A-Property-Variant>
 - <doc:GettingStarted>
-- [Property and Tagged: Two Semantic Roles of the Phantom-Type Wrapper](../../../Research/property-tagged-semantic-roles.md) — Authoritative analysis of the two roles (Group A vs Group B), with literature survey. Status: RECOMMENDATION.
-- [Property Type Family](../../../Research/property-type-family.md) — Phantom-type pattern for accessor namespaces. Status: DECISION.

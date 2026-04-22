@@ -67,15 +67,6 @@ types in the `Property_Primitives` umbrella catalog.
 
 - ``Property/Typed/base``
 
-## Research
-
-- [Property Type Family](../../../Research/property-type-family.md) — Section on the property-case extension shape. Status: DECISION.
-- [Variant Decomposition Rationale](../../../Research/variant-decomposition-rationale.md) — Why `Typed` is a sibling variant alongside plain `Property`. Status: DECISION.
-
-## Experiments
-
-- [property-typed-noncopyable-test](../../../Experiments/property-typed-noncopyable-test/) — Validates `.Typed<Element>` enables property extensions with `Element` in scope. Pattern shipped across the Typed family. Status: SUPERSEDED (pattern shipped).
-
 ## See Also
 
 - ``Property``

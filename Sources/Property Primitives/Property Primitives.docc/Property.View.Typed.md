@@ -71,16 +71,6 @@ integer — see ``Property/View-swift.struct/Typed/Valued``.
 
 - ``Property/View-swift.struct/Typed/base``
 
-## Research
-
-- [Property Type Family](../../../Research/property-type-family.md) — Section on property-case extensions for `~Copyable` containers. Status: DECISION.
-- [Variant Decomposition Rationale](../../../Research/variant-decomposition-rationale.md) — Why `View.Typed` is a sibling variant within the View family. Status: DECISION.
-
-## Experiments
-
-- [property-typed-noncopyable-test](../../../Experiments/property-typed-noncopyable-test/) — Validates `Property.View.Typed<Element: ~Copyable>` enables property extensions with `Element` in scope. Status: SUPERSEDED (pattern shipped).
-- [view-typed-overload-coexistence](../../../Experiments/view-typed-overload-coexistence/) — Validates `.Typed<Element>` coexists with `.Valued<n>` overloads for value-generic containers. Status: SUPERSEDED (pattern shipped).
-
 ## See Also
 
 - ``Property/View-swift.struct``

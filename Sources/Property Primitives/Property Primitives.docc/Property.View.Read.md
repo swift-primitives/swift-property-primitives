@@ -81,15 +81,6 @@ expression-level explicitness either.
 - ``Property/View-swift.struct/Read/Typed``
 - ``Property/View-swift.struct/Read/Typed/Valued``
 
-## Research
-
-- [Property.View ~Escapable Removal](../../../Research/property-view-escapable-removal.md) — Root cause, options analysis, and the decision to split mutable `View` from read-only `View.Read`. Status: DECISION.
-- [Borrowing Label Drop Rationale](../../../Research/borrowing-label-drop-rationale.md) — Why `init(_ base: borrowing Base)` is called without the `borrowing:` label in 0.1.0. Status: DECISION.
-
-## Experiments
-
-- [borrowing-read-accessor-test](../../../Experiments/borrowing-read-accessor-test/) — v2: `withUnsafePointer(to: self)` works from non-mutating context on `~Copyable` types via `Builtin.addressOfBorrow(value)`. Pattern shipped as `init(_ base: borrowing Base)` across the Read family. Status: CONFIRMED.
-
 ## See Also
 
 - ``Property/View-swift.struct``

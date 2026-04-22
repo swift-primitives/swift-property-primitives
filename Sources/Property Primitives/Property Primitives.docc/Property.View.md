@@ -101,19 +101,6 @@ document linked there.
 - ``Property/View-swift.struct/Typed/Valued``
 - ``Property/View-swift.struct/Typed/Valued/Valued``
 
-## Research
-
-- [Property.View ~Escapable Removal](../../../Research/property-view-escapable-removal.md) — Root cause, options analysis, and the decision to split mutable `View` from read-only `View.Read`. Status: DECISION.
-- [Property Type Family](../../../Research/property-type-family.md) — Section on pointer-based variants for `~Copyable` containers. Status: DECISION.
-
-## Experiments
-
-- [nonescapable-pointer-test](../../../Experiments/nonescapable-pointer-test/) — Confirms `~Escapable` prevents pointer escape but does not enable pointer acquisition from borrowed context. Status: CONFIRMED.
-- [pointer-acquisition-mutating-test](../../../Experiments/pointer-acquisition-mutating-test/) — Confirms that obtaining `&self` requires mutation context, motivating the `mutating _read` accessor. Status: CONFIRMED.
-- [static-method-workaround-test](../../../Experiments/static-method-workaround-test/) — Validates that static methods with `borrowing` parameters enable pointer access in non-mutating contexts. Pattern shipped as ``Property/View-swift.struct/pointer(to:_:)``. Status: CONFIRMED.
-- [sequence-nonmutating-test](../../../Experiments/sequence-nonmutating-test/) — Confirms `Sequence.makeIterator()` cannot be mutating; motivates the static helpers. Status: CONFIRMED.
-- [withunsafepointer-scope-test](../../../Experiments/withunsafepointer-scope-test/) — Confirms `withUnsafePointer` closure-scope limitations; pointer lifetime cannot escape the closure. Status: CONFIRMED.
-
 ## See Also
 
 - ``Property/View-swift.struct/Typed``

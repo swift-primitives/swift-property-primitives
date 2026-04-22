@@ -111,20 +111,6 @@ by-value transfer.
 - ``Property/Consuming/isConsumed``
 - ``Property/Consuming/State``
 
-## Research
-
-- [Property Type Family](../../../Research/property-type-family.md) — Section on the consuming-access state machine. Status: DECISION.
-- [Variant Decomposition Rationale](../../../Research/variant-decomposition-rationale.md) — Why `Consuming` is a sibling variant rather than a method on `Property`. Status: DECISION.
-- [Migration Instruction](../../../Research/migration-instruction.md) — Step-by-step process for converting an existing borrow-only accessor to `Property.Consuming`. Status: IMPLEMENTED.
-
-## Experiments
-
-The original state-tracking pattern discovery experiment,
-`foreach-consuming-accessor-test`, lives at the superrepo-level
-`swift-primitives/Experiments/` directory (see the narrative notes in this
-package's `Experiments/_index.json`). The pattern shipped as
-`Property.Consuming` in this target.
-
 ## See Also
 
 - ``Property/Consuming/State``

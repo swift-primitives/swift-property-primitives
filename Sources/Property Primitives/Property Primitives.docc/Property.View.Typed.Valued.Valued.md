@@ -78,14 +78,6 @@ catalog for the full canonical pattern; buffer-primitives ships it across
 
 - ``Property/View-swift.struct/Typed/Valued/Valued/base``
 
-## Research
-
-- [Property.View .Valued.Valued Verbosity](../../../Research/property-view-valued-verbosity.md) — Full trade-off analysis of the two-value-generic chain. Status: RECOMMENDATION.
-
-## Experiments
-
-- [view-typed-overload-coexistence](../../../Experiments/view-typed-overload-coexistence/) — Validates `.Valued<N>.Valued<m>` composes correctly for two-value-generic containers. Status: SUPERSEDED (pattern shipped).
-
 ## See Also
 
 - ``Property/View-swift.struct/Typed/Valued``

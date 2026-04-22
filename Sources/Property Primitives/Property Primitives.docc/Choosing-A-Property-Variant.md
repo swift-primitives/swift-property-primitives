@@ -115,4 +115,3 @@ distinction between the two primitives.
 - <doc:Phantom-Tag-Semantics>
 - <doc:~Copyable-Base-Patterns>
 - <doc:Value-Generic-Verbosity-And-The-Tag-Enum-View-Pattern>
-- [Variant Decomposition Rationale](../../../Research/variant-decomposition-rationale.md) — Full rationale for the 5-target decomposition. Status: DECISION.

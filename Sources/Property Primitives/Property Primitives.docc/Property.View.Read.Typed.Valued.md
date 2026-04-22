@@ -70,14 +70,6 @@ when mutation is needed.
 
 - ``Property/View-swift.struct/Read/Typed/Valued/base``
 
-## Research
-
-- [Property.View .Valued.Valued Verbosity](../../../Research/property-view-valued-verbosity.md) — The tag-enum-`View` pattern applies identically to Read variants. Status: RECOMMENDATION.
-
-## Experiments
-
-- [valued-verbosity-best-of-all-worlds](../../../Experiments/valued-verbosity-best-of-all-worlds/) — V10 canonical pattern applies to Read as well as mutable. Status: SUPERSEDED (pattern shipped).
-
 ## See Also
 
 - ``Property/View-swift.struct/Read/Typed``

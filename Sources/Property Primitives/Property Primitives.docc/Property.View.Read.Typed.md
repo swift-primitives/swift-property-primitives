@@ -61,15 +61,6 @@ extensions need mutation. For a value generic alongside `Element`, see
 
 - ``Property/View-swift.struct/Read/Typed/base``
 
-## Research
-
-- [Borrowing Label Drop Rationale](../../../Research/borrowing-label-drop-rationale.md) — Applies across the Read family. Status: DECISION.
-- [Property.View ~Escapable Removal](../../../Research/property-view-escapable-removal.md) — Context for why the Read family exists as a separate type rather than a Mode-parameterized View. Status: DECISION.
-
-## Experiments
-
-- [borrowing-read-accessor-test](../../../Experiments/borrowing-read-accessor-test/) — Validates `withUnsafePointer(to: borrowing T, _:)` on `~Copyable` for `init(_ base: borrowing Base)`. Pattern shipped across the Read.Typed family. Status: CONFIRMED.
-
 ## See Also
 
 - ``Property/View-swift.struct/Read``
