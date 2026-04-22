@@ -127,7 +127,7 @@ Enter via the umbrella's landing page for:
 - **Choosing a Property Variant** — decision matrix across the five variants
 - **The CoW-Safe Mutation Recipe** — why the five-step ordering matters
 - **Phantom Tag Semantics** — what the tag discriminates and why `Property` and `Tagged` are separate primitives
-- **`~Copyable` Container Patterns** — mutable `View`, read-only `Read`, and the consuming namespace-method pattern
+- **`~Copyable` Base Patterns** — mutable `View`, read-only `Read`, and the consuming namespace-method pattern
 
 ---
 

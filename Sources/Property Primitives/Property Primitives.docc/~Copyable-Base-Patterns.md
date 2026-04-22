@@ -1,15 +1,15 @@
-# ~Copyable Container Patterns
+# ~Copyable Base Patterns
 
 @Metadata {
     @TitleHeading("Swift Primitives")
 }
 
-`~Copyable` containers cannot use the Copyable-world
+`~Copyable` bases cannot use the Copyable-world
 <doc:CoW-Safe-Mutation-Recipe> directly — the five-step recipe transfers the
 base by value, which requires copy semantics. The View family replaces
 by-value transfer with `UnsafeMutablePointer<Base>` (mutable) or
-`UnsafePointer<Base>` (read-only). The patterns below document the three
-accessor shapes that cover the `~Copyable` container space.
+`UnsafePointer<Base>` (read-only). The patterns below document the four
+accessor shapes available for `~Copyable` base types.
 
 ## Pattern 1 — mutable method-case accessor
 
@@ -46,7 +46,7 @@ where Tag == Buffer<Element>.Insert, Base == Buffer<Element>, Element: ~Copyable
 buffer.insert.front(element)
 ```
 
-**When to use.** `~Copyable` containers where the accessor bodies mutate or
+**When to use.** `~Copyable` base types where the accessor bodies mutate or
 consume elements. The method-level generic parameter (`func front<E>`) is not
 needed; extensions bind `Element` through the extension where-clause.
 
@@ -80,7 +80,7 @@ where Tag == Container<Element>.Access, Base == Container<Element>,
 }
 ```
 
-**When to use.** `~Copyable` containers where extensions return `Element?`
+**When to use.** `~Copyable` base types where extensions return `Element?`
 or otherwise bind `Element` in their signature.
 
 ## Pattern 3 — read-only access (supports `let`-bound callers)
@@ -112,8 +112,8 @@ let container = Container()
 let size = container.inspect.count
 ```
 
-**When to use.** `~Copyable` containers where extensions do not mutate; the
-container may be `let`-bound at the call site. For read-only access on
+**When to use.** `~Copyable` base types where extensions do not mutate; the
+base may be `let`-bound at the call site. For read-only access on
 property-case extensions needing `Element` in scope, switch to
 ``Property/View-swift.struct/Read/Typed``.
 
@@ -202,7 +202,7 @@ Monitor the standalone reproducer at
 
 ## `.consuming()` namespace-method pattern on View
 
-For `~Copyable` containers, the dual-call-site idiom
+For `~Copyable` bases, the dual-call-site idiom
 (`.verb { }` vs `.verb.consuming { }`) does NOT use ``Property/Consuming``
 (which requires `Base: Copyable`). Instead, add a `.consuming` namespace
 method to the View's extensions:

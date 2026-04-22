@@ -66,7 +66,7 @@ minimising their compile-time surface.
 
 - <doc:Choosing-A-Property-Variant>
 - <doc:CoW-Safe-Mutation-Recipe>
-- <doc:~Copyable-Container-Patterns>
+- <doc:~Copyable-Base-Patterns>
 - <doc:Value-Generic-Verbosity-And-The-Tag-Enum-View-Pattern>
 
 ### Concepts

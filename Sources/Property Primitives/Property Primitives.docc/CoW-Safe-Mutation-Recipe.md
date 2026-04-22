@@ -135,7 +135,7 @@ For `~Copyable` bases the recipe is different: ``Property/View-swift.struct``
 uses `mutating _read` / `_modify` with an `UnsafeMutablePointer<Base>`, and
 there is no transfer. The uniqueness and pre-allocation concerns don't apply —
 `~Copyable` storage is always uniquely owned by definition. See
-<doc:~Copyable-Container-Patterns>.
+<doc:~Copyable-Base-Patterns>.
 
 ## See Also
 
@@ -144,5 +144,5 @@ there is no transfer. The uniqueness and pre-allocation concerns don't apply —
 - ``Property/Consuming``
 - <doc:GettingStarted>
 - <doc:Choosing-A-Property-Variant>
-- <doc:~Copyable-Container-Patterns>
+- <doc:~Copyable-Base-Patterns>
 - [Property Type Family](../../../Research/property-type-family.md) — Section 6.1 "CoW Mutation Recipe". Status: DECISION.
