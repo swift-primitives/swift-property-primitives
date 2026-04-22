@@ -10,7 +10,7 @@ for `var` properties?
 
 ## Decision matrix
 
-| Container is… | Extension shape | Use |
+| Base is… | Extension shape | Use |
 |---------------|-----------------|-----|
 | `Copyable` | Methods only (`func back<E>(...)`) | ``Property`` |
 | `Copyable` | Properties needing `Element` (`var back: E?`) | ``Property/Typed`` |
@@ -26,12 +26,12 @@ for `var` properties?
 
 ### Axis 1 — ownership mode
 
-`Copyable` containers can transfer their base by value through a `Property`
+`Copyable` base types can transfer their base by value through a `Property`
 proxy (the CoW-safe five-step `_modify` recipe). The storage lives in the
-proxy's `_base` field; the accessor transfers the container in and out on scope
+proxy's `_base` field; the accessor transfers the base in and out on scope
 entry / exit.
 
-`~Copyable` containers cannot use by-value transfer — ownership is linear. The
+`~Copyable` base types cannot use by-value transfer — ownership is linear. The
 View family replaces by-value transfer with `UnsafeMutablePointer<Base>` (or
 `UnsafePointer<Base>` for read-only). The accessor yields the view wrapping a
 pointer to `self`; extensions read or mutate through the pointer.
@@ -65,10 +65,10 @@ properties go in `.Typed` variants.**
 Use ``Property/Consuming`` when a single accessor must support both
 `container.forEach { }` (borrow) and `container.forEach.consuming { }`
 (consume). The caller picks by which method they invoke. Requires
-`Base: Copyable`; for `~Copyable` containers the equivalent pattern is a
+`Base: Copyable`; for `~Copyable` base types the equivalent pattern is a
 `.consuming()` namespace method on ``Property/View-swift.struct``.
 
-### `let`-bound `~Copyable` containers at the call site
+### `let`-bound `~Copyable` bases at the call site
 
 Use ``Property/View-swift.struct/Read``. The borrowing-init overload
 (`init(_ base: borrowing Base)`) obtains an `UnsafePointer` from a non-mutating
@@ -83,7 +83,7 @@ stored property. The closure pattern takes `borrowing` parameters and does not
 require `&self`. For reading through a stored property in a `borrowing func`,
 this is the escape hatch.
 
-### Containers with value generics
+### Base types with value generics
 
 Append `.Valued<n>` for each compile-time integer parameter. One value
 generic: ``Property/View-swift.struct/Typed/Valued``. Two value generics:

@@ -11,14 +11,15 @@
     )
 }
 
-Fluent accessor property type primitives — `stack.push.back(x)`,
-`deque.peek.front`, `buffer.insert.front(element)` — without writing a
-bespoke proxy struct per verb.
+Fluent accessor property type primitives — `value.verb.method(_:)` — for any
+base type that benefits from verb-namespaced operations, without writing a
+bespoke proxy struct per verb. Examples include collections (`stack.push.back(x)`,
+`deque.peek.front`), parsers, I/O sessions, and configuration contexts.
 
 ## Overview
 
-``Property`` gives your container type a fluent accessor namespace through a
-phantom-tag-discriminated wrapper. One container can expose many namespaces
+``Property`` gives a base type a fluent accessor namespace through a
+phantom-tag-discriminated wrapper. One value can expose many namespaces
 (`push`, `pop`, `peek`, `insert`, `forEach`); each is a `Property` specialised
 on a phantom `Tag` enum, each with its own extension surface.
 
@@ -40,7 +41,7 @@ minimising their compile-time surface.
     @Column {
         ### Choose a variant
 
-        Decide which of the seven variants fits your container — Copyable
+        Decide which of the seven variants fits your base type — Copyable
         vs `~Copyable`, method-case vs property-case, read-only vs mutating.
 
         <doc:Choosing-A-Property-Variant>

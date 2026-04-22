@@ -10,16 +10,18 @@ An owned property for CoW-safe mutation namespacing.
 ## Overview
 
 `Property<Tag, Base>` wraps a base value for fluent accessor namespaces. The
-phantom `Tag` discriminates which extensions apply, so one container can expose
+phantom `Tag` discriminates which extensions apply, so one base value can expose
 multiple namespaces (`push`, `pop`, `peek`) each with its own extension surface.
+The base can be any type — a collection, a parser, an I/O session, a
+configuration context — that benefits from verb-namespaced operations.
 
 `Property` is the anchor of the type family. Four variants extend it along
 orthogonal axes: `Property.Typed` (in `Property Typed Primitives`) adds an
 `Element` type parameter so `var` extensions can bind to it;
 `Property.Consuming` (in `Property Consuming Primitives`) adds the
 borrow-vs-consume state machine; `Property.View` (in `Property View
-Primitives`) adds `UnsafeMutablePointer`-based access for `~Copyable`
-containers; `Property.View.Read` (in `Property View Read Primitives`) adds
+Primitives`) adds `UnsafeMutablePointer`-based access for `~Copyable` base
+types; `Property.View.Read` (in `Property View Read Primitives`) adds
 read-only pointer access. Navigate to those variants through the
 `Property_Primitives` umbrella catalog.
 
