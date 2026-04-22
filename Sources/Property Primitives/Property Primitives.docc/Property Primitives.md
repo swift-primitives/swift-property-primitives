@@ -21,7 +21,7 @@ bespoke proxy struct per verb. Examples include collections (`stack.push.back(x)
 ``Property`` gives a base type a fluent accessor namespace through a
 phantom-tag-discriminated wrapper. One value can expose many namespaces
 (`push`, `pop`, `peek`, `insert`, `forEach`); each is a `Property` specialised
-on a phantom `Tag` enum, each with its own extension surface.
+on a phantom `Tag` type, each with its own extension surface.
 
 Five variants extend `Property` along two axes — ownership mode (`Copyable`
 vs `~Copyable`) and extension shape (method-case, property-case, read-only,

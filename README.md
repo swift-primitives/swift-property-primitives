@@ -37,13 +37,13 @@ let tail = buffer.peek.back   // same namespace, different property
 let first = buffer.pop.front()  // separate namespace; removes and returns
 ```
 
-Four namespaces (`push`, `peek`, `pop`, `remove`) on the same `~Copyable` container, each discriminated by a phantom `Tag` enum and each extensible independently. The stdlib has no equivalent shape: it cannot group sibling mutating methods (`.push.back(_:)`, `.push.front(_:)`) under one namespace that third-party code can extend, and it has no analog at all for ~Copyable bases.
+Four namespaces (`push`, `peek`, `pop`, `remove`) on the same `~Copyable` container, each discriminated by a phantom `Tag` type and each extensible independently. The stdlib has no equivalent shape: it cannot group sibling mutating methods (`.push.back(_:)`, `.push.front(_:)`) under one namespace that third-party code can extend, and it has no analog at all for ~Copyable bases.
 
 Call-sites verbatim from `swift-buffer-primitives`, target `Buffer_Ring_Inline_Primitives`.
 
 ### Adopting Property on your own base type
 
-Each verb namespace you expose is one phantom `Tag` enum nested on the base type, one accessor property returning `Property<Tag, Self>` (or `Property.Typed<Element>`, or `Property.View<…>`, …), and one extension block on that `Property` variant declaring the methods or properties for that tag. The five-step CoW-safe `_modify` recipe (uniqueness → transfer → clear → restore → yield) is common to every mutating namespace; `Property.View` supplies the `~Copyable` pointer form without further work.
+Each verb namespace you expose is one phantom `Tag` type nested on the base type, one accessor property returning `Property<Tag, Self>` (or `Property.Typed<Element>`, or `Property.View<…>`, …), and one extension block on that `Property` variant declaring the methods or properties for that tag. The five-step CoW-safe `_modify` recipe (uniqueness → transfer → clear → restore → yield) is common to every mutating namespace; `Property.View` supplies the `~Copyable` pointer form without further work.
 
 The **Getting Started** tutorial walks through the declaration one tag at a time, builds a `Stack<Element>` with `push.back(_:)` and `peek.back`, and ends with the final-step file mirrored by `Tests/Tutorial/` so tutorial-step API drift breaks the test suite.
 

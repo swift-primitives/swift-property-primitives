@@ -11,7 +11,7 @@
         ```
 
         Fluent verb-noun call sites without a bespoke proxy struct per verb.
-        The `Property` type and a phantom `Tag` enum do the work; your Stack
+        The `Property` type and a phantom `Tag` type do the work; your Stack
         contributes only the enums and a five-line accessor.
 
         You'll follow the five-move pattern every Property consumer uses —

@@ -20,7 +20,7 @@ applies_to:
 `Property<Tag, Base>` gives your container type a fluent accessor namespace without
 you having to write a bespoke proxy struct for each verb. One container can expose
 many namespaces (`push`, `pop`, `peek`, `insert`, `forEach`) — each is a `Property`
-specialized on a phantom `Tag` enum, each with its own extension surface.
+specialized on a phantom `Tag` type, each with its own extension surface.
 
 This skill tells you — the **consumer** of `swift-property-primitives` — how to add
 those accessors to your type and which variant to reach for.
