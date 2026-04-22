@@ -92,3 +92,15 @@ minimising their compile-time surface.
 - ``Property/View-swift.struct/Read``
 - ``Property/View-swift.struct/Read/Typed``
 - ``Property/View-swift.struct/Read/Typed/Valued``
+
+## Further reading
+
+The design rationale and empirical validation behind each variant live in
+the package's `Research/` and `Experiments/` directories on GitHub. Start
+with the flagship paper if you want the unified view; the directories
+hold the specific decision records and runnable experiment packages
+underpinning every shipped variant.
+
+- [Property Type Family](https://github.com/swift-primitives/swift-property-primitives/blob/main/Research/property-type-family.md) — the flagship paper: three-category accessor taxonomy, phantom-type discriminator pattern, variant rationale.
+- [`Research/`](https://github.com/swift-primitives/swift-property-primitives/tree/main/Research) — design papers covering variant decomposition, phantom-type semantics, `~Escapable` / `~Copyable` trade-offs, value-generic verbosity, and adoption guidance.
+- [`Experiments/`](https://github.com/swift-primitives/swift-property-primitives/tree/main/Experiments) — runnable companion packages validating each design decision.
