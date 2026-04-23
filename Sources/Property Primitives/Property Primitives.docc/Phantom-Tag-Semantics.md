@@ -4,7 +4,7 @@
     @TitleHeading("Swift Primitives")
 }
 
-``Property`` and `Tagged` (from `swift-identity-primitives`) are structurally
+``Property`` and `Tagged` (from `swift-tagged-primitives`) are structurally
 isomorphic: each is a single-field wrapper parameterized by a phantom `Tag`
 and a value type. They look the same. They do different jobs. Understanding
 the difference is how you pick the right primitive.
@@ -12,7 +12,7 @@ the difference is how you pick the right primitive.
 ## Structural equivalence
 
 ```swift
-// swift-identity-primitives
+// swift-tagged-primitives
 public struct Tagged<Tag: ~Copyable, RawValue: ~Copyable>: ~Copyable {
     public var rawValue: RawValue
 }

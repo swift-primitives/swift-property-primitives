@@ -5,6 +5,8 @@
 
 Fluent accessor namespaces — `base.namespace.method(_:)` — declared as extensions on one `Property<Tag, Base>` family. `Property` is generic over the base type: collections, parsers, I/O sessions, configuration contexts, or any value that benefits from namespaced operations, whether `Copyable` or `~Copyable`.
 
+`Property` is a **verb-namespace phantom wrapper** — the phantom Tag selects which extension methods apply. The sibling primitive `Tagged<Tag, RawValue>` (in `swift-tagged-primitives`) is a **domain-identity phantom wrapper** — the Tag identifies what kind of value is wrapped. They look structurally similar; they do different jobs. The two-class taxonomy and the reasons for keeping them as separate primitives are documented in [Phantom-Tag-Semantics](Sources/Property%20Primitives/Property%20Primitives.docc/Phantom-Tag-Semantics.md) (DocC) and [property-tagged-semantic-roles](Research/property-tagged-semantic-roles.md) (canonical research).
+
 ---
 
 ## Key Features

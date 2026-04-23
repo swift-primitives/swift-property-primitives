@@ -99,7 +99,7 @@ pattern.
 
 `Property` is not a wrapper for values that carry identity — a `UserID`, an
 `OrderID`, a `Graph` index. Those are domain-identity wrappers; use `Tagged`
-from `swift-identity-primitives`. See <doc:Phantom-Tag-Semantics> for the
+from `swift-tagged-primitives`. See <doc:Phantom-Tag-Semantics> for the
 distinction between the two primitives.
 
 ## See Also
