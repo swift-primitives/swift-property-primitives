@@ -37,6 +37,10 @@ let package = Package(
             targets: ["Property Primitives Test Support"]
         ),
     ],
+    dependencies: [
+        .package(path: "../swift-ownership-primitives"),
+        .package(path: "../swift-tagged-primitives"),
+    ],
     targets: [
         // MARK: - Core
         .target(
@@ -60,6 +64,8 @@ let package = Package(
             name: "Property View Primitives",
             dependencies: [
                 "Property Primitives Core",
+                .product(name: "Ownership Inout Primitives", package: "swift-ownership-primitives"),
+                .product(name: "Tagged Primitives", package: "swift-tagged-primitives"),
             ]
         ),
         .target(
@@ -67,6 +73,8 @@ let package = Package(
             dependencies: [
                 "Property Primitives Core",
                 "Property View Primitives",
+                .product(name: "Ownership Borrow Primitives", package: "swift-ownership-primitives"),
+                .product(name: "Tagged Primitives", package: "swift-tagged-primitives"),
             ]
         ),
 

@@ -1,13 +1,14 @@
 public import Property_Primitives_Core
 public import Property_View_Primitives
+public import Ownership_Borrow_Primitives
+public import Tagged_Primitives
 
 extension Property.View.Read where Base: ~Copyable {
     /// A read-only view on a `~Copyable` base with an `Element` parameter.
     ///
-    /// `Property<Tag, Base>.View.Read.Typed<Element>` is the read-only counterpart of
-    /// ``Property/View-swift.struct/Typed``. The borrowing-init overload works from
-    /// non-mutating `_read` accessors and `borrowing` functions, enabling `let`-bound
-    /// `~Copyable` containers at the call site.
+    /// `Property<Tag, Base>.View.Read.Typed<Element>` is the read-only
+    /// counterpart of ``Property/View-swift.struct/Typed``. Access goes through
+    /// `base.value`, which uses `Ownership.Borrow`'s `_read` accessor.
     ///
     /// Canonical usage — `~Copyable` container, read-only typed property extension:
     ///
@@ -19,7 +20,7 @@ extension Property.View.Read where Base: ~Copyable {
     ///
     ///     var peek: Property<Peek>.View.Read.Typed<Element> {
     ///         _read {
-    ///             yield unsafe Property<Peek>.View.Read.Typed(self)
+    ///             yield Property<Peek>.View.Read.Typed(self)
     ///         }
     ///     }
     /// }
@@ -28,44 +29,35 @@ extension Property.View.Read where Base: ~Copyable {
     /// where Tag == Container<Element>.Peek, Base == Container<Element>,
     ///       Element: ~Copyable
     /// {
-    ///     var count: Int { unsafe base.pointee.storage.count }
+    ///     var count: Int { base.value.storage.count }
     /// }
     ///
-    /// let size = container.peek.count     // works on `let`-bound ~Copyable containers
+    /// let size = container.peek.count
     /// ```
     ///
     /// Switch to ``Property/View-swift.struct/Typed`` when extensions need mutation.
-    /// For a value generic alongside `Element`, see
-    /// ``Property/View-swift.struct/Read/Typed/Valued``.
     @safe
     public struct Typed<Element: ~Copyable>: ~Copyable, ~Escapable {
         @usableFromInline
-        internal let _base: UnsafePointer<Base>
+        internal var _storage: Tagged<Tag, Ownership.Borrow<Base>>
 
-        /// Creates a typed read-only view wrapping a pointer to the base value.
-        ///
-        /// - Parameter base: A read-only pointer to the value to wrap.
-        @inlinable
-        @_lifetime(borrow base)
-        public init(_ base: UnsafePointer<Base>) {
-            unsafe _base = base
-        }
-
-        /// Creates a typed read-only view by borrowing the base value directly.
-        ///
-        /// Use from non-mutating `_read` accessors and `borrowing` functions.
+        /// Creates a typed read-only view by borrowing the base value.
         ///
         /// - Parameter base: The value to borrow.
+        @inlinable
         @_lifetime(borrow base)
         public init(_ base: borrowing Base) {
-            unsafe _base = withUnsafePointer(to: base) { unsafe $0 }
+            self._storage = Tagged(__unchecked: (),
+                                   Ownership.Borrow(borrowing: base))
         }
     }
 }
 
 extension Property.View.Read.Typed where Base: ~Copyable, Element: ~Copyable {
+    /// The shared borrowed reference to the base value.
     @inlinable
-    public var base: UnsafePointer<Base> {
-        unsafe _base
+    public var base: Ownership.Borrow<Base> {
+        @_lifetime(borrow self)
+        _read { yield _storage.rawValue }
     }
 }
