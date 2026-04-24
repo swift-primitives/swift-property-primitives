@@ -513,6 +513,36 @@ section pointing at this document, so readers who spot the structural
 similarity (as the user prompting this research did) find the answer without
 having to ask.
 
+### Implementation status (2026-04-24)
+
+As of the pre-0.1.0 integration arc completed on 2026-04-24, Property.View and
+Property.View.Read on swift-property-primitives main store their base reference
+via Tagged:
+
+```swift
+Property.View<Tag, Base>      // internal storage: Tagged<Tag, Ownership.Inout<Base>>
+Property.View.Read<Tag, Base> // internal storage: Tagged<Tag, Ownership.Borrow<Base>>
+```
+
+This usage honors the recommendations above:
+
+- **R1 (separate nominal types)**: respected. `Property.View` is its own nominal
+  struct; it is not a typealias for Tagged. The Tagged value is an internal
+  storage detail, not the public identity of Property.View.
+- **R4 (do not compose Property on Tagged)**: not violated in the sense R4
+  warns against. R4 targets a unifying composition where Property *becomes* a
+  kind of Tagged; the implementation keeps Property semantically distinct
+  (verb-namespace role, Group B) while using Tagged as a phantom-type carrier
+  for the domain tag alongside the Ownership-typed base reference. The
+  dependency cost R4 cites (cross-package dep on swift-tagged-primitives) is
+  accepted in exchange for the namespacing guarantees Tagged provides for the
+  Tag phantom.
+- **R5 (no Role parameter)**: respected. No `PhantomTagged<Tag, Value, Role>`
+  unification was introduced.
+
+Reference: swift-property-primitives commit `a597340` (Property.View*
+integration restored to main).
+
 ### Follow-on items
 
 - **Short blog post candidate**: "Two kinds of phantom types: domain identity
