@@ -1,11 +1,23 @@
 {
   "$schema": "https://swift-institute.org/schemas/experiments-index-v1.json",
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-04-20",
+  "generatedAt": "2026-04-24",
   "title": "Experiments Index",
   "blurb": "Experiment packages for swift-property-primitives. Each entry is a standalone Swift package validating a pattern or limitation; status reflects both the historical hypothesis outcome and the current Swift 6.3.1 rebuild result.",
   "scope": "swift-property-primitives (swift-primitives)",
   "experiments": [
+    {
+      "directory": "property-view-lifetime-escape-reproduction",
+      "displayName": "property-view-lifetime-escape-reproduction",
+      "topic": "Reproduce and isolate the Swift 6.3.1 `error: lifetime-dependent value escapes its scope` at `base.value._buffer.peek.front` in the Property.View / Ownership.Inout / Ownership.Borrow nested-coroutine chain (depth ≥ 6); narrow the structural trigger; find the minimal accessor-shape fix.",
+      "date": "2026-04-23",
+      "status": "CONFIRMED",
+      "statusDetail": "V3 reproduces the baseline failure with real Buffer<Element>.Ring. V2.5a narrows the structural trigger to a class reference field inside the stored _buffer (V2.5b with value-type header aggregation does NOT reproduce; conditional-Copyable-via-extension alone is not sufficient). V4–V11 enumerate eight rejected workaround shapes: withExtendedLifetime at call site, free borrowing helper, intermediate let binding, copy on local, IIFE closure, @_lifetime(copy self), @_lifetime(borrow self), bare-return without guard. V12 COMPILES: split Ownership.Inout.value accessor by Value copyability — `where Value: Copyable { get + nonmutating _modify }` lets pure-read call sites escape the coroutine lifetime chain while `_modify` preserves CoW writeback for nested method-call mutations. V12 committed at swift-ownership-primitives@548fb54. Relocated from pre-dismantle swift-primitives/Experiments/ per [EXP-002c] (highest-layer-dep: swift-property-primitives).",
+      "statusRaw": "CONFIRMED",
+      "buildStatusSwift63": "OK",
+      "tier": null,
+      "scope": null
+    },
     {
       "directory": "property-typealias-extension-forms",
       "displayName": "property-typealias-extension-forms",
