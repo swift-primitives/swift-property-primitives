@@ -27,9 +27,9 @@ extension `Property.View.Read.Typed.Valued Tests`.Unit {
             Slice<Int>.Inline<5>
         >.View.Read.Typed<Int>.Valued<5>(inline)
 
-        let pointeeCount = unsafe view.base.pointee.count
+        let count = view.base.value.count
 
-        #expect(pointeeCount == 3)
+        #expect(count == 3)
     }
 }
 

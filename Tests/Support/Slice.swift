@@ -14,10 +14,8 @@ extension Slice where Element: ~Copyable {
 
 extension Slice where Element: ~Copyable {
     public var peek: Property<Peek, Slice<Element>>.View.Read.Typed<Element> {
-        mutating _read {
-            yield unsafe Property<Peek, Slice<Element>>.View.Read.Typed(
-                unsafe UnsafePointer(Property<Peek, Slice<Element>>.View(&self).base)
-            )
+        _read {
+            yield Property<Peek, Slice<Element>>.View.Read.Typed(self)
         }
     }
 
@@ -29,14 +27,10 @@ extension Slice where Element: ~Copyable {
 
     public var access: Property<Access, Slice<Element>>.View.Typed<Element> {
         mutating _read {
-            yield unsafe Property<Access, Slice<Element>>.View.Typed(
-                Property<Access, Slice<Element>>.View(&self).base
-            )
+            yield Property<Access, Slice<Element>>.View.Typed<Element>(&self)
         }
         mutating _modify {
-            var view = unsafe Property<Access, Slice<Element>>.View.Typed<Element>(
-                Property<Access, Slice<Element>>.View(&self).base
-            )
+            var view = Property<Access, Slice<Element>>.View.Typed<Element>(&self)
             yield &view
         }
     }
@@ -44,22 +38,22 @@ extension Slice where Element: ~Copyable {
 
 extension Property.View.Read.Typed where Tag == Slice<Int>.Peek, Base == Slice<Int> {
     public var size: Int {
-        unsafe self.base.pointee.count
+        self.base.value.count
     }
 }
 
 extension Property.View.Read.Typed where Tag == Slice<Int>.Borrow, Base == Slice<Int> {
     public var size: Int {
-        unsafe self.base.pointee.count
+        self.base.value.count
     }
 }
 
 extension Property.View.Typed where Tag == Slice<Int>.Access, Base == Slice<Int>, Element == Int {
     public var size: Int {
-        unsafe self.base.pointee.count
+        self.base.value.count
     }
 
     public mutating func resize(to newCount: Int) {
-        unsafe self.base.pointee.count = newCount
+        self.base.value.count = newCount
     }
 }

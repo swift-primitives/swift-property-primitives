@@ -2,13 +2,27 @@
 
 <!--
 ---
-version: 1.0.0
-last_updated: 2026-04-21
+version: 1.1.0
+last_updated: 2026-04-23
 status: RECOMMENDATION
 tier: 2
 scope: cross-package
-applies_to: [swift-property-primitives, swift-identity-primitives]
+applies_to: [swift-property-primitives, swift-tagged-primitives]
 ---
+-->
+
+<!--
+Changelog:
+- v1.1.0 (2026-04-23): Promoted R6 from Low to Medium priority — the named
+  taxonomy preempts recurring "should we unify?" discussions.
+  Added §"Categorical asymmetry: Group A admits super-protocol unification;
+  Group B does not" connecting to swift-primitives/Research/capability-lift-pattern.md
+  and capability-lift-pattern-academic-foundations.md. Added §"Fibration view:
+  sealed vs connected fibers" sharpening why the namespace isolation is
+  load-bearing (Group B fibers admit no horizontal morphisms; Group A's `retag`
+  is the cross-fiber morphism). Cross-references to capability-lift companion
+  research added.
+- v1.0.0 (2026-04-21): Initial Group A / Group B taxonomy with 6 recommendations.
 -->
 
 ## Context
@@ -16,7 +30,7 @@ applies_to: [swift-property-primitives, swift-identity-primitives]
 The swift-primitives ecosystem ships two structurally isomorphic phantom-type
 wrappers in separate packages:
 
-- `Tagged<Tag: ~Copyable, RawValue: ~Copyable>` — `swift-identity-primitives`.
+- `Tagged<Tag: ~Copyable, RawValue: ~Copyable>` — `swift-tagged-primitives`.
   Foundation of 83+ typealiases across the ecosystem, including `Index<Element>`,
   `Ordinal`, `Cardinal`, every identity-like value.
 - `Property<Tag, Base: ~Copyable>` — `swift-property-primitives`. Five-variant
@@ -338,6 +352,85 @@ first-class and distinct. The ecosystem's emergence of Tagged and Property as
 separate primitives reflects this — each addresses one of the two uses cleanly,
 without contamination.
 
+### Categorical asymmetry: Group A admits super-protocol unification; Group B does not
+
+Companion research (`swift-primitives/Research/capability-lift-pattern.md`,
+`capability-lift-pattern-academic-foundations.md`) probed whether Group A
+admits a super-protocol unifying its members (Tagged, Cardinal, Ordinal,
+Hash). The investigation produced a partial finding worth surfacing here:
+**Group A admits a super-protocol *in principle* (the abstraction is
+coherent), but Swift's expressiveness limits make a clean implementation
+incomplete.** The deeper observation — relevant to THIS document's
+taxonomy — is that **Group B does not admit a super-protocol at all**,
+and the categorical reason for that asymmetry sharpens R1.
+
+**Why Group A admits unification (in principle)**: every Group A member
+shares a uniform meaning across instances. `Tagged<Bytes, Cardinal>`,
+`Tagged<Frames, Cardinal>`, and bare `Cardinal` all participate in the
+same "Cardinal-carrying" abstraction. A protocol like
+`Carrier<Underlying>` (with `Underlying = Cardinal` for Cardinal-shaped
+carriers) captures this uniformity. The Tag indexes a *global*
+discriminator space — Bytes and Frames are types with meaning across
+the ecosystem.
+
+**Why Group B does not admit unification**: Property's Tags are *local*
+to each container. `Stack.Push` and `Deque.Push` are not the same Push;
+they're independent empty enums that happen to share a name. There is
+no global "Push abstraction" that Property unifies. Each Property
+extension is keyed on a `(Container, Tag)` pair where the Tag has
+meaning only within that Container's namespace.
+
+This asymmetry maps onto categorical structure. The family
+`{Property<Tag, Base>}_{Tag, Base}` is a *fibration* over the category
+of (Container, Verb) pairs whose fibers have no morphisms between them
+— each verb namespace is sealed. By contrast,
+`{Tagged<Tag, V>}_{Tag}` for fixed V is a fibration over the category
+of Tags whose fibers are connected by the `retag<NewTag>` morphism.
+Group A admits cross-fiber morphisms; Group B does not.
+
+**Implication for unification**: a hypothetical super-protocol would
+need to abstract over the Tag dimension uniformly. For Group A, this
+is meaningful — `some Carrier<Cardinal>` ranges over the Tag-indexed
+fiber. For Group B, this is incoherent — there is no uniform meaning
+to abstract over (Stack.Push and Deque.Push aren't substitutable). A
+super-protocol like `VerbNamespace.\`Protocol\`` would have nothing to
+say.
+
+This is the categorical reason R1 is "Critical." The namespace
+isolation isn't a convention to be defended — it's a property of
+Group B's fibration structure. Group A admits cross-fiber operations
+because its fibers are connected; Group B's fibers are sealed by
+construction. Lumping them under one type would force Group B's "no
+cross-fiber morphisms" property to be re-established by convention
+rather than guaranteed by structure.
+
+### Fibration view: sealed vs connected fibers
+
+The vocabulary from `capability-lift-pattern-academic-foundations.md`
+§5.2 (vertical / horizontal morphisms over a fibration) gives a
+precise frame for the Tagged ↔ Property distinction:
+
+| | Group A (Tagged family) | Group B (Property family) |
+|---|---|---|
+| Family | `{Tagged<Tag, V> : Tag}` indexed by Tag | `{Property<Tag, Base> : Tag}` indexed by Tag |
+| Vertical morphisms (fiber-preserving) | Tag-preserving operations: `Cardinal + Cardinal`, `align(_:)` returns same Tag | Within-namespace operations: `stack.push.back(_:)` |
+| Horizontal morphisms (cross-fiber) | `retag<NewTag>(_:)` — explicit phantom coercion | **Don't exist** — Push and Pop fibers are sealed |
+| Fiber connectedness | Connected (retag bridges fibers) | Sealed (no Property cross-namespace conversion) |
+
+The doc's existing observation that "retagging Push to Pop would be
+semantically nonsensical" restates this: **Group B fibers are sealed
+by construction**. There is no morphism from `Property<Push, Stack>`
+to `Property<Pop, Stack>` — and shouldn't be. Push and Pop are
+independent verbs over the same container; bridging them would
+silently rebrand an operation under a different namespace.
+
+This sharpens R1's priority from "convention argument" to
+"structural argument": separate types preserve sealed fibers by
+type identity. A unified type with phantom Role would force the
+sealed-fiber property to hold by extension hygiene rather than by
+the type system — exactly the failure mode Swift's overlap-rules
+can't prevent.
+
 ### Empirical validation ([RES-025])
 
 Applying the Cognitive Dimensions Framework to the question "should the two
@@ -402,7 +495,7 @@ correctness.
 | R3 | Preserve the parameter-order convention (discriminator first, value second) across both | **High** | Signals the kinship at every use site; already in place |
 | R4 | Do NOT compose Property on Tagged | **Medium** | Deduplication gain is one-fifth of the Property surface; cost is a cross-package dependency and a field-access layer |
 | R5 | Do NOT introduce a unifying `PhantomTagged<Tag, Value, Role>` primitive | **Medium** | Either re-creates the extension-namespace problem (if Role is compile-time only) or sacrifices zero-cost (if Role is runtime) |
-| R6 | Coin the terms "domain-identity phantom wrapper" (Group A) and "verb-namespace phantom wrapper" (Group B) in ecosystem documentation | **Low** | Gives future contributors a named vocabulary for the distinction; the literature has not done so |
+| R6 | Coin the terms "domain-identity phantom wrapper" (Group A) and "verb-namespace phantom wrapper" (Group B) in ecosystem documentation | **Medium** *(promoted from Low in v1.1.0)* | Gives future contributors a named vocabulary for the distinction; the literature has not done so. Empirically, "should we unify?" recurs in design discussions — naming the taxonomy preempts re-derivation. The capability-lift research investigation that produced this v1.1.0 update is a worked example of the cost of NOT having shipped vocabulary. |
 
 ### What this does NOT recommend
 
@@ -415,7 +508,7 @@ correctness.
 ### Cross-reference from Property and Tagged
 
 The DocC catalogues for `Property Primitives Core.docc/Property.md` and the
-`Identity Primitives.docc` equivalent for Tagged SHOULD add a "Related Work"
+`Tagged Primitives.docc` equivalent for Tagged SHOULD add a "Related Work"
 section pointing at this document, so readers who spot the structural
 similarity (as the user prompting this research did) find the answer without
 having to ask.
@@ -489,7 +582,7 @@ having to ask.
 - `swift-institute/Research/protocol-abstraction-for-phantom-typed-wrappers.md`
   — protocol abstraction for operator unification (Tagged's operator-forwarding
   story).
-- `swift-identity-primitives/Sources/Identity Primitives/Tagged.swift` —
+- `swift-tagged-primitives/Sources/Tagged Primitives/Tagged.swift` —
   canonical Tagged definition.
 - `swift-property-primitives/Sources/Property Primitives Core/Property.swift` —
   canonical Property definition, with parameter-order comment referencing
@@ -498,3 +591,16 @@ having to ask.
   the 5-variant decomposition for Property; cross-cuts this document's
   analysis at the point of "four non-owned Property variants have distinct
   storage shapes."
+
+### Companion research (capability-lift family)
+
+- `swift-primitives/Research/capability-lift-pattern.md` (v1.2.0+,
+  RECOMMENDATION, tier 2) — characterizes the recipe shared by Cardinal,
+  Ordinal, Hash, etc. (all Group A members); investigates a Carrier
+  super-protocol; documents why a separate `swift-carrier-primitives`
+  package was rejected.
+- `swift-primitives/Research/capability-lift-pattern-academic-foundations.md`
+  (v1.1.0+, ANALYSIS, tier 2) — academic survey grounding the recipe in
+  type-classes / parametricity / fibration / free-construction
+  literature. The fibration vocabulary used in this document's §"Fibration
+  view" originates there.
