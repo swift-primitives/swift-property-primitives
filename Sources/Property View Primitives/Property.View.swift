@@ -75,9 +75,27 @@ extension Property where Base: ~Copyable {
         /// This is `@unsafe` because it casts away const — the caller must
         /// ensure mutation through the view is valid at the call site.
         ///
+        /// > Warning: Do NOT add `@inlinable` to this init. The same Swift
+        /// > 6.3.1 / 6.4-dev release-mode miscompile documented on
+        /// > `Ownership.Borrow.init(borrowing:) where Value: ~Copyable`
+        /// > applies here: when inlined across a module boundary,
+        /// > `withUnsafePointer(to: base) { $0 }` begins returning a
+        /// > callee-frame spill slot that dies when the closure returns.
+        /// > Keeping this init non-`@inlinable` preserves the cross-module
+        /// > function-call boundary and the `@in_guaranteed` indirect ABI.
+        /// > Evidence at
+        /// > `swift-institute/Experiments/borrow-pointer-storage-release-miscompile/`
+        /// > and
+        /// > `swift-institute/Audits/borrow-pointer-storage-release-miscompile.md`.
+        /// > Same-module consumers (consumers in the
+        /// > `Property View Primitives` module itself) cannot call this
+        /// > init safely in release mode; they must use the
+        /// > `init(_ base: inout Base)` overload or wrap the call in
+        /// > `withUnsafePointer(to:)` and pass the typed pointer through
+        /// > a separate construction path.
+        ///
         /// - Parameter base: The value to borrow.
         @unsafe
-        @inlinable
         @_lifetime(borrow base)
         public init(_ base: borrowing Base) {
             let ptr = unsafe UnsafeMutablePointer<Base>(
