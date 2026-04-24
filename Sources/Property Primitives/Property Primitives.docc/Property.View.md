@@ -17,9 +17,10 @@ the same fluent accessor syntax used for `Copyable` containers. Mutating
 transfer.
 
 From non-mutating contexts (`Sequence.makeIterator()`, subscript getters),
-use the static ``Property/View-swift.struct/pointer(to:_:)`` helper on
-stored properties, or `Property.View.Read` (in `Property View Read
-Primitives`) when mutation is not needed.
+reach for the static ``Property/pointer(to:_:)`` helpers — they're the
+escape hatch *from* `View`'s `&self` requirement, parked on `Property`
+as a sibling of the View family. For View-style read-only fluent access,
+use `Property.View.Read` (in `Property View Read Primitives`) instead.
 
 ## Example
 
@@ -72,12 +73,14 @@ Two construction paths exist:
   contexts (`deinit`, custom transfer sites) where the caller can guarantee
   that mutation through the pointer is valid.
 
-The static ``Property/View-swift.struct/pointer(to:_:)`` helpers exist for
-the other side of the asymmetry: where a non-mutating context needs pointer
-access to a stored property, the closure pattern takes `borrowing`
-parameters and bypasses the `&self` requirement. This supports
-`Sequence.makeIterator()` and subscript-getter call sites that cannot be
-mutating.
+The static ``Property/pointer(to:_:)`` helpers exist for the other side
+of the asymmetry: where a non-mutating context needs pointer access to a
+stored property, the closure pattern takes `borrowing` parameters and
+bypasses the `&self` requirement. This supports `Sequence.makeIterator()`
+and subscript-getter call sites that cannot be mutating. The helpers live
+on `Property` — not on `View` — because reaching for `View` in a
+non-mutating context would be self-contradicting: `View`'s inits require
+`&self`. The helpers are a peer of the View machinery, not a member.
 
 For the `~Escapable` history that motivated the mutable-View / read-only-View
 split, see the `Property.View.Read` article in `Property View Read
@@ -90,31 +93,15 @@ document linked there.
 
 - ``Property/View-swift.struct/base``
 
-### Non-Mutating Context Helpers
-
-- ``Property/View-swift.struct/pointer(to:_:)``
-- ``Property/View-swift.struct/pointer(to:mutating:)``
-
 ### Variants
 
 - ``Property/View-swift.struct/Typed``
 - ``Property/View-swift.struct/Typed/Valued``
 - ``Property/View-swift.struct/Typed/Valued/Valued``
 
-## Research
-
-- [Property.View ~Escapable Removal](../../../Research/property-view-escapable-removal.md) — Root cause, options analysis, and the decision to split mutable `View` from read-only `View.Read`. Status: DECISION.
-- [Property Type Family](../../../Research/property-type-family.md) — Section on pointer-based variants for `~Copyable` containers. Status: DECISION.
-
-## Experiments
-
-- [nonescapable-pointer-test](../../../Experiments/nonescapable-pointer-test/) — Confirms `~Escapable` prevents pointer escape but does not enable pointer acquisition from borrowed context. Status: CONFIRMED.
-- [pointer-acquisition-mutating-test](../../../Experiments/pointer-acquisition-mutating-test/) — Confirms that obtaining `&self` requires mutation context, motivating the `mutating _read` accessor. Status: CONFIRMED.
-- [static-method-workaround-test](../../../Experiments/static-method-workaround-test/) — Validates that static methods with `borrowing` parameters enable pointer access in non-mutating contexts. Pattern shipped as ``Property/View-swift.struct/pointer(to:_:)``. Status: CONFIRMED.
-- [sequence-nonmutating-test](../../../Experiments/sequence-nonmutating-test/) — Confirms `Sequence.makeIterator()` cannot be mutating; motivates the static helpers. Status: CONFIRMED.
-- [withunsafepointer-scope-test](../../../Experiments/withunsafepointer-scope-test/) — Confirms `withUnsafePointer` closure-scope limitations; pointer lifetime cannot escape the closure. Status: CONFIRMED.
-
 ## See Also
 
-- ``Property/View-swift.struct/Typed``
 - ``Property``
+- ``Property/pointer(to:_:)``
+- ``Property/pointer(to:mutating:)``
+- ``Property/View-swift.struct/Typed``

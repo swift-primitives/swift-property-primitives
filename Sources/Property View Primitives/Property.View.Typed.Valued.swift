@@ -1,11 +1,13 @@
 public import Property_Primitives_Core
+public import Ownership_Inout_Primitives
+public import Tagged_Primitives
 
 extension Property.View.Typed where Base: ~Copyable, Element: ~Copyable {
     /// A ``Property/View-swift.struct/Typed`` with one value-generic parameter.
     ///
-    /// `Property<Tag, Base>.View.Typed<Element>.Valued<n>` lifts a compile-time integer
-    /// (e.g. `capacity`, `N`) to the type level so extension where-clauses can bind it
-    /// alongside `Element` and `Base`.
+    /// `Property<Tag, Base>.View.Typed<Element>.Valued<n>` lifts a compile-time
+    /// integer (e.g. `capacity`, `N`) to the type level so extension where-
+    /// clauses can bind it alongside `Element` and `Base`.
     ///
     /// Canonical usage — `~Copyable` container with one value generic:
     ///
@@ -14,9 +16,9 @@ extension Property.View.Typed where Base: ~Copyable, Element: ~Copyable {
     ///     typealias Property<Tag> = Property_Primitives.Property<Tag, Self>
     ///
     ///     var forEach: Property<Sequence.ForEach>.View.Typed<Element>.Valued<capacity> {
-    ///         mutating _read  { yield unsafe .init(&self) }
+    ///         mutating _read  { yield .init(&self) }
     ///         mutating _modify {
-    ///             var view: Property<Sequence.ForEach>.View.Typed<Element>.Valued<capacity> = unsafe .init(&self)
+    ///             var view: Property<Sequence.ForEach>.View.Typed<Element>.Valued<capacity> = .init(&self)
     ///             yield &view
     ///         }
     ///     }
@@ -32,28 +34,28 @@ extension Property.View.Typed where Base: ~Copyable, Element: ~Copyable {
     /// ```
     ///
     /// For two value generics, see ``Property/View-swift.struct/Typed/Valued/Valued``.
-    /// The verbosity trade-off and the recommended tag-enum-`View` typealias pattern
-    /// are documented in the Property.View.Typed.Valued article in the
-    /// `Property View Primitives` DocC catalog.
     @safe
     public struct Valued<let n: Int>: ~Copyable, ~Escapable {
         @usableFromInline
-        internal let _base: UnsafeMutablePointer<Base>
+        internal var _storage: Tagged<Tag, Ownership.Inout<Base>>
 
-        /// Creates a valued view wrapping a pointer to the base value.
+        /// Creates a valued view by borrowing the base value exclusively.
         ///
-        /// - Parameter base: A pointer to the value to wrap.
+        /// - Parameter base: The value to borrow mutably.
         @inlinable
-        @_lifetime(borrow base)
-        public init(_ base: UnsafeMutablePointer<Base>) {
-            unsafe _base = base
+        @_lifetime(&base)
+        public init(_ base: inout Base) {
+            self._storage = Tagged(__unchecked: (),
+                                   Ownership.Inout(mutating: &base))
         }
     }
 }
 
 extension Property.View.Typed.Valued where Base: ~Copyable, Element: ~Copyable {
+    /// The exclusive mutable reference to the base value.
     @inlinable
-    public var base: UnsafeMutablePointer<Base> {
-        unsafe _base
+    public var base: Ownership.Inout<Base> {
+        @_lifetime(borrow self)
+        _read { yield _storage.rawValue }
     }
 }
