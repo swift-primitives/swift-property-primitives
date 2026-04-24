@@ -17,9 +17,10 @@ the same fluent accessor syntax used for `Copyable` containers. Mutating
 transfer.
 
 From non-mutating contexts (`Sequence.makeIterator()`, subscript getters),
-use the static ``Property/View-swift.struct/pointer(to:_:)`` helper on
-stored properties, or `Property.View.Read` (in `Property View Read
-Primitives`) when mutation is not needed.
+reach for the static ``Property/pointer(to:_:)`` helpers — they're the
+escape hatch *from* `View`'s `&self` requirement, parked on `Property`
+as a sibling of the View family. For View-style read-only fluent access,
+use `Property.View.Read` (in `Property View Read Primitives`) instead.
 
 ## Example
 
@@ -72,12 +73,14 @@ Two construction paths exist:
   contexts (`deinit`, custom transfer sites) where the caller can guarantee
   that mutation through the pointer is valid.
 
-The static ``Property/View-swift.struct/pointer(to:_:)`` helpers exist for
-the other side of the asymmetry: where a non-mutating context needs pointer
-access to a stored property, the closure pattern takes `borrowing`
-parameters and bypasses the `&self` requirement. This supports
-`Sequence.makeIterator()` and subscript-getter call sites that cannot be
-mutating.
+The static ``Property/pointer(to:_:)`` helpers exist for the other side
+of the asymmetry: where a non-mutating context needs pointer access to a
+stored property, the closure pattern takes `borrowing` parameters and
+bypasses the `&self` requirement. This supports `Sequence.makeIterator()`
+and subscript-getter call sites that cannot be mutating. The helpers live
+on `Property` — not on `View` — because reaching for `View` in a
+non-mutating context would be self-contradicting: `View`'s inits require
+`&self`. The helpers are a peer of the View machinery, not a member.
 
 For the `~Escapable` history that motivated the mutable-View / read-only-View
 split, see the `Property.View.Read` article in `Property View Read
@@ -90,11 +93,6 @@ document linked there.
 
 - ``Property/View-swift.struct/base``
 
-### Non-Mutating Context Helpers
-
-- ``Property/View-swift.struct/pointer(to:_:)``
-- ``Property/View-swift.struct/pointer(to:mutating:)``
-
 ### Variants
 
 - ``Property/View-swift.struct/Typed``
@@ -103,5 +101,7 @@ document linked there.
 
 ## See Also
 
-- ``Property/View-swift.struct/Typed``
 - ``Property``
+- ``Property/pointer(to:_:)``
+- ``Property/pointer(to:mutating:)``
+- ``Property/View-swift.struct/Typed``

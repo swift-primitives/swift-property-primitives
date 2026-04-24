@@ -78,10 +78,11 @@ bindings cannot provide.
 
 ### Non-mutating contexts (`Sequence.makeIterator()`, subscript getters)
 
-Use the static ``Property/View-swift.struct/pointer(to:_:)`` helpers on a
-stored property. The closure pattern takes `borrowing` parameters and does not
-require `&self`. For reading through a stored property in a `borrowing func`,
-this is the escape hatch.
+Use the static ``Property/pointer(to:_:)`` helpers on a stored property.
+The closure pattern takes `borrowing` parameters and does not require
+`&self`. For reading through a stored property in a `borrowing func`, this
+is the escape hatch — parked on `Property` because `View` itself requires
+`&self` and is structurally unreachable in this context.
 
 ### Base types with value generics
 

@@ -119,9 +119,11 @@ property-case extensions needing `Element` in scope, switch to
 
 ## Pattern 4 — non-mutating context on stored properties
 
-Use the static ``Property/View-swift.struct/pointer(to:_:)`` helper to
-obtain a pointer to a stored property from a non-mutating context. The
-closure pattern takes `borrowing` parameters — no `&self` required.
+Use the static ``Property/pointer(to:_:)`` helper to obtain a pointer to
+a stored property from a non-mutating context. The closure pattern takes
+`borrowing` parameters — no `&self` required. The helper lives on
+`Property` (not `Property.View`) because `View` itself requires `&self`;
+this escape hatch exists for the contexts where `View` is unreachable.
 
 ```swift
 struct SmallArray<Element>: Sequence {
@@ -133,7 +135,7 @@ struct SmallArray<Element>: Sequence {
     var _count: Int
 
     borrowing func makeIterator() -> Iterator {
-        Property<Inline>.View.pointer(to: _inlineStorage) { ptr in
+        Property<Inline>.pointer(to: _inlineStorage) { ptr in
             Iterator(base: ptr, count: _count)
         }
     }

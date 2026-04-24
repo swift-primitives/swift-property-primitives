@@ -92,6 +92,11 @@ which eliminates `Base` repetition at every accessor declaration.
 
 - ``Property/base``
 
+### Non-Mutating Context Helpers
+
+- ``Property/pointer(to:_:)``
+- ``Property/pointer(to:mutating:)``
+
 ## See Also
 
 The variant types (`Property.Typed`, `Property.Consuming`, `Property.View`,
