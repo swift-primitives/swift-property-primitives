@@ -1,16 +1,13 @@
 public import Property_Primitives_Core
 public import Property_View_Primitives
-@_exported public import Ownership_Borrow_Primitives
-public import Tagged_Primitives
 
 extension Property.View where Base: ~Copyable {
-    /// A read-only view on a `~Copyable` base.
+    /// A read-only view on a `~Copyable` base via `UnsafePointer`.
     ///
-    /// `Property<Tag, Base>.View.Read` is a thin wrapper over
-    /// `Tagged<Tag, Ownership.Borrow<Base>>` — the phantom-tagged shared
-    /// immutable reference composition from `Tagged_Primitives` and
-    /// `Ownership_Primitives`. Access goes through `base.value`, which uses
-    /// `Ownership.Borrow`'s `_read` accessor.
+    /// `Property<Tag, Base>.View.Read` mirrors ``Property/View-swift.struct`` but with
+    /// `UnsafePointer` and read-only semantics. The borrowing-init overload obtains the
+    /// pointer from non-mutating contexts (`_read`, `borrowing func`), so `let`-bound
+    /// `~Copyable` containers work as call sites.
     ///
     /// Canonical usage — a non-mutating `_read` on a `~Copyable` container:
     ///
@@ -22,45 +19,52 @@ extension Property.View where Base: ~Copyable {
     ///
     ///     var inspect: Property<Inspect>.View.Read {
     ///         _read {
-    ///             yield Property<Inspect>.View.Read(self)
+    ///             yield unsafe Property<Inspect>.View.Read(self)
     ///         }
     ///     }
     /// }
     ///
     /// extension Property_Primitives.Property.View.Read
     /// where Tag == Container.Inspect, Base == Container {
-    ///     var count: Int { base.value.count }
+    ///     var count: Int { unsafe base.pointee.count }
     /// }
     ///
     /// let size = container.inspect.count
     /// ```
     ///
-    /// Use this variant for read-only namespaces; switch to
-    /// ``Property/View-swift.struct`` when extensions need to mutate or consume.
+    /// Use this variant for read-only namespaces; switch to ``Property/View-swift.struct``
+    /// when extensions need to mutate or consume. For construction choices and worked
+    /// examples, see the Property.View.Read article in the `Property View Read Primitives`
+    /// DocC catalog.
     @safe
     public struct Read: ~Copyable, ~Escapable {
         @usableFromInline
-        internal var _storage: Tagged<Tag, Ownership.Borrow<Base>>
+        internal let _base: UnsafePointer<Base>
 
-        /// Creates a read-only view by borrowing the base value.
+        /// Creates a read-only view wrapping a pointer to the base value.
         ///
-        /// - Parameter base: The value to borrow.
+        /// - Parameter base: A read-only pointer to the value to wrap.
         @inlinable
         @_lifetime(borrow base)
+        public init(_ base: UnsafePointer<Base>) {
+            unsafe _base = base
+        }
+
+        /// Creates a read-only view by borrowing the base value directly.
+        ///
+        /// Use from non-mutating `_read` accessors and `borrowing` functions.
+        ///
+        /// - Parameter base: The value to borrow.
+        @_lifetime(borrow base)
         public init(_ base: borrowing Base) {
-            self._storage = Tagged(__unchecked: (),
-                                   Ownership.Borrow(borrowing: base))
+            unsafe _base = withUnsafePointer(to: base) { unsafe $0 }
         }
     }
 }
 
 extension Property.View.Read where Base: ~Copyable {
-    /// The shared borrowed reference to the base value.
-    ///
-    /// Use `base.value` to read the underlying value.
     @inlinable
-    public var base: Ownership.Borrow<Base> {
-        @_lifetime(borrow self)
-        _read { yield _storage.rawValue }
+    public var base: UnsafePointer<Base> {
+        unsafe _base
     }
 }

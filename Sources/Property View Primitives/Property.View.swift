@@ -1,21 +1,14 @@
 public import Property_Primitives_Core
-@_exported public import Ownership_Inout_Primitives
-public import Tagged_Primitives
 
 extension Property where Base: ~Copyable {
-    /// A view property for `~Copyable` types supporting borrowing and mutable access.
+    /// A view property for `~Copyable` types supporting borrowing and consuming access.
     ///
-    /// `Property<Tag, Base>.View` is a thin wrapper over
-    /// `Tagged<Tag, Ownership.Inout<Base>>` — the phantom-tagged exclusive
-    /// mutable reference composition from `Tagged_Primitives` and
-    /// `Ownership_Primitives`. The storage realises the structural identity:
-    /// a namespaced accessor for a `~Copyable` container is a tagged exclusive
-    /// borrow. The wrapper preserves the `base` accessor name at the call site —
-    /// extensions read and mutate through `base.value`, which uses
-    /// `Ownership.Inout`'s safe `_read` / `nonmutating _modify` accessors.
+    /// `Property<Tag, Base>.View` wraps an `UnsafeMutablePointer<Base>` and enables the
+    /// same fluent accessor syntax used for `Copyable` containers. Mutating `_read` and
+    /// `_modify` accessors yield the view so extensions can read (`func`) or clear
+    /// through the pointer (`mutating func`) without ownership transfer.
     ///
-    /// Canonical usage — from a `mutating _read` / `_modify` on a `~Copyable`
-    /// container:
+    /// Canonical usage — from a `mutating _read` / `_modify` on a `~Copyable` container:
     ///
     /// ```swift
     /// extension Buffer where Element: ~Copyable {
@@ -24,9 +17,11 @@ extension Property where Base: ~Copyable {
     ///     enum Insert {}
     ///
     ///     var insert: Property<Insert>.View {
-    ///         mutating _read  { yield .init(&self) }
+    ///         mutating _read {
+    ///             yield unsafe Property<Insert>.View(&self)
+    ///         }
     ///         mutating _modify {
-    ///             var view = Property<Insert>.View(&self)
+    ///             var view = unsafe Property<Insert>.View(&self)
     ///             yield &view
     ///         }
     ///     }
@@ -36,105 +31,116 @@ extension Property where Base: ~Copyable {
     /// where Tag == Buffer<Element>.Insert, Base == Buffer<Element>,
     ///       Element: ~Copyable {
     ///     mutating func front(_ element: consuming Element) {
-    ///         base.value.push(front: element)
+    ///         unsafe base.pointee.push(front: element)
     ///     }
     /// }
     ///
     /// buffer.insert.front(element)
     /// ```
     ///
-    /// Access goes through `base.value` — no `unsafe` marker is needed;
-    /// `Ownership.Inout` is `@safe` and the lifetime is compiler-enforced via
-    /// `~Escapable`.
+    /// From non-mutating contexts (`Sequence.makeIterator()`, subscript getters), use the
+    /// static ``pointer(to:_:)`` helpers on stored properties, or `Property.View.Read`
+    /// (in `Property View Read Primitives`) if mutation isn't needed.
     ///
-    /// For non-mutating contexts (`Sequence.makeIterator()`, subscript getters),
-    /// use `Property.View.Read` (in `Property View Read Primitives`).
-    ///
-    /// For the broader type-family reference, see ``Property``.
+    /// For accessor-context trade-offs, `~Escapable` history, and the full pointer
+    /// variant family, see the Property.View article in the `Property View Primitives`
+    /// DocC catalog. For the broader type-family reference, see ``Property``.
     @safe
     public struct View: ~Copyable, ~Escapable {
         @usableFromInline
-        internal var _storage: Tagged<Tag, Ownership.Inout<Base>>
+        internal let _base: UnsafeMutablePointer<Base>
 
-        /// Creates a view by borrowing the base value exclusively.
+        /// Creates a view wrapping a pointer to the base value.
         ///
-        /// - Parameter base: The value to borrow mutably.
+        /// - Parameter base: A pointer to the value to wrap.
         @inlinable
-        @_lifetime(&base)
-        public init(_ base: inout Base) {
-            self._storage = Tagged(__unchecked: (),
-                                   Ownership.Inout(mutating: &base))
+        @_lifetime(borrow base)
+        public init(_ base: UnsafeMutablePointer<Base>) {
+            unsafe _base = base
         }
 
-        /// Creates a view by borrowing the base value from an immutable context.
+        /// Creates a view by borrowing the base value directly.
         ///
-        /// Use from non-mutating `_read` accessors and `borrowing` functions
-        /// (notably `deinit`, where `self` is immutable but the value is being
-        /// consumed).
+        /// Use from non-mutating `_read` accessors and `borrowing` functions.
         ///
         /// This is `@unsafe` because it casts away const — the caller must
-        /// ensure mutation through the view is valid at the call site.
+        /// ensure mutation through the pointer is valid (e.g., in `deinit`
+        /// where the value is being consumed).
         ///
         /// - Parameter base: The value to borrow.
         @unsafe
-        @inlinable
         @_lifetime(borrow base)
         public init(_ base: borrowing Base) {
-            let ptr = unsafe UnsafeMutablePointer<Base>(
-                mutating: withUnsafePointer(to: base) { unsafe $0 }
-            )
-            let inoutRef = unsafe Ownership.Inout(ptr)
-            let tagged = Tagged<Tag, Ownership.Inout<Base>>(__unchecked: (),
-                                                            unsafe inoutRef)
-            self._storage = unsafe _overrideLifetime(tagged, borrowing: base)
+            unsafe _base = UnsafeMutablePointer(mutating: withUnsafePointer(to: base) { unsafe $0 })
+        }
+
+        // MARK: - Static Access for Non-Mutating Contexts
+
+        /// Perform a read operation with a pointer to a stored property.
+        ///
+        /// Use this when you need pointer access from a non-mutating context
+        /// (e.g., `makeIterator()`, subscript getters, `borrowing` functions).
+        ///
+        /// ## Example: Iterator Creation
+        ///
+        /// ```swift
+        /// struct SmallArray<Element>: Sequence {
+        ///     typealias Property<Tag> = Property_Primitives.Property<Tag, Self>
+        ///
+        ///     enum Inline {}
+        ///
+        ///     var _inlineStorage: (Element?, Element?, Element?, Element?)
+        ///     var _count: Int
+        ///
+        ///     // makeIterator must be non-mutating per Sequence protocol
+        ///     borrowing func makeIterator() -> Iterator {
+        ///         Property<Inline>.View.pointer(to: _inlineStorage) { ptr in
+        ///             Iterator(base: ptr, count: _count)
+        ///         }
+        ///     }
+        /// }
+        /// ```
+        ///
+        /// ## Limitations
+        ///
+        /// - The pointer is only valid within the closure body
+        /// - Cannot return the pointer or types containing it directly
+        /// - For types that need to escape, copy the data out within the closure
+        ///
+        /// - Parameters:
+        ///   - property: A stored property to obtain a pointer to.
+        ///   - body: A closure that receives the pointer and returns a result.
+        /// - Returns: The result of the closure.
+        @inlinable
+        public static func pointer<T, R>(
+            to property: borrowing T,
+            _ body: (UnsafePointer<T>) -> R
+        ) -> R {
+            unsafe withUnsafePointer(to: property, body)
+        }
+
+        /// Perform a read operation with a mutable pointer to a stored property.
+        ///
+        /// Use this when you need mutable pointer access to a stored property.
+        /// Requires the property to be passed as `inout`.
+        ///
+        /// - Parameters:
+        ///   - property: A stored property to obtain a mutable pointer to.
+        ///   - body: A closure that receives the mutable pointer and returns a result.
+        /// - Returns: The result of the closure.
+        @inlinable
+        public static func pointer<T, R>(
+            to property: inout T,
+            mutating body: (UnsafeMutablePointer<T>) -> R
+        ) -> R {
+            unsafe withUnsafeMutablePointer(to: &property, body)
         }
     }
 }
 
 extension Property.View where Base: ~Copyable {
-    /// The exclusive mutable reference to the base value.
-    ///
-    /// Use `base.value` to read or mutate the underlying value. Mutation flows
-    /// through `Ownership.Inout`'s `nonmutating _modify` accessor, so a borrow
-    /// of `base` is sufficient for both reads and writes.
     @inlinable
-    public var base: Ownership.Inout<Base> {
-        @_lifetime(borrow self)
-        _read { yield _storage.rawValue }
-    }
-}
-
-// MARK: - Non-mutating pointer helpers
-
-extension Property where Base: ~Copyable {
-    /// Perform a read operation with a pointer to a stored property.
-    ///
-    /// Use this when you need pointer access from a non-mutating context
-    /// (e.g., `makeIterator()`, subscript getters, `borrowing` functions).
-    ///
-    /// - Parameters:
-    ///   - property: A stored property to obtain a pointer to.
-    ///   - body: A closure that receives the pointer and returns a result.
-    /// - Returns: The result of the closure.
-    @inlinable
-    public static func pointer<T, R>(
-        to property: borrowing T,
-        _ body: (UnsafePointer<T>) -> R
-    ) -> R {
-        unsafe withUnsafePointer(to: property, body)
-    }
-
-    /// Perform a read operation with a mutable pointer to a stored property.
-    ///
-    /// - Parameters:
-    ///   - property: A stored property to obtain a mutable pointer to.
-    ///   - body: A closure that receives the mutable pointer and returns a result.
-    /// - Returns: The result of the closure.
-    @inlinable
-    public static func pointer<T, R>(
-        to property: inout T,
-        mutating body: (UnsafeMutablePointer<T>) -> R
-    ) -> R {
-        unsafe withUnsafeMutablePointer(to: &property, body)
+    public var base: UnsafeMutablePointer<Base> {
+        unsafe _base
     }
 }

@@ -1,14 +1,12 @@
 public import Property_Primitives_Core
-public import Ownership_Inout_Primitives
-public import Tagged_Primitives
 
 extension Property.View where Base: ~Copyable {
     /// A mutable view on a `~Copyable` base with an `Element` parameter.
     ///
     /// `Property<Tag, Base>.View.Typed<Element>` is the `~Copyable` equivalent of
     /// `Property.Typed` (in `Property Typed Primitives`): it combines
-    /// ``Property/View-swift.struct``'s mutable borrow access with an `Element`
-    /// type parameter so `var` extensions can bind to it.
+    /// ``Property/View-swift.struct``'s pointer access with an `Element` type
+    /// parameter so `var` extensions can bind to it.
     ///
     /// Canonical usage — `~Copyable` container, typed property extension:
     ///
@@ -19,9 +17,11 @@ extension Property.View where Base: ~Copyable {
     ///     enum Access {}
     ///
     ///     var access: Property<Access>.View.Typed<Element> {
-    ///         mutating _read  { yield .init(&self) }
+    ///         mutating _read {
+    ///             yield unsafe Property<Access>.View.Typed(&self)
+    ///         }
     ///         mutating _modify {
-    ///             var view = Property<Access>.View.Typed<Element>(&self)
+    ///             var view = unsafe Property<Access>.View.Typed<Element>(&self)
     ///             yield &view
     ///         }
     ///     }
@@ -31,7 +31,7 @@ extension Property.View where Base: ~Copyable {
     /// where Tag == Container<Element>.Access, Base == Container<Element>,
     ///       Element: ~Copyable
     /// {
-    ///     var count: Int { base.value.count }
+    ///     var count: Int { unsafe base.pointee.count }
     /// }
     /// ```
     ///
@@ -41,25 +41,22 @@ extension Property.View where Base: ~Copyable {
     @safe
     public struct Typed<Element: ~Copyable>: ~Copyable, ~Escapable {
         @usableFromInline
-        internal var _storage: Tagged<Tag, Ownership.Inout<Base>>
+        internal let _base: UnsafeMutablePointer<Base>
 
-        /// Creates a typed view by borrowing the base value exclusively.
+        /// Creates a typed view wrapping a pointer to the base value.
         ///
-        /// - Parameter base: The value to borrow mutably.
+        /// - Parameter base: A pointer to the value to wrap.
         @inlinable
-        @_lifetime(&base)
-        public init(_ base: inout Base) {
-            self._storage = Tagged(__unchecked: (),
-                                   Ownership.Inout(mutating: &base))
+        @_lifetime(borrow base)
+        public init(_ base: UnsafeMutablePointer<Base>) {
+            unsafe _base = base
         }
     }
 }
 
 extension Property.View.Typed where Base: ~Copyable, Element: ~Copyable {
-    /// The exclusive mutable reference to the base value.
     @inlinable
-    public var base: Ownership.Inout<Base> {
-        @_lifetime(borrow self)
-        _read { yield _storage.rawValue }
+    public var base: UnsafeMutablePointer<Base> {
+        unsafe _base
     }
 }

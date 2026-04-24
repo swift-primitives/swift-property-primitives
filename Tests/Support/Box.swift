@@ -1,4 +1,3 @@
-
 public struct Box: ~Copyable {
     public var value: Int
     public var storage: (Int, Int, Int, Int)
@@ -16,8 +15,10 @@ extension Box {
 
 extension Box {
     public var inspect: Property<Inspect, Box>.View.Read {
-        _read {
-            yield Property<Inspect, Box>.View.Read(self)
+        mutating _read {
+            yield unsafe Property<Inspect, Box>.View.Read(
+                unsafe UnsafePointer(Property<Inspect, Box>.View(&self).base)
+            )
         }
     }
 
@@ -30,20 +31,20 @@ extension Box {
 
 extension Property.View.Read where Tag == Box.Inspect, Base == Box {
     public var current: Int {
-        self.base.value.value
+        unsafe self.base.pointee.value
     }
 
     public var first: Int {
-        self.base.value.storage.0
+        unsafe self.base.pointee.storage.0
     }
 }
 
 extension Property.View.Read where Tag == Box.Borrow, Base == Box {
     public var current: Int {
-        self.base.value.value
+        unsafe self.base.pointee.value
     }
 
     public var first: Int {
-        self.base.value.storage.0
+        unsafe self.base.pointee.storage.0
     }
 }
