@@ -10,18 +10,16 @@ An owned property for CoW-safe mutation namespacing.
 ## Overview
 
 `Property<Tag, Base>` wraps a base value for fluent accessor namespaces. The
-phantom `Tag` discriminates which extensions apply, so one base value can expose
+phantom `Tag` discriminates which extensions apply, so one container can expose
 multiple namespaces (`push`, `pop`, `peek`) each with its own extension surface.
-The base can be any type — a collection, a parser, an I/O session, a
-configuration context — that benefits from namespaced operations.
 
 `Property` is the anchor of the type family. Four variants extend it along
 orthogonal axes: `Property.Typed` (in `Property Typed Primitives`) adds an
 `Element` type parameter so `var` extensions can bind to it;
 `Property.Consuming` (in `Property Consuming Primitives`) adds the
 borrow-vs-consume state machine; `Property.View` (in `Property View
-Primitives`) adds `UnsafeMutablePointer`-based access for `~Copyable` base
-types; `Property.View.Read` (in `Property View Read Primitives`) adds
+Primitives`) adds `UnsafeMutablePointer`-based access for `~Copyable`
+containers; `Property.View.Read` (in `Property View Read Primitives`) adds
 read-only pointer access. Navigate to those variants through the
 `Property_Primitives` umbrella catalog.
 
@@ -62,7 +60,7 @@ stack.push.back(element)
 ## Rationale
 
 Before `Property`, each accessor namespace required a bespoke proxy struct:
-one per namespace per container, each with its own storage, init, `.base` accessor,
+one per verb per container, each with its own storage, init, `.base` accessor,
 and conditional `Sendable` / `Copyable` conformances. Five verbs on a stack
 meant five structs. The mechanical boilerplate hid the distinction between
 verbs; the vocabulary proliferated without earning its keep.
@@ -92,10 +90,15 @@ which eliminates `Base` repetition at every accessor declaration.
 
 - ``Property/base``
 
-### Non-Mutating Context Helpers
+## Research
 
-- ``Property/pointer(to:_:)``
-- ``Property/pointer(to:mutating:)``
+- [Property Type Family](../../../Research/property-type-family.md) — Flagship paper: three-category accessor taxonomy, phantom type pattern, protocol-conformance investigation. Status: DECISION.
+- [Protocol Conformance and Phantom Type Generalization](../../../Research/problem-protocol-conformance-and-phantom-type-generalization.md) — Why `Property` cannot easily carry protocol conformances; motivates the sibling variants. Status: ANALYSIS.
+- [Variant Decomposition Rationale](../../../Research/variant-decomposition-rationale.md) — Why five targets along the ownership / access-model axis. Status: DECISION.
+
+## Experiments
+
+- [property-generic-property-test](../../../Experiments/property-generic-property-test/) — Validates the `typealias Property<Tag>` shorthand eliminates redundant `Element` repetition at call sites. Status: CONFIRMED.
 
 ## See Also
 
