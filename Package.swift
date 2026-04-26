@@ -40,11 +40,15 @@ let package = Package(
     dependencies: [
         .package(path: "../swift-ownership-primitives"),
         .package(path: "../swift-tagged-primitives"),
+        .package(path: "../swift-carrier-primitives"),
     ],
     targets: [
         // MARK: - Core
         .target(
-            name: "Property Primitives Core"
+            name: "Property Primitives Core",
+            dependencies: [
+                .product(name: "Carrier Primitives", package: "swift-carrier-primitives"),
+            ]
         ),
 
         // MARK: - Variants
