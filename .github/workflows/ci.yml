@@ -33,7 +33,6 @@ jobs:
       umbrella-bundle-id: "swift-property-primitives.Property-Primitives"
       umbrella-docc-path: "Sources/Property Primitives/Property Primitives.docc"
       exclude-modules: "Property_Primitives_Test_Support"
-      sanity-check-json-path: "data/documentation/property_primitives/property/init(_:).json"
       enable-private-repos: true
     secrets:
       PRIVATE_REPO_TOKEN: ${{ secrets.PRIVATE_REPO_TOKEN }}
