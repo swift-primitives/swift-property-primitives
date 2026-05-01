@@ -1,0 +1,80 @@
+# ``Property_Primitives/Property/View-swift.struct/Read/Typed/Valued``
+
+@Metadata {
+    @DisplayName("Property.View.Read.Typed.Valued")
+    @TitleHeading("Swift Primitives")
+}
+
+A ``Property/View-swift.struct/Read/Typed`` with a value-generic parameter.
+
+## Overview
+
+`Property<Tag, Base>.View.Read.Typed<Element>.Valued<n>` is the read-only
+counterpart of `Property.View.Typed.Valued` (in `Property View
+Primitives`) — it lifts one compile-time integer (e.g. `N`) to the type
+level so extension where-clauses can bind it alongside `Element` and
+`Base`. The borrowing-init overload works from non-mutating contexts, so
+`let`-bound `~Copyable` containers are valid call sites.
+
+## Example
+
+Adopt the library type via a foundational typealias on the container, pair the
+phantom tag with its accessor in its own extension, and declare the namespace's
+methods on `Property.View.Read.Typed.Valued` at module scope:
+
+```swift
+extension List.Linked where Element: ~Copyable {
+    typealias Property<Tag> = Property_Primitives.Property<Tag, Self>
+}
+
+extension List.Linked where Element: ~Copyable {
+    enum Peek {}
+
+    var peek: Property<Peek>.View.Read.Typed<Element>.Valued<N> {
+        _read {
+            yield unsafe Property<Peek>.View.Read.Typed<Element>.Valued<N>(self)
+        }
+    }
+}
+
+extension Property.View.Read.Typed.Valued
+where Tag == List<Element>.Linked<n>.Peek, Base == List<Element>.Linked<n>,
+      Element: ~Copyable {
+    func first<R>(_ body: (borrowing Element) -> R) -> R? {
+        // Element and n are in scope.
+    }
+}
+```
+
+## Rationale
+
+The `.Valued<n>` suffix lifts one value generic to the type level, making it
+available in extension where-clauses. The read-only counterpart uses the
+same mechanism as the mutable `Property.View.Typed.Valued` (in
+`Property View Primitives`), swapping `UnsafeMutablePointer` for
+`UnsafePointer` and the mutating construction paths for the borrowing
+init.
+
+There is no `Read.Typed.Valued.Valued` in the current Read family — read-only
+access on two-value-generic containers currently routes through the mutable
+path (mutable accessors with read-only extensions) or through custom
+projection. The absence is deliberate pending concrete consumer demand.
+
+The recommended tag-enum-`View` typealias pattern documented for the mutable
+family applies here verbatim; see the "Value-Generic Verbosity and the
+Tag-Enum-View Pattern" article in the `Property_Primitives` umbrella
+catalog for the canonical pattern.
+
+Switch to `Property.View.Typed.Valued` (in `Property View Primitives`)
+when mutation is needed.
+
+## Topics
+
+### Access
+
+- ``Property/View-swift.struct/Read/Typed/Valued/base``
+
+## See Also
+
+- ``Property/View-swift.struct/Read/Typed``
+- ``Property/View-swift.struct/Read``

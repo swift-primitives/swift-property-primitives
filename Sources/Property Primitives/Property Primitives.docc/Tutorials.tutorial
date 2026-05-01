@@ -1,0 +1,15 @@
+@Tutorials(name: "Property Primitives") {
+    @Intro(title: "Tutorials for Property Primitives") {
+        Hands-on walkthroughs to add fluent accessor namespaces to your
+        container types.
+    }
+
+    @Chapter(name: "Getting Started") {
+        Build a `Stack<Element>` with `push.back(x)` and `peek.back` call
+        sites — the complete five-move pattern in under ten minutes.
+
+        @Image(source: "chapter-hero", alt: "Getting Started with Property Primitives")
+
+        @TutorialReference(tutorial: "doc:GettingStarted")
+    }
+}
