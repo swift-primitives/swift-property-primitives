@@ -52,8 +52,7 @@ extension Property.View where Base: ~Copyable {
         @inlinable
         @_lifetime(borrow base)
         public init(_ base: borrowing Base) {
-            self._storage = Tagged(__unchecked: (),
-                                   Ownership.Borrow(borrowing: base))
+            self._storage = Tagged(_unchecked: Ownership.Borrow(borrowing: base))
         }
     }
 }
@@ -65,6 +64,6 @@ extension Property.View.Read where Base: ~Copyable {
     @inlinable
     public var base: Ownership.Borrow<Base> {
         @_lifetime(borrow self)
-        _read { yield _storage.rawValue }
+        _read { yield _storage.underlying }
     }
 }

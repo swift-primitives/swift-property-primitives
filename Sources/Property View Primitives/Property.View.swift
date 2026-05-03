@@ -65,8 +65,7 @@ extension Property where Base: ~Copyable {
         @inlinable
         @_lifetime(&base)
         public init(_ base: inout Base) {
-            self._storage = Tagged(__unchecked: (),
-                                   Ownership.Inout(mutating: &base))
+            self._storage = Tagged(_unchecked: Ownership.Inout(mutating: &base))
         }
 
         /// Creates a view by borrowing the base value from an immutable context.
@@ -105,8 +104,7 @@ extension Property where Base: ~Copyable {
                 mutating: withUnsafePointer(to: base) { unsafe $0 }
             )
             let inoutRef = unsafe Ownership.Inout(ptr)
-            let tagged = Tagged<Tag, Ownership.Inout<Base>>(__unchecked: (),
-                                                            unsafe inoutRef)
+            let tagged = Tagged<Tag, Ownership.Inout<Base>>(_unchecked: inoutRef)
             self._storage = unsafe _overrideLifetime(tagged, borrowing: base)
         }
     }
@@ -121,7 +119,7 @@ extension Property.View where Base: ~Copyable {
     @inlinable
     public var base: Ownership.Inout<Base> {
         @_lifetime(borrow self)
-        _read { yield _storage.rawValue }
+        _read { yield _storage.underlying }
     }
 }
 

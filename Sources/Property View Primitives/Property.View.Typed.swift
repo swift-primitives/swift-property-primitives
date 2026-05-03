@@ -53,8 +53,7 @@ extension Property.View where Base: ~Copyable {
         @inlinable
         @_lifetime(&base)
         public init(_ base: inout Base) {
-            self._storage = Tagged(__unchecked: (),
-                                   Ownership.Inout(mutating: &base))
+            self._storage = Tagged(_unchecked: Ownership.Inout(mutating: &base))
         }
     }
 }
@@ -64,6 +63,6 @@ extension Property.View.Typed where Base: ~Copyable, Element: ~Copyable {
     @inlinable
     public var base: Ownership.Inout<Base> {
         @_lifetime(borrow self)
-        _read { yield _storage.rawValue }
+        _read { yield _storage.underlying }
     }
 }
