@@ -22,9 +22,11 @@ extension Slice.Inline.Inner where Element: ~Copyable {
 }
 
 extension Property.View.Typed.Valued.Valued
-where Tag == Slice<Int>.Inline<n>.Inner<m>.Access,
-      Base == Slice<Int>.Inline<n>.Inner<m>,
-      Element == Int {
+where
+    Tag == Slice<Int>.Inline<n>.Inner<m>.Access,
+    Base == Slice<Int>.Inline<n>.Inner<m>,
+    Element == Int
+{
     public var size: Int {
         self.base.value.count
     }

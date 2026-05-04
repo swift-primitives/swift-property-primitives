@@ -1,5 +1,5 @@
-import Testing
 public import Property_Primitives
+import Testing
 
 // This file mirrors the final step of the Getting Started tutorial at
 // Sources/Property Primitives/Property Primitives.docc/Resources/step-05-use-it.swift.
@@ -53,9 +53,9 @@ extension Property {
 
 extension Property.Typed
 where Tag == Stack<Element>.Peek, Base == Stack<Element> {
-    public var back: Element?  { base._storage.last }
-    public var count: Int      { base._storage.count }
-    public var isEmpty: Bool   { base._storage.isEmpty }
+    public var back: Element? { base._storage.last }
+    public var count: Int { base._storage.count }
+    public var isEmpty: Bool { base._storage.isEmpty }
 }
 
 // Stack<Element> is generic, so use [SWIFT-TEST-003] parallel namespace.

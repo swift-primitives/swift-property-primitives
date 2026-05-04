@@ -1,5 +1,5 @@
-import Testing
 import Property_Primitives_Test_Support
+import Testing
 
 // MARK: - Compile-time conformance assertions
 

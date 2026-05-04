@@ -1,6 +1,6 @@
+@_exported public import Ownership_Borrow_Primitives
 public import Property_Primitives_Core
 public import Property_View_Primitives
-@_exported public import Ownership_Borrow_Primitives
 public import Tagged_Primitives
 
 extension Property.View where Base: ~Copyable {

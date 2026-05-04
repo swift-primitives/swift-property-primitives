@@ -44,6 +44,6 @@ extension Property {
 
 extension Property.Typed
 where Tag == Stack<Element>.Peek, Base == Stack<Element> {
-    public var back: Element?  { base._storage.last }
-    public var count: Int      { base._storage.count }
+    public var back: Element? { base._storage.last }
+    public var count: Int { base._storage.count }
 }

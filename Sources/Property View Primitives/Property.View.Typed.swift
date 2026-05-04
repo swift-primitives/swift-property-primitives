@@ -1,5 +1,5 @@
-public import Property_Primitives_Core
 public import Ownership_Inout_Primitives
+public import Property_Primitives_Core
 public import Tagged_Primitives
 
 extension Property.View where Base: ~Copyable {

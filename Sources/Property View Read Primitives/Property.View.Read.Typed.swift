@@ -1,6 +1,6 @@
+public import Ownership_Borrow_Primitives
 public import Property_Primitives_Core
 public import Property_View_Primitives
-public import Ownership_Borrow_Primitives
 public import Tagged_Primitives
 
 extension Property.View.Read where Base: ~Copyable {
