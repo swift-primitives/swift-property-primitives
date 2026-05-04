@@ -27,11 +27,6 @@ jobs:
   docs:
     uses: swift-institute/.github/.github/workflows/swift-docs.yml@main
     with:
-      umbrella-module: Property_Primitives
-      umbrella-display-name: "Property Primitives"
-      umbrella-bundle-id: "swift-property-primitives.Property-Primitives"
-      umbrella-docc-path: "Sources/Property Primitives/Property Primitives.docc"
-      exclude-modules: "Property_Primitives_Test_Support"
       enable-private-repos: true
     secrets:
       PRIVATE_REPO_TOKEN: ${{ secrets.PRIVATE_REPO_TOKEN }}
