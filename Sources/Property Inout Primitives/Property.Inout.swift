@@ -14,6 +14,14 @@ extension Property where Base: ~Copyable {
     /// extensions read and mutate through `base.value`, which uses
     /// `Ownership.Inout`'s safe `_read` / `nonmutating _modify` accessors.
     ///
+    /// > Important: `Property.Inout` is a *type* — a phantom-tagged accessor
+    /// > nominally distinct from Swift's `inout` parameter modifier. The two
+    /// > share a name but operate at different layers: `inout` is a parameter
+    /// > convention applied to call sites; `Property.Inout` is a struct that
+    /// > carries a tagged exclusive borrow as a value. The two compose —
+    /// > `Property.Inout`'s safe init takes its base as `inout Base` — but
+    /// > are not interchangeable.
+    ///
     /// Canonical usage — adopt the library type via a foundational typealias,
     /// pair the phantom tag with its accessor in its own extension, and declare
     /// the namespace's methods on `Property.Inout` at module scope:

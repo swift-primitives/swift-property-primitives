@@ -11,6 +11,19 @@ extension Property where Base: ~Copyable {
     /// `Ownership_Primitives`. Access goes through `base.value`, which uses
     /// `Ownership.Borrow`'s `_read` accessor.
     ///
+    /// > Important: `Property.Borrow` is NOT a typed view over a specific
+    /// > byte buffer like `String.Borrowed` (in `swift-string-primitives`)
+    /// > or `Path.Borrowed` (in `swift-path-primitives`). Those are concrete
+    /// > `~Escapable` view types over a null-terminated UTF-8 byte
+    /// > sequence, each with its own scanning, decomposition, and
+    /// > projection API. `Property.Borrow` is generic over an arbitrary
+    /// > `~Copyable` base type and serves only as an extension-namespace
+    /// > dispatch wrapper — its API surface is empty until consumers
+    /// > extend it. Roughly: `Property.Borrow<Tag, T>` is to extensions
+    /// > what `Tagged<Tag, T>` is to identity, while `String.Borrowed` /
+    /// > `Path.Borrowed` are concrete data structures sharing the
+    /// > "borrowed" name only by analogy with the borrow-only access mode.
+    ///
     /// Canonical usage — adopt the library type via a foundational typealias,
     /// pair the phantom tag with its accessor in its own extension, and declare
     /// the namespace's properties on `Property.Borrow` at module scope:
