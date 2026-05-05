@@ -1,4 +1,4 @@
-# Value-Generic Verbosity and the Tag-Enum-View Pattern
+# Value-Generic Verbosity and the Tag-Enum-Accessor Pattern
 
 @Metadata {
     @TitleHeading("Swift Primitives")
@@ -6,10 +6,10 @@
 
 Value-generic `~Copyable` containers pay a verbosity cost at accessor sites:
 the full accessor type is
-`Property<Tag, Base>.View.Typed<Element>.Valued<N>.Valued<M>`. This article
+`Property<Tag, Base>.Inout.Typed<Element>.Valued<N>.Valued<M>`. This article
 explains why each piece is load-bearing, and documents the canonical
-tag-enum-`View` typealias pattern that reduces the verbosity to
-`Insert.View`.
+tag-enum-`Accessor` typealias pattern that reduces the verbosity to
+`Insert.Accessor`.
 
 ## Why the chain exists
 
@@ -29,13 +29,13 @@ lifts the value generic to the type level where it can be bound cleanly:
 
 ```swift
 // Method-level — adds implicit Base: Copyable. BREAKS for ~Copyable bases.
-extension Property.View.Typed {
+extension Property.Inout.Typed {
     mutating func front<let n: Int>(_ element: consuming Element)
     where Base == Buffer<Element>.Linked<n>, Element: ~Copyable { ... }
 }
 
 // Type-level via .Valued<n>. WORKS for ~Copyable bases.
-extension Property.View.Typed.Valued
+extension Property.Inout.Typed.Valued
 where Tag == Buffer<Element>.Linked<n>.Insert,
       Base == Buffer<Element>.Linked<n>,
       Element: ~Copyable {
@@ -47,7 +47,7 @@ where Tag == Buffer<Element>.Linked<n>.Insert,
 
 A container with two value generics — e.g.,
 `Buffer<Element>.Linked<N>.Inline<capacity>` — needs two suffixes. The chain
-``Property/View-swift.struct/Typed/Valued/Valued`` preserves positional
+``Property/Inout-swift.struct/Typed/Valued/Valued`` preserves positional
 meaning: the first `n` binds the first generic, the second `m` binds the
 second.
 
@@ -61,45 +61,46 @@ types like:
 
 ```swift
 Property<Buffer<Element>.Linked<N>.Insert, Buffer<Element>.Linked<N>.Inline<capacity>>
-    .View.Typed<Element>.Valued<N>.Valued<capacity>
+    .Inout.Typed<Element>.Valued<N>.Valued<capacity>
 ```
 
 That's one accessor signature. The accessor's body typically repeats the same
 chain twice more (once in each of `_read` and `_modify`). A container with
 five verbs ships five of these — fifteen repetitions per file.
 
-## The canonical pattern: tag enum carries its View
+## The canonical pattern: tag enum carries its Accessor
 
-The verbose chain is written exactly once — as a `View` typealias on the tag
-enum. Every accessor site reads as `Insert.View`, `Remove.View`, etc.
+The verbose chain is written exactly once — as an `Accessor` typealias on the
+tag enum. Every accessor site reads as `Insert.Accessor`, `Remove.Accessor`,
+etc.
 
 ### One value generic
 
 ```swift
 extension Buffer.Linked where Element: ~Copyable {
     public enum Insert {
-        public typealias View = Property<Insert, Buffer<Element>.Linked<N>>
-            .View.Typed<Element>.Valued<N>
+        public typealias Accessor = Property<Insert, Buffer<Element>.Linked<N>>
+            .Inout.Typed<Element>.Valued<N>
     }
 
     public enum Remove {
-        public typealias View = Property<Remove, Buffer<Element>.Linked<N>>
-            .View.Typed<Element>.Valued<N>
+        public typealias Accessor = Property<Remove, Buffer<Element>.Linked<N>>
+            .Inout.Typed<Element>.Valued<N>
     }
 
-    public var insert: Insert.View {
-        mutating _read  { yield unsafe .init(&self) }
+    public var insert: Insert.Accessor {
+        mutating _read  { yield .init(&self) }
         mutating _modify {
-            var view: Insert.View = unsafe .init(&self)
-            yield &view
+            var accessor: Insert.Accessor = .init(&self)
+            yield &accessor
         }
     }
 
-    public var remove: Remove.View {
-        mutating _read  { yield unsafe .init(&self) }
+    public var remove: Remove.Accessor {
+        mutating _read  { yield .init(&self) }
         mutating _modify {
-            var view: Remove.View = unsafe .init(&self)
-            yield &view
+            var accessor: Remove.Accessor = .init(&self)
+            yield &accessor
         }
     }
 }
@@ -109,21 +110,21 @@ extension Buffer.Linked where Element: ~Copyable {
 
 When a child type (`Buffer.Linked.Inline`) reuses a parent's tag
 (`Buffer.Linked.Insert`), define a *local* tag enum on the child that carries
-the View typealias for the child's specific Property type:
+the Accessor typealias for the child's specific Property type:
 
 ```swift
 extension Buffer.Linked.Inline where Element: ~Copyable {
     public enum Insert {
-        public typealias View = Property<Buffer<Element>.Linked<N>.Insert,
-                                         Buffer<Element>.Linked<N>.Inline<capacity>>
-            .View.Typed<Element>.Valued<N>.Valued<capacity>
+        public typealias Accessor = Property<Buffer<Element>.Linked<N>.Insert,
+                                              Buffer<Element>.Linked<N>.Inline<capacity>>
+            .Inout.Typed<Element>.Valued<N>.Valued<capacity>
     }
 
-    public var insert: Insert.View {
-        mutating _read  { yield unsafe .init(&self) }
+    public var insert: Insert.Accessor {
+        mutating _read  { yield .init(&self) }
         mutating _modify {
-            var view: Insert.View = unsafe .init(&self)
-            yield &view
+            var accessor: Insert.Accessor = .init(&self)
+            yield &accessor
         }
     }
 }
@@ -132,31 +133,31 @@ extension Buffer.Linked.Inline where Element: ~Copyable {
 The local `Buffer.Linked.Inline.Insert` is a distinct enum from
 `Buffer.Linked.Insert`. The tag *used in the Property type* is still the
 parent's (`Buffer.Linked.Insert`); the local enum exists only to own the
-View typealias. The reader who looks up `Insert.View` sees the full chain
-once, at the tag's definition site.
+Accessor typealias. The reader who looks up `Insert.Accessor` sees the full
+chain once, at the tag's definition site.
 
 ## Why this pattern over alternatives
 
 Thirteen alternatives were validated in the
 `valued-verbosity-best-of-all-worlds` experiment. The canonical pattern is V10
-(tag-enum-View). Compared to the common alternatives:
+(tag-enum-Accessor). Compared to the common alternatives:
 
 | Approach | Accessor verbosity | Discoverability | Extension verbosity | Works today |
 |----------|---------------------|-----------------|---------------------|:-----------:|
 | Status quo (no alias) | Long | N/A | Long | ✓ |
 | Typealias on container (`Prop<Tag>`) | Shorter prefix only; chain remains | Low (name is arbitrary) | Unchanged | ✓ |
-| Single typealias (`FullView<Tag>`) | Short | Low (name is arbitrary) | Unchanged | ✓ |
-| **Tag-enum `View`** | **`Insert.View`** | **High (tag is self-evident)** | **Unchanged** | **✓** |
+| Single typealias (`FullAccessor<Tag>`) | Short | Low (name is arbitrary) | Unchanged | ✓ |
+| **Tag-enum `Accessor`** | **`Insert.Accessor`** | **High (tag is self-evident)** | **Unchanged** | **✓** |
 | Variadic value generics | Excellent (if it existed) | N/A | Excellent | ✗ (future SE-0452 direction) |
 | Macro-generated | Excellent | N/A | Moderate | ✗ (tier-0 packages cannot depend on macro packages) |
 
-The tag-enum-View pattern wins on discoverability: the reader who wants to
-know what `Insert.View` expands to looks at `Insert` — the same place they
-already look to understand what the tag means.
+The tag-enum-Accessor pattern wins on discoverability: the reader who wants
+to know what `Insert.Accessor` expands to looks at `Insert` — the same place
+they already look to understand what the tag means.
 
 ## What the pattern does NOT solve
 
-Extension declarations remain verbose. The `extension Property.View.Typed.Valued
+Extension declarations remain verbose. The `extension Property.Inout.Typed.Valued
 where Tag == ..., Base == ..., Element: ~Copyable` header cannot be shortened
 by any viable option today — it must bind `Tag`, `Base`, and `Element` with
 specific types that include value generics. The alternatives that reduce
@@ -176,14 +177,14 @@ Production validation: buffer-primitives ships three files using V10 across
 
 Copyable containers with value generics (`Array.Static<capacity>` on Copyable
 elements, for example) don't need the pattern as urgently because their
-accessor types go through ``Property`` rather than the View chain. A typealias
+accessor types go through ``Property`` rather than the Inout chain. A typealias
 on the container (`typealias Property<Tag> = Property_Primitives.Property<Tag, Self>`)
 is sufficient there.
 
 ## See Also
 
-- ``Property/View-swift.struct/Typed/Valued``
-- ``Property/View-swift.struct/Typed/Valued/Valued``
-- ``Property/View-swift.struct/Read/Typed/Valued``
+- ``Property/Inout-swift.struct/Typed/Valued``
+- ``Property/Inout-swift.struct/Typed/Valued/Valued``
+- ``Property/Borrow/Typed/Valued``
 - <doc:Choosing-A-Property-Variant>
 - <doc:~Copyable-Base-Patterns>

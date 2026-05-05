@@ -1,16 +1,16 @@
-# ``Property_Primitives/Property/View-swift.struct/Typed/Valued/Valued``
+# ``Property_Primitives/Property/Inout-swift.struct/Typed/Valued/Valued``
 
 @Metadata {
-    @DisplayName("Property.View.Typed.Valued.Valued")
+    @DisplayName("Property.Inout.Typed.Valued.Valued")
     @TitleHeading("Swift Primitives")
 }
 
-A ``Property/View-swift.struct/Typed/Valued`` with a second value-generic
+A ``Property/Inout-swift.struct/Typed/Valued`` with a second value-generic
 parameter.
 
 ## Overview
 
-`Property<Tag, Base>.View.Typed<Element>.Valued<n>.Valued<m>` lifts two
+`Property<Tag, Base>.Inout.Typed<Element>.Valued<n>.Valued<m>` lifts two
 compile-time integers to the type level so extension where-clauses can bind
 both alongside `Element` and `Base`. Required when containers carry two
 value generics, e.g. `Buffer<Element>.Linked<N>.Inline<capacity>`.
@@ -22,18 +22,18 @@ Two value generics in scope:
 ```swift
 extension Buffer.Linked.Inline where Element: ~Copyable {
     var insert: Property<Buffer<Element>.Linked<N>.Insert, Self>
-        .View.Typed<Element>.Valued<N>.Valued<capacity>
+        .Inout.Typed<Element>.Valued<N>.Valued<capacity>
     {
-        mutating _read  { yield unsafe .init(&self) }
+        mutating _read  { yield .init(&self) }
         mutating _modify {
-            var view: Property<Buffer<Element>.Linked<N>.Insert, Self>
-                .View.Typed<Element>.Valued<N>.Valued<capacity> = unsafe .init(&self)
-            yield &view
+            var accessor: Property<Buffer<Element>.Linked<N>.Insert, Self>
+                .Inout.Typed<Element>.Valued<N>.Valued<capacity> = .init(&self)
+            yield &accessor
         }
     }
 }
 
-extension Property.View.Typed.Valued.Valued
+extension Property.Inout.Typed.Valued.Valued
 where Tag == Buffer<Element>.Linked<n>.Insert,
       Base == Buffer<Element>.Linked<n>.Inline<m>,
       Element: ~Copyable {
@@ -62,9 +62,9 @@ constraints that break `~Copyable` support. The two-suffix chain is the
 smallest type-level encoding that carries both values while preserving
 ownership mode.
 
-The recommended tag-enum-`View` typealias pattern localises the verbosity
+The recommended tag-enum-`Accessor` typealias pattern localises the verbosity
 to a single declaration per accessor. See the "Value-Generic Verbosity and
-the Tag-Enum-View Pattern" article in the `Property_Primitives` umbrella
+the Tag-Enum-Accessor Pattern" article in the `Property_Primitives` umbrella
 catalog for the full canonical pattern; buffer-primitives ships it across
 333 tests.
 
@@ -72,13 +72,13 @@ catalog for the full canonical pattern; buffer-primitives ships it across
 
 ### Construction
 
-- ``Property/View-swift.struct/Typed/Valued/Valued/init(_:)``
+- ``Property/Inout-swift.struct/Typed/Valued/Valued/init(_:)``
 
 ### Access
 
-- ``Property/View-swift.struct/Typed/Valued/Valued/base``
+- ``Property/Inout-swift.struct/Typed/Valued/Valued/base``
 
 ## See Also
 
-- ``Property/View-swift.struct/Typed/Valued``
-- ``Property/View-swift.struct/Typed``
+- ``Property/Inout-swift.struct/Typed/Valued``
+- ``Property/Inout-swift.struct/Typed``

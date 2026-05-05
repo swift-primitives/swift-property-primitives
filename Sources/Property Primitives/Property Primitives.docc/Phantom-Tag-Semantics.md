@@ -13,8 +13,8 @@ the difference is how you pick the right primitive.
 
 ```swift
 // swift-tagged-primitives
-public struct Tagged<Tag: ~Copyable, RawValue: ~Copyable>: ~Copyable {
-    public var rawValue: RawValue
+public struct Tagged<Tag: ~Copyable, Underlying: ~Copyable>: ~Copyable {
+    public var underlying: Underlying
 }
 
 // swift-property-primitives
@@ -26,10 +26,10 @@ extension Property where Base: ~Copyable {
 }
 ```
 
-Both wrap a value (`rawValue` / `_base`), both discriminate on a phantom
+Both wrap a value (`underlying` / `_base`), both discriminate on a phantom
 `Tag`. Parameter order is identical: discriminator first, value second. The
 only structural difference is that `Tagged` stores its value in a public
-`rawValue` field while `Property` exposes its base through a coroutine
+`underlying` field while `Property` exposes its base through a coroutine
 accessor — an implementation-level choice.
 
 So what distinguishes them?
@@ -47,9 +47,9 @@ The distinction is what the phantom tag *discriminates*.
 | Extension surface | Per-domain API (`extension Tagged where Tag == Ordinal { ... }`) | Per-namespace API (`extension Property where Tag == Stack<E>.Push { mutating func back(...) }`) |
 
 `Tagged` gives values *identity* — the same operations apply; the tag says
-what kind of thing the value is. Bring a `rawValue` through without losing
-its domain. `retag<NewTag>` is the canonical meaningful operation — it moves
-a value from one domain to another explicitly.
+what kind of thing the value is. Bring an `underlying` value through without
+losing its domain. `retag<NewTag>` is the canonical meaningful operation — it
+moves a value from one domain to another explicitly.
 
 `Property` gives values *operations* — the container is the same; the tag
 says what you can do with it. `stack.push` and `stack.pop` both wrap the same
@@ -71,7 +71,7 @@ consumers; extensions on `Tagged<Ordinal, Int>` cannot be seen from Property
 consumers. That isolation is what makes the accessor-namespace pattern work.
 
 Property could in principle compose its storage on top of `Tagged` (the top
-struct only — the variants `Property.View`, `.View.Read`, `.Consuming` have
+struct only — the variants `Property.Inout`, `.Borrow`, `.Consume` have
 different storage). The gain is marginal — one-fifth of the Property surface
 — and the cost is a cross-package dependency plus an extra field-access layer.
 The ecosystem has chosen not to pursue composition.
@@ -116,7 +116,7 @@ typealias UserID = Tagged<User, UInt64>
 typealias OrderID = Tagged<Order, UInt64>
 
 extension Tagged where Tag == User {
-    var isGuest: Bool { rawValue == 0 }
+    var isGuest: Bool { underlying == 0 }
 }
 ```
 
@@ -157,12 +157,12 @@ extension Ring where Element: ~Copyable {
     typealias Property<Tag> = Property_Primitives.Property<Tag, Self>
 
     enum Insert {
-        typealias View = Property<Insert>.View.Typed<Element>.Valued<N>
+        typealias Accessor = Property<Insert>.Inout.Typed<Element>.Valued<N>
     }
 }
 ```
 
-The tag-enum-`View` pattern in production consumers
+The tag-enum-`Accessor` pattern in production consumers
 (`swift-queue-primitives`, `swift-hash-table-primitives`) spells out the
 underlying type in long form inside this typealias body — not because the
 short form fails to compile, but because those consumers do not define a
@@ -193,7 +193,7 @@ form below for consistency with the next case.
 
 ### Does not work — extension on a nested type of the typealias
 
-Extending `Property.Typed`, `Property.View`, `Property.Consuming`, etc.
+Extending `Property.Typed`, `Property.Inout`, `Property.Consume`, etc.
 through the container-scoped typealias fails:
 
 ```swift
@@ -235,15 +235,15 @@ needed for the accessor declarations.
 | Site | Short form? | Canonical form |
 |------|:-----------:|----------------|
 | Accessor declaration inside container | ✓ | `var push: Property<Push>` |
-| Nested tag enum's `typealias View = ...` body | ✓ | Long form by convention (self-containment) |
+| Nested tag enum's `typealias Accessor = ...` body | ✓ | Long form by convention (self-containment) |
 | Extension on `Property` itself (at module scope) | ✓ | `extension Property where ...` |
-| Extension on `Property.Typed` / `.View` / `.Consuming` / ... (at module scope) | ✓ | `extension Property.Typed where ...` |
+| Extension on `Property.Typed` / `.Inout` / `.Borrow` / `.Consume` / ... (at module scope) | ✓ | `extension Property.Typed where ...` |
 | Extension via container-scoped typealias path (`Deque.Property.Typed`) | ✗ | Use module-scope form above |
 
 The hard rule: extension lookup does not walk the container's `Property<Tag>`
-typealias to its nested `.Typed` / `.View` / `.Consuming`. At module scope,
-the imported `Property` is the library type directly, so nested-type
-extension lookup works.
+typealias to its nested `.Typed` / `.Inout` / `.Borrow` / `.Consume`. At
+module scope, the imported `Property` is the library type directly, so
+nested-type extension lookup works.
 
 Empirical verification: `Experiments/property-typealias-extension-forms/`
 in this package. The experiment builds a `Deque` with `push` and `peek`

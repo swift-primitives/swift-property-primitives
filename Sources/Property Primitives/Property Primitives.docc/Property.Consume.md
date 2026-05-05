@@ -1,7 +1,7 @@
-# ``Property_Primitives/Property/Consuming``
+# ``Property_Primitives/Property/Consume``
 
 @Metadata {
-    @DisplayName("Property.Consuming")
+    @DisplayName("Property.Consume")
     @TitleHeading("Swift Primitives")
 }
 
@@ -10,24 +10,24 @@ accessor.
 
 ## Overview
 
-`Property<Tag, Base>.Consuming<Element>` enables a single accessor to support
+`Property<Tag, Base>.Consume<Element>` enables a single accessor to support
 call sites like `container.forEach { }` (borrow) AND
 `container.forEach.consuming { }` (consume). The choice is made by *which*
 method the caller invokes — a `callAsFunction(_:)` for borrow, a
 `mutating consuming(_:)` for consume. Consumption is tracked in a
-reference-type ``Property/Consuming/State``; the `_modify` accessor's
+reference-type ``Property/Consume/State``; the `_modify` accessor's
 `defer` block queries the state via
-``Property/Consuming/restore()`` to decide whether to restore `self`.
+``Property/Consume/restore()`` to decide whether to restore `self`.
 
 Requires `Base: Copyable`. For `~Copyable` containers, use
-`Property.View` (in `Property View Primitives`) with the `.consuming()`
+`Property.Inout` (in `Property Inout Primitives`) with the `.consuming()`
 namespace-method pattern.
 
 ## Example
 
 Adopt the library type via a foundational typealias on the container, pair the
 phantom tag with its accessor in its own extension, and declare the namespace's
-methods on `Property.Consuming` at module scope:
+methods on `Property.Consume` at module scope:
 
 ```swift
 extension Container {
@@ -37,10 +37,10 @@ extension Container {
 extension Container {
     enum ForEach {}
 
-    var forEach: Property<ForEach>.Consuming<Element> {
-        _read { yield Property<ForEach>.Consuming(self) }
+    var forEach: Property<ForEach>.Consume<Element> {
+        _read { yield Property<ForEach>.Consume(self) }
         mutating _modify {
-            var property = Property<ForEach>.Consuming(self)
+            var property = Property<ForEach>.Consume(self)
             self = Container()
             defer {
                 if let restored = property.restore() {
@@ -52,7 +52,7 @@ extension Container {
     }
 }
 
-extension Property.Consuming
+extension Property.Consume
 where Tag == Container<Element>.ForEach, Base == Container<Element> {
     func callAsFunction(_ body: (Element) -> Void) {
         guard let base = borrow() else { return }
@@ -78,7 +78,7 @@ should read naturally from a single accessor: the borrow form is the default
 opt-in (for callers handing the elements onward, e.g. transferring to another
 data structure).
 
-`Property.Consuming` makes this work without requiring two accessors. The
+`Property.Consume` makes this work without requiring two accessors. The
 `_modify` body transfers `self` to the property's `State`, then on scope exit
 checks `restore()`: if the consuming path was taken, the container stays
 empty; if not, the container is restored. The caller's choice of method
@@ -94,30 +94,30 @@ and unconditionally restore, undoing the consume.
 The type requires `Base: Copyable` because the `_modify` recipe transfers
 the base by value (`self = Container()` clears the caller's storage; the
 restore path assigns `property.state.borrow()` back). `~Copyable` containers
-use `Property.View` (in `Property View Primitives`) with a `.consuming()`
-namespace-method pattern instead — pointer-based access avoids the
+use `Property.Inout` (in `Property Inout Primitives`) with a `.consuming()`
+namespace-method pattern instead — exclusive-borrow access avoids the
 by-value transfer.
 
 ## Topics
 
 ### Construction
 
-- ``Property/Consuming/init(_:)``
-- ``Property/Consuming/init(state:)``
+- ``Property/Consume/init(_:)``
+- ``Property/Consume/init(state:)``
 
 ### Access
 
-- ``Property/Consuming/borrow()``
-- ``Property/Consuming/consume()``
-- ``Property/Consuming/restore()``
+- ``Property/Consume/borrow()``
+- ``Property/Consume/consume()``
+- ``Property/Consume/restore()``
 
 ### State
 
-- ``Property/Consuming/state``
-- ``Property/Consuming/isConsumed``
-- ``Property/Consuming/State``
+- ``Property/Consume/state``
+- ``Property/Consume/isConsumed``
+- ``Property/Consume/State``
 
 ## See Also
 
-- ``Property/Consuming/State``
+- ``Property/Consume/State``
 - ``Property``

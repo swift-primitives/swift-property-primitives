@@ -18,12 +18,12 @@ configuration context — that benefits from namespaced operations.
 `Property` is the anchor of the type family. Four variants extend it along
 orthogonal axes: `Property.Typed` (in `Property Typed Primitives`) adds an
 `Element` type parameter so `var` extensions can bind to it;
-`Property.Consuming` (in `Property Consuming Primitives`) adds the
-borrow-vs-consume state machine; `Property.View` (in `Property View
-Primitives`) adds `UnsafeMutablePointer`-based access for `~Copyable` base
-types; `Property.View.Read` (in `Property View Read Primitives`) adds
-read-only pointer access. Navigate to those variants through the
-`Property_Primitives` umbrella catalog.
+`Property.Consume` (in `Property Consume Primitives`) adds the
+borrow-vs-consume state machine; `Property.Inout` (in `Property Inout
+Primitives`) adds an exclusive mutable accessor for `~Copyable` base
+types; `Property.Borrow` (in `Property Borrow Primitives`) adds a
+read-only accessor for `~Copyable` base types. Navigate to those variants
+through the `Property_Primitives` umbrella catalog.
 
 ## Example
 
@@ -103,6 +103,6 @@ which eliminates `Base` repetition at every accessor declaration.
 
 ## See Also
 
-The variant types (`Property.Typed`, `Property.Consuming`, `Property.View`,
-`Property.View.Read`) and cross-symbol pattern guides live in the
+The variant types (`Property.Typed`, `Property.Consume`, `Property.Inout`,
+`Property.Borrow`) and cross-symbol pattern guides live in the
 `Property_Primitives` umbrella catalog.

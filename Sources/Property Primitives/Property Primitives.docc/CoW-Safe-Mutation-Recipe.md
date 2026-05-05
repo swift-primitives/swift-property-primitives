@@ -127,21 +127,21 @@ through extensions on ``Property``. On scope exit, control resumes after the
 
 The recipe applies to accessors on ``Property`` (method-case) and
 ``Property/Typed`` (property-case) when the base is `Copyable`. For
-``Property/Consuming`` the recipe is similar but adds a `restore()` query in
+``Property/Consume`` the recipe is similar but adds a `restore()` query in
 the `defer` to conditionally restore — see the canonical example in
-``Property/Consuming``.
+``Property/Consume``.
 
-For `~Copyable` bases the recipe is different: ``Property/View-swift.struct``
-uses `mutating _read` / `_modify` with an `UnsafeMutablePointer<Base>`, and
-there is no transfer. The uniqueness and pre-allocation concerns don't apply —
-`~Copyable` storage is always uniquely owned by definition. See
-<doc:~Copyable-Base-Patterns>.
+For `~Copyable` bases the recipe is different: ``Property/Inout-swift.struct``
+uses `mutating _read` / `_modify` yielding an exclusive borrow via
+`Ownership.Inout<Base>`, and there is no transfer. The uniqueness and
+pre-allocation concerns don't apply — `~Copyable` storage is always
+uniquely owned by definition. See <doc:~Copyable-Base-Patterns>.
 
 ## See Also
 
 - ``Property``
 - ``Property/Typed``
-- ``Property/Consuming``
+- ``Property/Consume``
 - <doc:GettingStarted>
 - <doc:Choosing-A-Property-Variant>
 - <doc:~Copyable-Base-Patterns>

@@ -67,7 +67,7 @@ minimising their compile-time surface.
 - <doc:Choosing-A-Property-Variant>
 - <doc:CoW-Safe-Mutation-Recipe>
 - <doc:~Copyable-Base-Patterns>
-- <doc:Value-Generic-Verbosity-And-The-Tag-Enum-View-Pattern>
+- <doc:Value-Generic-Verbosity-And-The-Tag-Enum-Accessor-Pattern>
 
 ### Concepts
 
@@ -77,21 +77,21 @@ minimising their compile-time surface.
 
 - ``Property``
 - ``Property/Typed``
-- ``Property/Consuming``
-- ``Property/Consuming/State``
+- ``Property/Consume``
+- ``Property/Consume/State``
 
-### `~Copyable` View Types
+### `~Copyable` Inout Types
 
-- ``Property/View-swift.struct``
-- ``Property/View-swift.struct/Typed``
-- ``Property/View-swift.struct/Typed/Valued``
-- ``Property/View-swift.struct/Typed/Valued/Valued``
+- ``Property/Inout-swift.struct``
+- ``Property/Inout-swift.struct/Typed``
+- ``Property/Inout-swift.struct/Typed/Valued``
+- ``Property/Inout-swift.struct/Typed/Valued/Valued``
 
-### Read-Only View Types
+### `~Copyable` Borrow Types
 
-- ``Property/View-swift.struct/Read``
-- ``Property/View-swift.struct/Read/Typed``
-- ``Property/View-swift.struct/Read/Typed/Valued``
+- ``Property/Borrow``
+- ``Property/Borrow/Typed``
+- ``Property/Borrow/Typed/Valued``
 
 ## Further reading
 

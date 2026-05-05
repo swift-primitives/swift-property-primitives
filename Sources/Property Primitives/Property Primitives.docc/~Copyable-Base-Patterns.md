@@ -6,17 +6,17 @@
 
 `~Copyable` bases cannot use the Copyable-world
 <doc:CoW-Safe-Mutation-Recipe> directly — the five-step recipe transfers the
-base by value, which requires copy semantics. The View family replaces
-by-value transfer with `UnsafeMutablePointer<Base>` (mutable) or
-`UnsafePointer<Base>` (read-only). The patterns below document the four
-accessor shapes available for `~Copyable` base types.
+base by value, which requires copy semantics. The `Inout` and `Borrow`
+variants replace by-value transfer with a tagged exclusive borrow
+(`Ownership.Inout<Base>`) or shared borrow (`Ownership.Borrow<Base>`). The
+patterns below document the four accessor shapes available for `~Copyable`
+base types.
 
 ## Pattern 1 — mutable method-case accessor
 
-Use ``Property/View-swift.struct`` with `mutating _read` and `mutating _modify`
+Use ``Property/Inout-swift.struct`` with `mutating _read` and `mutating _modify`
 accessors. The mutating requirement is load-bearing: `&self` is required to
-construct the `UnsafeMutablePointer`, and `&self` exists only in mutating
-contexts.
+construct the exclusive borrow, and `&self` exists only in mutating contexts.
 
 ```swift
 extension Buffer where Element: ~Copyable {
@@ -26,21 +26,21 @@ extension Buffer where Element: ~Copyable {
 extension Buffer where Element: ~Copyable {
     public enum Insert {}
 
-    public var insert: Property<Insert>.View {
+    public var insert: Property<Insert>.Inout {
         mutating _read {
-            yield unsafe Property<Insert>.View(&self)
+            yield Property<Insert>.Inout(&self)
         }
         mutating _modify {
-            var view = unsafe Property<Insert>.View(&self)
-            yield &view
+            var accessor = Property<Insert>.Inout(&self)
+            yield &accessor
         }
     }
 }
 
-extension Property.View
+extension Property.Inout
 where Tag == Buffer<Element>.Insert, Base == Buffer<Element>, Element: ~Copyable {
     public mutating func front(_ element: consuming Element) {
-        unsafe base.pointee.push(front: element)
+        base.value.push(front: element)
     }
 }
 
@@ -54,7 +54,7 @@ needed; extensions bind `Element` through the extension where-clause.
 
 ## Pattern 2 — property-case accessor with `Element` in scope
 
-Use ``Property/View-swift.struct/Typed``. Same pointer-based mechanism, with
+Use ``Property/Inout-swift.struct/Typed``. Same exclusive-borrow mechanism, with
 an `Element` type parameter so `var` extensions can bind it.
 
 ```swift
@@ -65,22 +65,22 @@ extension Container where Element: ~Copyable {
 extension Container where Element: ~Copyable {
     public enum Access {}
 
-    public var access: Property<Access>.View.Typed<Element> {
+    public var access: Property<Access>.Inout.Typed<Element> {
         mutating _read {
-            yield unsafe Property<Access>.View.Typed(&self)
+            yield Property<Access>.Inout.Typed(&self)
         }
         mutating _modify {
-            var view = unsafe Property<Access>.View.Typed<Element>(&self)
-            yield &view
+            var accessor = Property<Access>.Inout.Typed<Element>(&self)
+            yield &accessor
         }
     }
 }
 
-extension Property.View.Typed
+extension Property.Inout.Typed
 where Tag == Container<Element>.Access, Base == Container<Element>,
       Element: ~Copyable
 {
-    public var count: Int { unsafe base.pointee.count }
+    public var count: Int { base.value.count }
 }
 ```
 
@@ -89,9 +89,8 @@ or otherwise bind `Element` in their signature.
 
 ## Pattern 3 — read-only access (supports `let`-bound callers)
 
-Use ``Property/View-swift.struct/Read`` with a *non-mutating* `_read`
-accessor and the `init(_ base: borrowing Base)` overload. This works on
-`let`-bound containers; the mutable View does not.
+Use ``Property/Borrow`` with a *non-mutating* `_read` accessor. This works on
+`let`-bound containers; the mutable `Inout` accessor does not.
 
 ```swift
 extension Container where Self: ~Copyable {
@@ -101,16 +100,16 @@ extension Container where Self: ~Copyable {
 extension Container where Self: ~Copyable {
     public enum Inspect {}
 
-    public var inspect: Property<Inspect>.View.Read {
+    public var inspect: Property<Inspect>.Borrow {
         _read {
-            yield unsafe Property<Inspect>.View.Read(self)  // borrowing-init, unlabeled
+            yield Property<Inspect>.Borrow(self)
         }
     }
 }
 
-extension Property.View.Read
+extension Property.Borrow
 where Tag == Container.Inspect, Base == Container {
-    public var count: Int { unsafe base.pointee.count }
+    public var count: Int { base.value.count }
 }
 
 // Call site — works on `let` bindings:
@@ -121,15 +120,15 @@ let size = container.inspect.count
 **When to use.** `~Copyable` base types where extensions do not mutate; the
 base may be `let`-bound at the call site. For read-only access on
 property-case extensions needing `Element` in scope, switch to
-``Property/View-swift.struct/Read/Typed``.
+``Property/Borrow/Typed``.
 
 ## Pattern 4 — non-mutating context on stored properties
 
 Use the static ``Property/pointer(to:_:)`` helper to obtain a pointer to
 a stored property from a non-mutating context. The closure pattern takes
 `borrowing` parameters — no `&self` required. The helper lives on
-`Property` (not `Property.View`) because `View` itself requires `&self`;
-this escape hatch exists for the contexts where `View` is unreachable.
+`Property` (not `Property.Inout`) because `Inout` itself requires `&self`;
+this escape hatch exists for the contexts where `Inout` is unreachable.
 
 ```swift
 struct SmallArray<Element>: Sequence {
@@ -162,43 +161,39 @@ escape. Values constructed from the pointer (iterators, views) must also not
 escape the closure — copy any needed data out, or structure the API so the
 closure does the work.
 
-## The borrowing-init convention
+## The init contract
 
-Every `Property.View*` type ships two `init` overloads:
-
-```swift
-public init(_ base: UnsafeMutablePointer<Base>)  // Or UnsafePointer<Base> for Read.
-public init(_ base: borrowing Base)
-```
-
-Both are called **without the `borrowing:` argument label** — type-based
-overload resolution disambiguates them. The pointer init takes a pointer; the
-borrowing init takes a `borrowing` value. Swift picks the right one from the
-argument type alone.
+`Property.Inout` ships two init overloads, distinguishing safe and unsafe
+construction paths:
 
 ```swift
-// ✓ Correct:
-yield unsafe Property.View.Read(self)      // borrowing init (self is the base)
-yield unsafe Property.View.Read(pointer)   // pointer init (pointer is UnsafePointer)
-
-// ❌ Stale 0.1.0-era syntax — label was dropped:
-yield unsafe Property.View.Read(borrowing: self)
+public init(_ base: inout Base)        // Safe — used in `mutating _read` / `_modify`.
+public init(_ base: borrowing Base)    // @unsafe — used in `deinit` and other borrowing contexts.
 ```
 
-The label dropped in 0.1.0 because it was redundant. Swift does not have a
-call-site `borrowing x` expression form — only `consume x` and `copy x` exist
-as expression-level ownership markers — so the argument label could not
-offer expression-level explicitness either.
+The `inout Base` init is the canonical path for accessor bodies; `&self` is
+available there. The `borrowing Base` init is `@unsafe` because it casts
+away `const` to materialise an `Ownership.Inout`; the caller must guarantee
+mutation through the accessor is valid at the call site.
 
-## `.consuming()` namespace-method pattern on View
+`Property.Borrow` ships a single safe init:
+
+```swift
+public init(_ base: borrowing Base)    // Safe — used in non-mutating `_read`.
+```
+
+Borrow does not need a mutating overload — its access is read-only, so
+`borrowing self` is sufficient at every call site (including `let` bindings).
+
+## `.consuming()` namespace-method pattern on Inout
 
 For `~Copyable` bases, the dual-call-site idiom
-(`.verb { }` vs `.verb.consuming { }`) does NOT use ``Property/Consuming``
+(`.verb { }` vs `.verb.consuming { }`) does NOT use ``Property/Consume``
 (which requires `Base: Copyable`). Instead, add a `.consuming` namespace
-method to the View's extensions:
+method to the Inout's extensions:
 
 ```swift
-extension Property.View
+extension Property.Inout
 where Tag == Buffer<Element>.ForEach, Base == Buffer<Element>, Element: ~Copyable {
     public func callAsFunction(_ body: (borrowing Element) -> Void) {
         // Borrow path — iterate without emptying.
@@ -212,9 +207,9 @@ where Tag == Buffer<Element>.ForEach, Base == Buffer<Element>, Element: ~Copyabl
 
 ## See Also
 
-- ``Property/View-swift.struct``
-- ``Property/View-swift.struct/Typed``
-- ``Property/View-swift.struct/Read``
-- ``Property/View-swift.struct/Read/Typed``
+- ``Property/Inout-swift.struct``
+- ``Property/Inout-swift.struct/Typed``
+- ``Property/Borrow``
+- ``Property/Borrow/Typed``
 - <doc:Choosing-A-Property-Variant>
-- <doc:Value-Generic-Verbosity-And-The-Tag-Enum-View-Pattern>
+- <doc:Value-Generic-Verbosity-And-The-Tag-Enum-Accessor-Pattern>

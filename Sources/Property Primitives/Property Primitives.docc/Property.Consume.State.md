@@ -1,7 +1,7 @@
-# ``Property_Primitives/Property/Consuming/State``
+# ``Property_Primitives/Property/Consume/State``
 
 @Metadata {
-    @DisplayName("Property.Consuming.State")
+    @DisplayName("Property.Consume.State")
     @TitleHeading("Swift Primitives")
 }
 
@@ -9,15 +9,15 @@ Reference-type state tracker for conditional restoration.
 
 ## Overview
 
-`Property.Consuming.State` holds the wrapped base (`_base: Base?`) and the
+`Property.Consume.State` holds the wrapped base (`_base: Base?`) and the
 consumed flag (`_consumed: Bool`). It is the sole mutable storage of a
-``Property/Consuming`` instance; both the owning property and the `defer`
+``Property/Consume`` instance; both the owning property and the `defer`
 block of a `_modify` accessor reference the same instance.
 
 ## Rationale
 
 The state must be a reference type so that mutations through
-``Property/Consuming/consume()`` are observable from the outer `defer` block
+``Property/Consume/consume()`` are observable from the outer `defer` block
 after the method returns. Three invariants follow from reference semantics:
 
 1. The `mutating func consuming()` on the extension sets
@@ -31,8 +31,8 @@ A value-type state would not carry the consume-bit across the yield/defer
 boundary — the `defer` block would see the pre-mutation value and
 unconditionally restore, undoing the consume.
 
-`Property.Consuming.State` is conditionally `Sendable` when `Base: Sendable`,
-so that the outer ``Property/Consuming`` propagates Sendability through to
+`Property.Consume.State` is conditionally `Sendable` when `Base: Sendable`,
+so that the outer ``Property/Consume`` propagates Sendability through to
 its callers without over-constraining instantiations whose `Base` is not
 itself `Sendable`.
 
@@ -40,13 +40,13 @@ itself `Sendable`.
 
 ### Construction
 
-- ``Property/Consuming/State/init(_:)``
+- ``Property/Consume/State/init(_:)``
 
 ### Access
 
-- ``Property/Consuming/State/borrow()``
-- ``Property/Consuming/State/isConsumed``
+- ``Property/Consume/State/borrow()``
+- ``Property/Consume/State/isConsumed``
 
 ## See Also
 
-- ``Property/Consuming``
+- ``Property/Consume``

@@ -57,8 +57,8 @@ is a slightly longer accessor type (`Property<Peek>.Typed<Element>` vs.
 as properties should.
 
 The `.Typed<Element>` suffix composes with the other variant axes: the
-`~Copyable` world has `Property.View.Typed` for the same property-case
-shape, and `Property.View.Read.Typed` for read-only. The suffix carries
+`~Copyable` world has `Property.Inout.Typed` for the same property-case
+shape, and `Property.Borrow.Typed` for read-only. The suffix carries
 the same meaning ("Element in scope") across the type family. See those
 types in the `Property_Primitives` umbrella catalog.
 
