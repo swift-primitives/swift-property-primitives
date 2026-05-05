@@ -1,2 +1,1 @@
 @_exported public import Property_Primitives_Core
-@_exported public import Property_View_Primitives

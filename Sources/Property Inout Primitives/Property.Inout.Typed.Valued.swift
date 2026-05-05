@@ -2,16 +2,16 @@ public import Ownership_Inout_Primitives
 public import Property_Primitives_Core
 public import Tagged_Primitives
 
-extension Property.View.Typed where Base: ~Copyable, Element: ~Copyable {
-    /// A ``Property/View-swift.struct/Typed`` with one value-generic parameter.
+extension Property.Inout.Typed where Base: ~Copyable, Element: ~Copyable {
+    /// A ``Property/Inout-swift.struct/Typed`` with one value-generic parameter.
     ///
-    /// `Property<Tag, Base>.View.Typed<Element>.Valued<n>` lifts a compile-time
+    /// `Property<Tag, Base>.Inout.Typed<Element>.Valued<n>` lifts a compile-time
     /// integer (e.g. `capacity`, `N`) to the type level so extension where-
     /// clauses can bind it alongside `Element` and `Base`.
     ///
     /// Canonical usage — adopt the library type via a foundational typealias,
     /// declare the accessor on the container, and declare the namespace's
-    /// methods on `Property.View.Typed.Valued` at module scope:
+    /// methods on `Property.Inout.Typed.Valued` at module scope:
     ///
     /// ```swift
     /// extension Array.Inline where Element: ~Copyable {
@@ -19,16 +19,16 @@ extension Property.View.Typed where Base: ~Copyable, Element: ~Copyable {
     /// }
     ///
     /// extension Array.Inline where Element: ~Copyable {
-    ///     var forEach: Property<Sequence.ForEach>.View.Typed<Element>.Valued<capacity> {
+    ///     var forEach: Property<Sequence.ForEach>.Inout.Typed<Element>.Valued<capacity> {
     ///         mutating _read  { yield .init(&self) }
     ///         mutating _modify {
-    ///             var view: Property<Sequence.ForEach>.View.Typed<Element>.Valued<capacity> = .init(&self)
-    ///             yield &view
+    ///             var accessor: Property<Sequence.ForEach>.Inout.Typed<Element>.Valued<capacity> = .init(&self)
+    ///             yield &accessor
     ///         }
     ///     }
     /// }
     ///
-    /// extension Property.View.Typed.Valued
+    /// extension Property.Inout.Typed.Valued
     /// where Tag == Sequence.ForEach, Base == Array<Element>.Inline<n>,
     ///       Element: ~Copyable {
     ///     func callAsFunction(_ body: (borrowing Element) -> Void) {
@@ -37,13 +37,13 @@ extension Property.View.Typed where Base: ~Copyable, Element: ~Copyable {
     /// }
     /// ```
     ///
-    /// For two value generics, see ``Property/View-swift.struct/Typed/Valued/Valued``.
+    /// For two value generics, see ``Property/Inout-swift.struct/Typed/Valued/Valued``.
     @safe
     public struct Valued<let n: Int>: ~Copyable, ~Escapable {
         @usableFromInline
         internal var _storage: Tagged<Tag, Ownership.Inout<Base>>
 
-        /// Creates a valued view by borrowing the base value exclusively.
+        /// Creates a valued exclusive mutable accessor by borrowing the base value.
         ///
         /// - Parameter base: The value to borrow mutably.
         @inlinable
@@ -54,7 +54,7 @@ extension Property.View.Typed where Base: ~Copyable, Element: ~Copyable {
     }
 }
 
-extension Property.View.Typed.Valued where Base: ~Copyable, Element: ~Copyable {
+extension Property.Inout.Typed.Valued where Base: ~Copyable, Element: ~Copyable {
     /// The exclusive mutable reference to the base value.
     @inlinable
     public var base: Ownership.Inout<Base> {

@@ -3,17 +3,17 @@ public import Property_Primitives_Core
 extension Property where Base: Copyable {
     /// A property that supports both borrowing and consuming access.
     ///
-    /// `Property<Tag, Base>.Consuming<Element>` enables call sites like
+    /// `Property<Tag, Base>.Consume<Element>` enables call sites like
     /// `container.forEach.consuming { }` where the container is optionally emptied by
     /// which method the caller invokes.
     ///
     /// Requires `Base: Copyable`. For `~Copyable` containers use
-    /// `Property.View` (in `Property View Primitives`) with the `.consuming()`
+    /// `Property.Inout` (in `Property Inout Primitives`) with the `.consuming()`
     /// namespace-method pattern.
     ///
     /// Canonical usage — adopt the library type via a foundational typealias,
     /// pair the phantom tag with its accessor in its own extension, and declare
-    /// the namespace's methods on `Property.Consuming` at module scope:
+    /// the namespace's methods on `Property.Consume` at module scope:
     ///
     /// ```swift
     /// extension Container {
@@ -23,10 +23,10 @@ extension Property where Base: Copyable {
     /// extension Container {
     ///     enum ForEach {}
     ///
-    ///     var forEach: Property<ForEach>.Consuming<Element> {
-    ///         _read { yield Property<ForEach>.Consuming(self) }
+    ///     var forEach: Property<ForEach>.Consume<Element> {
+    ///         _read { yield Property<ForEach>.Consume(self) }
     ///         mutating _modify {
-    ///             var property = Property<ForEach>.Consuming(self)
+    ///             var property = Property<ForEach>.Consume(self)
     ///             self = Container()
     ///             defer {
     ///                 if let restored = property.restore() {
@@ -38,7 +38,7 @@ extension Property where Base: Copyable {
     ///     }
     /// }
     ///
-    /// extension Property.Consuming
+    /// extension Property.Consume
     /// where Tag == Container<Element>.ForEach, Base == Container<Element> {
     ///     func callAsFunction(_ body: (Element) -> Void) {
     ///         guard let base = borrow() else { return }
@@ -56,13 +56,13 @@ extension Property where Base: Copyable {
     /// ```
     ///
     /// For the state-tracking mechanism, the `restore()` contract, and worked
-    /// examples, see the Property.Consuming article in the `Property Consuming
+    /// examples, see the Property.Consume article in the `Property Consume
     /// Primitives` DocC catalog.
-    public struct Consuming<Element>: ~Copyable {
+    public struct Consume<Element>: ~Copyable {
         @usableFromInline
         internal let _state: State
 
-        /// Creates a consuming property wrapping the given base value.
+        /// Creates a consume accessor wrapping the given base value.
         ///
         /// - Parameter base: The value to wrap. Ownership is transferred to the state.
         @inlinable
@@ -70,7 +70,7 @@ extension Property where Base: Copyable {
             self._state = State(base)
         }
 
-        /// Creates a consuming property sharing an existing state.
+        /// Creates a consume accessor sharing an existing state.
         ///
         /// - Parameter state: The state object to use.
         @inlinable
@@ -82,7 +82,7 @@ extension Property where Base: Copyable {
 
 // MARK: - Projections
 
-extension Property.Consuming {
+extension Property.Consume {
     /// The underlying state object.
     @inlinable
     public var state: State { _state }
@@ -94,7 +94,7 @@ extension Property.Consuming {
 
 // MARK: - Borrowing Access
 
-extension Property.Consuming {
+extension Property.Consume {
     /// Borrows the base value for read-only access.
     ///
     /// Returns `nil` if already consumed.
@@ -108,7 +108,7 @@ extension Property.Consuming {
 
 // MARK: - Consuming Access
 
-extension Property.Consuming {
+extension Property.Consume {
     /// Consumes the base value, marking it as consumed.
     ///
     /// After calling this method:
@@ -130,7 +130,7 @@ extension Property.Consuming {
 
 // MARK: - Restoration
 
-extension Property.Consuming {
+extension Property.Consume {
     /// Returns the base value if the consuming path was not taken, `nil` if consumed.
     ///
     /// Call this in the `defer` block of your accessor to decide whether to restore
@@ -154,4 +154,4 @@ extension Property.Consuming {
 
 // MARK: - Conditional Conformances
 
-extension Property.Consuming: Sendable where Base: Sendable {}
+extension Property.Consume: Sendable where Base: Sendable {}

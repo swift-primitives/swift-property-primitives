@@ -1,18 +1,18 @@
 public import Property_Primitives_Core
 
-extension Property.Consuming {
-    // WORKAROUND: @unchecked Sendable on Property.Consuming.State.
+extension Property.Consume {
+    // WORKAROUND: @unchecked Sendable on Property.Consume.State.
     // WHY: `final class` with mutable stored properties (`var _base: Base?`,
     //      `var _consumed: Bool`) cannot be auto-verified as Sendable. The
-    //      conformance is required so `Property.Consuming: Sendable where
+    //      conformance is required so `Property.Consume: Sendable where
     //      Base: Sendable` propagates through the reference-type State. The
     //      claim is CONDITIONAL on `Base: Sendable` (narrower than the prior
     //      unconditional annotation). Residual hazard: concurrent `consume()`
-    //      from two Consuming instances sharing a single State via
+    //      from two Consume instances sharing a single State via
     //      `init(state:)` is a data race on `_base`/`_consumed`; callers must
     //      avoid concurrent mutation of shared State.
     // WHEN TO REMOVE: Replace with a ~Copyable value-type State once the
-    //      Swift SIL EarlyPerfInliner crash on `~Copyable` Consuming
+    //      Swift SIL EarlyPerfInliner crash on `~Copyable` Consume
     //      inlining is fixed upstream; alternatively, when Sendable inference
     //      directly verifies mutable-property final classes under conditional
     //      constraints.
@@ -49,4 +49,4 @@ extension Property.Consuming {
     }
 }
 
-extension Property.Consuming.State: @unchecked Sendable where Base: Sendable {}
+extension Property.Consume.State: @unchecked Sendable where Base: Sendable {}

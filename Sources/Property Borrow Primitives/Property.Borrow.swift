@@ -1,12 +1,11 @@
 @_exported public import Ownership_Borrow_Primitives
 public import Property_Primitives_Core
-public import Property_View_Primitives
 public import Tagged_Primitives
 
-extension Property.View where Base: ~Copyable {
-    /// A read-only view on a `~Copyable` base.
+extension Property where Base: ~Copyable {
+    /// A read-only accessor on a `~Copyable` base.
     ///
-    /// `Property<Tag, Base>.View.Read` is a thin wrapper over
+    /// `Property<Tag, Base>.Borrow` is a thin wrapper over
     /// `Tagged<Tag, Ownership.Borrow<Base>>` — the phantom-tagged shared
     /// immutable reference composition from `Tagged_Primitives` and
     /// `Ownership_Primitives`. Access goes through `base.value`, which uses
@@ -14,7 +13,7 @@ extension Property.View where Base: ~Copyable {
     ///
     /// Canonical usage — adopt the library type via a foundational typealias,
     /// pair the phantom tag with its accessor in its own extension, and declare
-    /// the namespace's properties on `Property.View.Read` at module scope:
+    /// the namespace's properties on `Property.Borrow` at module scope:
     ///
     /// ```swift
     /// extension Container where Self: ~Copyable {
@@ -24,14 +23,14 @@ extension Property.View where Base: ~Copyable {
     /// extension Container where Self: ~Copyable {
     ///     enum Inspect {}
     ///
-    ///     var inspect: Property<Inspect>.View.Read {
+    ///     var inspect: Property<Inspect>.Borrow {
     ///         _read {
-    ///             yield Property<Inspect>.View.Read(self)
+    ///             yield Property<Inspect>.Borrow(self)
     ///         }
     ///     }
     /// }
     ///
-    /// extension Property.View.Read
+    /// extension Property.Borrow
     /// where Tag == Container.Inspect, Base == Container {
     ///     var count: Int { base.value.count }
     /// }
@@ -40,13 +39,13 @@ extension Property.View where Base: ~Copyable {
     /// ```
     ///
     /// Use this variant for read-only namespaces; switch to
-    /// ``Property/View-swift.struct`` when extensions need to mutate or consume.
+    /// ``Property/Inout-swift.struct`` when extensions need to mutate or consume.
     @safe
-    public struct Read: ~Copyable, ~Escapable {
+    public struct Borrow: ~Copyable, ~Escapable {
         @usableFromInline
         internal var _storage: Tagged<Tag, Ownership.Borrow<Base>>
 
-        /// Creates a read-only view by borrowing the base value.
+        /// Creates a read-only accessor by borrowing the base value.
         ///
         /// - Parameter base: The value to borrow.
         @inlinable
@@ -57,7 +56,7 @@ extension Property.View where Base: ~Copyable {
     }
 }
 
-extension Property.View.Read where Base: ~Copyable {
+extension Property.Borrow where Base: ~Copyable {
     /// The shared borrowed reference to the base value.
     ///
     /// Use `base.value` to read the underlying value.

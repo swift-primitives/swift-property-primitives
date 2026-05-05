@@ -21,16 +21,16 @@ let package = Package(
             targets: ["Property Typed Primitives"]
         ),
         .library(
-            name: "Property Consuming Primitives",
-            targets: ["Property Consuming Primitives"]
+            name: "Property Consume Primitives",
+            targets: ["Property Consume Primitives"]
         ),
         .library(
-            name: "Property View Primitives",
-            targets: ["Property View Primitives"]
+            name: "Property Inout Primitives",
+            targets: ["Property Inout Primitives"]
         ),
         .library(
-            name: "Property View Read Primitives",
-            targets: ["Property View Read Primitives"]
+            name: "Property Borrow Primitives",
+            targets: ["Property Borrow Primitives"]
         ),
         .library(
             name: "Property Primitives Test Support",
@@ -59,13 +59,13 @@ let package = Package(
             ]
         ),
         .target(
-            name: "Property Consuming Primitives",
+            name: "Property Consume Primitives",
             dependencies: [
                 "Property Primitives Core",
             ]
         ),
         .target(
-            name: "Property View Primitives",
+            name: "Property Inout Primitives",
             dependencies: [
                 "Property Primitives Core",
                 .product(name: "Ownership Inout Primitives", package: "swift-ownership-primitives"),
@@ -73,10 +73,9 @@ let package = Package(
             ]
         ),
         .target(
-            name: "Property View Read Primitives",
+            name: "Property Borrow Primitives",
             dependencies: [
                 "Property Primitives Core",
-                "Property View Primitives",
                 .product(name: "Ownership Borrow Primitives", package: "swift-ownership-primitives"),
                 .product(name: "Tagged Primitives", package: "swift-tagged-primitives"),
             ]
@@ -88,9 +87,9 @@ let package = Package(
             dependencies: [
                 "Property Primitives Core",
                 "Property Typed Primitives",
-                "Property Consuming Primitives",
-                "Property View Primitives",
-                "Property View Read Primitives",
+                "Property Consume Primitives",
+                "Property Inout Primitives",
+                "Property Borrow Primitives",
             ]
         ),
 
@@ -114,7 +113,7 @@ let package = Package(
         .testTarget(
             name: "Property Consuming Primitives Tests",
             dependencies: [
-                "Property Consuming Primitives",
+                "Property Consume Primitives",
                 "Property Primitives Test Support",
             ],
             path: "Tests/Property Consuming Primitives Tests"
@@ -122,7 +121,7 @@ let package = Package(
         .testTarget(
             name: "Property View Primitives Tests",
             dependencies: [
-                "Property View Primitives",
+                "Property Inout Primitives",
                 "Property Primitives Test Support",
             ],
             path: "Tests/Property View Primitives Tests"
@@ -130,7 +129,7 @@ let package = Package(
         .testTarget(
             name: "Property View Read Primitives Tests",
             dependencies: [
-                "Property View Read Primitives",
+                "Property Borrow Primitives",
                 "Property Primitives Test Support",
             ],
             path: "Tests/Property View Read Primitives Tests"

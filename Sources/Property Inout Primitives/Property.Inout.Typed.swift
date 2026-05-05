@@ -2,17 +2,17 @@ public import Ownership_Inout_Primitives
 public import Property_Primitives_Core
 public import Tagged_Primitives
 
-extension Property.View where Base: ~Copyable {
-    /// A mutable view on a `~Copyable` base with an `Element` parameter.
+extension Property.Inout where Base: ~Copyable {
+    /// An exclusive mutable accessor on a `~Copyable` base with an `Element` parameter.
     ///
-    /// `Property<Tag, Base>.View.Typed<Element>` is the `~Copyable` equivalent of
+    /// `Property<Tag, Base>.Inout.Typed<Element>` is the `~Copyable` equivalent of
     /// `Property.Typed` (in `Property Typed Primitives`): it combines
-    /// ``Property/View-swift.struct``'s mutable borrow access with an `Element`
+    /// ``Property/Inout-swift.struct``'s mutable borrow access with an `Element`
     /// type parameter so `var` extensions can bind to it.
     ///
     /// Canonical usage — adopt the library type via a foundational typealias,
     /// pair the phantom tag with its accessor in its own extension, and declare
-    /// the namespace's typed properties on `Property.View.Typed` at module scope:
+    /// the namespace's typed properties on `Property.Inout.Typed` at module scope:
     ///
     /// ```swift
     /// extension Container where Element: ~Copyable {
@@ -22,16 +22,16 @@ extension Property.View where Base: ~Copyable {
     /// extension Container where Element: ~Copyable {
     ///     enum Access {}
     ///
-    ///     var access: Property<Access>.View.Typed<Element> {
+    ///     var access: Property<Access>.Inout.Typed<Element> {
     ///         mutating _read  { yield .init(&self) }
     ///         mutating _modify {
-    ///             var view = Property<Access>.View.Typed<Element>(&self)
-    ///             yield &view
+    ///             var accessor = Property<Access>.Inout.Typed<Element>(&self)
+    ///             yield &accessor
     ///         }
     ///     }
     /// }
     ///
-    /// extension Property.View.Typed
+    /// extension Property.Inout.Typed
     /// where Tag == Container<Element>.Access, Base == Container<Element>,
     ///       Element: ~Copyable
     /// {
@@ -41,13 +41,13 @@ extension Property.View where Base: ~Copyable {
     ///
     /// For the `Copyable` equivalent, see `Property.Typed` (in
     /// `Property Typed Primitives`). For read-only access, see
-    /// `Property.View.Read.Typed` (in `Property View Read Primitives`).
+    /// `Property.Borrow.Typed` (in `Property Borrow Primitives`).
     @safe
     public struct Typed<Element: ~Copyable>: ~Copyable, ~Escapable {
         @usableFromInline
         internal var _storage: Tagged<Tag, Ownership.Inout<Base>>
 
-        /// Creates a typed view by borrowing the base value exclusively.
+        /// Creates a typed exclusive mutable accessor by borrowing the base value.
         ///
         /// - Parameter base: The value to borrow mutably.
         @inlinable
@@ -58,7 +58,7 @@ extension Property.View where Base: ~Copyable {
     }
 }
 
-extension Property.View.Typed where Base: ~Copyable, Element: ~Copyable {
+extension Property.Inout.Typed where Base: ~Copyable, Element: ~Copyable {
     /// The exclusive mutable reference to the base value.
     @inlinable
     public var base: Ownership.Inout<Base> {

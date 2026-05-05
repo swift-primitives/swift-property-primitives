@@ -3,9 +3,9 @@ public import Property_Primitives_Core
 public import Tagged_Primitives
 
 extension Property where Base: ~Copyable {
-    /// A view property for `~Copyable` types supporting borrowing and mutable access.
+    /// An exclusive mutable accessor for `~Copyable` types.
     ///
-    /// `Property<Tag, Base>.View` is a thin wrapper over
+    /// `Property<Tag, Base>.Inout` is a thin wrapper over
     /// `Tagged<Tag, Ownership.Inout<Base>>` — the phantom-tagged exclusive
     /// mutable reference composition from `Tagged_Primitives` and
     /// `Ownership_Primitives`. The storage realises the structural identity:
@@ -16,7 +16,7 @@ extension Property where Base: ~Copyable {
     ///
     /// Canonical usage — adopt the library type via a foundational typealias,
     /// pair the phantom tag with its accessor in its own extension, and declare
-    /// the namespace's methods on `Property.View` at module scope:
+    /// the namespace's methods on `Property.Inout` at module scope:
     ///
     /// ```swift
     /// extension Buffer where Element: ~Copyable {
@@ -26,16 +26,16 @@ extension Property where Base: ~Copyable {
     /// extension Buffer where Element: ~Copyable {
     ///     enum Insert {}
     ///
-    ///     var insert: Property<Insert>.View {
+    ///     var insert: Property<Insert>.Inout {
     ///         mutating _read  { yield .init(&self) }
     ///         mutating _modify {
-    ///             var view = Property<Insert>.View(&self)
-    ///             yield &view
+    ///             var accessor = Property<Insert>.Inout(&self)
+    ///             yield &accessor
     ///         }
     ///     }
     /// }
     ///
-    /// extension Property.View
+    /// extension Property.Inout
     /// where Tag == Buffer<Element>.Insert, Base == Buffer<Element>,
     ///       Element: ~Copyable {
     ///     mutating func front(_ element: consuming Element) {
@@ -51,15 +51,15 @@ extension Property where Base: ~Copyable {
     /// `~Escapable`.
     ///
     /// For non-mutating contexts (`Sequence.makeIterator()`, subscript getters),
-    /// use `Property.View.Read` (in `Property View Read Primitives`).
+    /// use `Property.Borrow` (in `Property Borrow Primitives`).
     ///
     /// For the broader type-family reference, see ``Property``.
     @safe
-    public struct View: ~Copyable, ~Escapable {
+    public struct Inout: ~Copyable, ~Escapable {
         @usableFromInline
         internal var _storage: Tagged<Tag, Ownership.Inout<Base>>
 
-        /// Creates a view by borrowing the base value exclusively.
+        /// Creates an exclusive mutable accessor by borrowing the base value.
         ///
         /// - Parameter base: The value to borrow mutably.
         @inlinable
@@ -68,14 +68,14 @@ extension Property where Base: ~Copyable {
             self._storage = Tagged(_unchecked: Ownership.Inout(mutating: &base))
         }
 
-        /// Creates a view by borrowing the base value from an immutable context.
+        /// Creates an exclusive mutable accessor by borrowing the base value from an immutable context.
         ///
         /// Use from non-mutating `_read` accessors and `borrowing` functions
         /// (notably `deinit`, where `self` is immutable but the value is being
         /// consumed).
         ///
         /// This is `@unsafe` because it casts away const — the caller must
-        /// ensure mutation through the view is valid at the call site.
+        /// ensure mutation through the accessor is valid at the call site.
         ///
         /// > Warning: Do NOT add `@inlinable` to this init. The same Swift
         /// > 6.3.1 / 6.4-dev release-mode miscompile documented on
@@ -90,7 +90,7 @@ extension Property where Base: ~Copyable {
         /// > and
         /// > `swift-institute/Audits/borrow-pointer-storage-release-miscompile.md`.
         /// > Same-module consumers (consumers in the
-        /// > `Property View Primitives` module itself) cannot call this
+        /// > `Property Inout Primitives` module itself) cannot call this
         /// > init safely in release mode; they must use the
         /// > `init(_ base: inout Base)` overload or wrap the call in
         /// > `withUnsafePointer(to:)` and pass the typed pointer through
@@ -110,7 +110,7 @@ extension Property where Base: ~Copyable {
     }
 }
 
-extension Property.View where Base: ~Copyable {
+extension Property.Inout where Base: ~Copyable {
     /// The exclusive mutable reference to the base value.
     ///
     /// Use `base.value` to read or mutate the underlying value. Mutation flows

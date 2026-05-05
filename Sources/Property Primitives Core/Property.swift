@@ -40,7 +40,7 @@
 ///
 /// For property extensions (not just methods), use `Property.Typed` (in
 /// `Property Typed Primitives`). For `~Copyable` containers, use
-/// `Property.View` (in `Property View Primitives`). For the full type
+/// `Property.Inout` (in `Property Inout Primitives`). For the full type
 /// family and decision guidance, see the `Property_Primitives` umbrella
 /// catalog.
 public struct Property<Tag, Base: ~Copyable>: ~Copyable {

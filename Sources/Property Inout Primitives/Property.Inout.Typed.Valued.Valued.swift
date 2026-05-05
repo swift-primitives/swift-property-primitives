@@ -2,10 +2,10 @@ public import Ownership_Inout_Primitives
 public import Property_Primitives_Core
 public import Tagged_Primitives
 
-extension Property.View.Typed.Valued where Base: ~Copyable, Element: ~Copyable {
-    /// A ``Property/View-swift.struct/Typed/Valued`` with a second value-generic.
+extension Property.Inout.Typed.Valued where Base: ~Copyable, Element: ~Copyable {
+    /// A ``Property/Inout-swift.struct/Typed/Valued`` with a second value-generic.
     ///
-    /// `Property<Tag, Base>.View.Typed<Element>.Valued<n>.Valued<m>` lifts two
+    /// `Property<Tag, Base>.Inout.Typed<Element>.Valued<n>.Valued<m>` lifts two
     /// compile-time integers to the type level so extension where-clauses can
     /// bind both alongside `Element` and `Base`. Required when containers have
     /// two value generics, e.g. `Buffer<Element>.Linked<N>.Inline<capacity>`.
@@ -15,18 +15,18 @@ extension Property.View.Typed.Valued where Base: ~Copyable, Element: ~Copyable {
     /// ```swift
     /// extension Buffer.Linked.Inline where Element: ~Copyable {
     ///     var insert: Property<Buffer<Element>.Linked<N>.Insert, Self>
-    ///         .View.Typed<Element>.Valued<N>.Valued<capacity>
+    ///         .Inout.Typed<Element>.Valued<N>.Valued<capacity>
     ///     {
     ///         mutating _read  { yield .init(&self) }
     ///         mutating _modify {
-    ///             var view: Property<Buffer<Element>.Linked<N>.Insert, Self>
-    ///                 .View.Typed<Element>.Valued<N>.Valued<capacity> = .init(&self)
-    ///             yield &view
+    ///             var accessor: Property<Buffer<Element>.Linked<N>.Insert, Self>
+    ///                 .Inout.Typed<Element>.Valued<N>.Valued<capacity> = .init(&self)
+    ///             yield &accessor
     ///         }
     ///     }
     /// }
     ///
-    /// extension Property.View.Typed.Valued.Valued
+    /// extension Property.Inout.Typed.Valued.Valued
     /// where Tag == Buffer<Element>.Linked<n>.Insert,
     ///       Base == Buffer<Element>.Linked<n>.Inline<m>,
     ///       Element: ~Copyable {
@@ -38,7 +38,7 @@ extension Property.View.Typed.Valued where Base: ~Copyable, Element: ~Copyable {
         @usableFromInline
         internal var _storage: Tagged<Tag, Ownership.Inout<Base>>
 
-        /// Creates a valued view by borrowing the base value exclusively.
+        /// Creates a valued exclusive mutable accessor by borrowing the base value.
         ///
         /// - Parameter base: The value to borrow mutably.
         @inlinable
@@ -49,7 +49,7 @@ extension Property.View.Typed.Valued where Base: ~Copyable, Element: ~Copyable {
     }
 }
 
-extension Property.View.Typed.Valued.Valued where Base: ~Copyable, Element: ~Copyable {
+extension Property.Inout.Typed.Valued.Valued where Base: ~Copyable, Element: ~Copyable {
     /// The exclusive mutable reference to the base value.
     @inlinable
     public var base: Ownership.Inout<Base> {
