@@ -2,16 +2,16 @@ import Property_Primitives_Test_Support
 import Testing
 
 @Suite
-struct `Property.View.Typed.Valued Tests` {
+struct `Property.Inout.Typed.Valued Tests` {
     @Suite struct Unit {}
     @Suite struct `Edge Case` {}
     @Suite struct Integration {}
 }
 
-extension `Property.View.Typed.Valued Tests`.Unit {
+extension `Property.Inout.Typed.Valued Tests`.Unit {
 
     @Test
-    func `valued view binds value generic in extension where-clause`() {
+    func `valued accessor binds value generic in extension where-clause`() {
         var inline = Slice<Int>.Inline<5>(count: 3)
 
         #expect(inline.access.capacity == 5)
@@ -19,7 +19,7 @@ extension `Property.View.Typed.Valued Tests`.Unit {
     }
 
     @Test
-    func `valued view mutation writes through pointer`() {
+    func `valued accessor mutation writes through pointer`() {
         var inline = Slice<Int>.Inline<8>(count: 2)
 
         inline.access.resize(to: 7)
@@ -28,7 +28,7 @@ extension `Property.View.Typed.Valued Tests`.Unit {
     }
 }
 
-extension `Property.View.Typed.Valued Tests`.`Edge Case` {
+extension `Property.Inout.Typed.Valued Tests`.`Edge Case` {
 
     @Test
     func `count is not constrained by the value generic n (phantom semantics)`() {

@@ -2,13 +2,13 @@ import Property_Primitives_Test_Support
 import Testing
 
 @Suite
-struct `Property.View Tests` {
+struct `Property.Inout Tests` {
     @Suite struct Unit {}
     @Suite struct `Edge Case` {}
     @Suite struct Integration {}
 }
 
-extension `Property.View Tests`.Unit {
+extension `Property.Inout Tests`.Unit {
 
     @Test
     func `pointer to stored property`() {
@@ -40,41 +40,41 @@ extension `Property.View Tests`.Unit {
     @Test
     func `init from inout base enables value reads`() {
         var box = Box(value: 200)
-        let view = Property<Box.Inspect, Box>.View(&box)
-        let value = view.base.value.value
+        let accessor = Property<Box.Inspect, Box>.Inout(&box)
+        let value = accessor.base.value.value
 
         #expect(value == 200)
     }
 
     @Test
     func `unsafe borrowing init: single read across module boundary`() {
-        // Exercises Property.View(_ base: borrowing Base) — the @unsafe
+        // Exercises Property.Inout(_ base: borrowing Base) — the @unsafe
         // init — from this test module, which is separate from
-        // Property View Primitives. With the non-@inlinable workaround
+        // Property Inout Primitives. With the non-@inlinable workaround
         // in place, the release-mode @in_guaranteed ABI is preserved and
         // the stored pointer reads cleanly.
         let box = Box(value: 321)
-        let view = unsafe Property<Box.Inspect, Box>.View(box)
-        let first = view.base.value.value
+        let accessor = unsafe Property<Box.Inspect, Box>.Inout(box)
+        let first = accessor.base.value.value
         #expect(first == 321)
     }
 
     @Test
     func `unsafe borrowing init: multiple reads stable across module boundary`() {
-        // Two successive reads against the same let-bound view exercise
+        // Two successive reads against the same let-bound accessor exercise
         // the exact shape that the single-file minimal-repro demonstrates
         // crashes when @inlinable. With @inlinable removed, the
         // cross-module call boundary preserves the pointer.
         let box = Box(value: 654)
-        let view = unsafe Property<Box.Inspect, Box>.View(box)
-        let first = view.base.value.value
-        let second = view.base.value.value
+        let accessor = unsafe Property<Box.Inspect, Box>.Inout(box)
+        let first = accessor.base.value.value
+        let second = accessor.base.value.value
         #expect(first == 654)
         #expect(second == 654)
     }
 }
 
-extension `Property.View Tests`.Integration {
+extension `Property.Inout Tests`.Integration {
 
     @Test
     func `pointer to tuple element`() {

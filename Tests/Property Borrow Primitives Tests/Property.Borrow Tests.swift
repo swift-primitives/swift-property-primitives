@@ -2,16 +2,16 @@ import Property_Primitives_Test_Support
 import Testing
 
 @Suite
-struct `Property.View.Read Tests` {
+struct `Property.Borrow Tests` {
     @Suite struct Unit {}
     @Suite struct `Edge Case` {}
     @Suite struct Integration {}
 }
 
-extension `Property.View.Read Tests`.Unit {
+extension `Property.Borrow Tests`.Unit {
 
     @Test
-    func `view read basic usage`() {
+    func `borrow accessor basic usage`() {
         var box = Box(value: 42)
 
         #expect(box.inspect.current == 42)
@@ -27,10 +27,10 @@ extension `Property.View.Read Tests`.Unit {
     }
 }
 
-extension `Property.View.Read Tests`.`Edge Case` {
+extension `Property.Borrow Tests`.`Edge Case` {
 
     @Test
-    func `view read does not mutate`() {
+    func `borrow accessor does not mutate`() {
         var box = Box(value: 100)
 
         let first = box.inspect.current

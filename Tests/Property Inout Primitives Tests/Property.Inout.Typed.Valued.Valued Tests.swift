@@ -2,16 +2,16 @@ import Property_Primitives_Test_Support
 import Testing
 
 @Suite
-struct `Property.View.Typed.Valued.Valued Tests` {
+struct `Property.Inout.Typed.Valued.Valued Tests` {
     @Suite struct Unit {}
     @Suite struct `Edge Case` {}
     @Suite struct Integration {}
 }
 
-extension `Property.View.Typed.Valued.Valued Tests`.Unit {
+extension `Property.Inout.Typed.Valued.Valued Tests`.Unit {
 
     @Test
-    func `double valued view binds both value generics`() {
+    func `double valued accessor binds both value generics`() {
         var inner = Slice<Int>.Inline<4>.Inner<9>(count: 3)
 
         #expect(inner.access.outerCapacity == 4)
@@ -20,7 +20,7 @@ extension `Property.View.Typed.Valued.Valued Tests`.Unit {
     }
 
     @Test
-    func `double valued view mutation writes through pointer`() {
+    func `double valued accessor mutation writes through pointer`() {
         var inner = Slice<Int>.Inline<2>.Inner<6>(count: 1)
 
         inner.access.resize(to: 5)
@@ -29,7 +29,7 @@ extension `Property.View.Typed.Valued.Valued Tests`.Unit {
     }
 }
 
-extension `Property.View.Typed.Valued.Valued Tests`.`Edge Case` {
+extension `Property.Inout.Typed.Valued.Valued Tests`.`Edge Case` {
 
     @Test
     func `minimum value-generics n=1 m=1 are well-formed`() {

@@ -12,7 +12,7 @@
 /// ```
 ///
 /// `RequireSendable` suppresses the default Copyable constraint on `T` so it
-/// accepts both Copyable and `~Copyable` types (e.g., `Property.Consuming`).
+/// accepts both Copyable and `~Copyable` types (e.g., `Property.Consume`).
 ///
 /// Uninhabited enums — zero runtime cost.
 

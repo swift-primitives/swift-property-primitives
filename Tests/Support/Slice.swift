@@ -13,42 +13,42 @@ extension Slice where Element: ~Copyable {
 }
 
 extension Slice where Element: ~Copyable {
-    public var peek: Property<Peek, Slice<Element>>.View.Read.Typed<Element> {
+    public var peek: Property<Peek, Slice<Element>>.Borrow.Typed<Element> {
         _read {
-            yield Property<Peek, Slice<Element>>.View.Read.Typed(self)
+            yield Property<Peek, Slice<Element>>.Borrow.Typed(self)
         }
     }
 
-    public var borrow: Property<Borrow, Slice<Element>>.View.Read.Typed<Element> {
+    public var borrow: Property<Borrow, Slice<Element>>.Borrow.Typed<Element> {
         _read {
-            yield Property<Borrow, Slice<Element>>.View.Read.Typed(self)
+            yield Property<Borrow, Slice<Element>>.Borrow.Typed(self)
         }
     }
 
-    public var access: Property<Access, Slice<Element>>.View.Typed<Element> {
+    public var access: Property<Access, Slice<Element>>.Inout.Typed<Element> {
         mutating _read {
-            yield Property<Access, Slice<Element>>.View.Typed<Element>(&self)
+            yield Property<Access, Slice<Element>>.Inout.Typed<Element>(&self)
         }
         mutating _modify {
-            var view = Property<Access, Slice<Element>>.View.Typed<Element>(&self)
-            yield &view
+            var accessor = Property<Access, Slice<Element>>.Inout.Typed<Element>(&self)
+            yield &accessor
         }
     }
 }
 
-extension Property.View.Read.Typed where Tag == Slice<Int>.Peek, Base == Slice<Int> {
+extension Property.Borrow.Typed where Tag == Slice<Int>.Peek, Base == Slice<Int> {
     public var size: Int {
         self.base.value.count
     }
 }
 
-extension Property.View.Read.Typed where Tag == Slice<Int>.Borrow, Base == Slice<Int> {
+extension Property.Borrow.Typed where Tag == Slice<Int>.Borrow, Base == Slice<Int> {
     public var size: Int {
         self.base.value.count
     }
 }
 
-extension Property.View.Typed where Tag == Slice<Int>.Access, Base == Slice<Int>, Element == Int {
+extension Property.Inout.Typed where Tag == Slice<Int>.Access, Base == Slice<Int>, Element == Int {
     public var size: Int {
         self.base.value.count
     }

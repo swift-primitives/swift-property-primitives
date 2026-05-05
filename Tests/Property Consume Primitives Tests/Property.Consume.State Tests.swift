@@ -5,20 +5,20 @@ import Testing
 //
 // State is unconditionally @unchecked Sendable.
 
-private typealias _StateIsSendable = RequireSendable<Property<Phantom, Int>.Consuming<Int>.State>
+private typealias _StateIsSendable = RequireSendable<Property<Phantom, Int>.Consume<Int>.State>
 
 @Suite
-struct `Property.Consuming.State Tests` {
+struct `Property.Consume.State Tests` {
     @Suite struct Unit {}
     @Suite struct `Edge Case` {}
     @Suite struct Integration {}
 }
 
-extension `Property.Consuming.State Tests`.Unit {
+extension `Property.Consume.State Tests`.Unit {
 
     @Test
     func `state init stores base and starts not consumed`() {
-        let state = Property<Phantom, Int>.Consuming<Int>.State(99)
+        let state = Property<Phantom, Int>.Consume<Int>.State(99)
 
         #expect(state.isConsumed == false)
         #expect(state.borrow() == 99)
@@ -26,7 +26,7 @@ extension `Property.Consuming.State Tests`.Unit {
 
     @Test
     func `state borrow returns base across repeated calls`() {
-        let state = Property<Phantom, Int>.Consuming<Int>.State(7)
+        let state = Property<Phantom, Int>.Consume<Int>.State(7)
 
         #expect(state.borrow() == 7)
         #expect(state.borrow() == 7)
@@ -35,13 +35,13 @@ extension `Property.Consuming.State Tests`.Unit {
     }
 }
 
-extension `Property.Consuming.State Tests`.Integration {
+extension `Property.Consume.State Tests`.Integration {
 
     @Test
-    func `shared state reflects consumption across Consuming instances`() {
-        let state = Property<Phantom, Int>.Consuming<Int>.State(50)
-        let observer = Property<Phantom, Int>.Consuming<Int>(state: state)
-        var consumer = Property<Phantom, Int>.Consuming<Int>(state: state)
+    func `shared state reflects consumption across Consume instances`() {
+        let state = Property<Phantom, Int>.Consume<Int>.State(50)
+        let observer = Property<Phantom, Int>.Consume<Int>(state: state)
+        var consumer = Property<Phantom, Int>.Consume<Int>(state: state)
 
         let beforeConsume = observer.borrow()
         #expect(beforeConsume == 50)

@@ -111,28 +111,28 @@ let package = Package(
             path: "Tests/Property Typed Primitives Tests"
         ),
         .testTarget(
-            name: "Property Consuming Primitives Tests",
+            name: "Property Consume Primitives Tests",
             dependencies: [
                 "Property Consume Primitives",
                 "Property Primitives Test Support",
             ],
-            path: "Tests/Property Consuming Primitives Tests"
+            path: "Tests/Property Consume Primitives Tests"
         ),
         .testTarget(
-            name: "Property View Primitives Tests",
+            name: "Property Inout Primitives Tests",
             dependencies: [
                 "Property Inout Primitives",
                 "Property Primitives Test Support",
             ],
-            path: "Tests/Property View Primitives Tests"
+            path: "Tests/Property Inout Primitives Tests"
         ),
         .testTarget(
-            name: "Property View Read Primitives Tests",
+            name: "Property Borrow Primitives Tests",
             dependencies: [
                 "Property Borrow Primitives",
                 "Property Primitives Test Support",
             ],
-            path: "Tests/Property View Read Primitives Tests"
+            path: "Tests/Property Borrow Primitives Tests"
         ),
 
         // MARK: - Tutorial Verification

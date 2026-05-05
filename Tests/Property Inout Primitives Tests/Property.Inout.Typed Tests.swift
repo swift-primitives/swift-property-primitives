@@ -2,22 +2,22 @@ import Property_Primitives_Test_Support
 import Testing
 
 @Suite
-struct `Property.View.Typed Tests` {
+struct `Property.Inout.Typed Tests` {
     @Suite struct Unit {}
     @Suite struct `Edge Case` {}
     @Suite struct Integration {}
 }
 
-extension `Property.View.Typed Tests`.Unit {
+extension `Property.Inout.Typed Tests`.Unit {
 
     @Test
-    func `view typed basic usage`() {
+    func `inout typed basic usage`() {
         var slice = Slice<Int>(count: 5)
         #expect(slice.access.size == 5)
     }
 
     @Test
-    func `view typed mutation writes through pointer`() {
+    func `inout typed mutation writes through pointer`() {
         var slice = Slice<Int>(count: 5)
 
         slice.access.resize(to: 12)
@@ -26,7 +26,7 @@ extension `Property.View.Typed Tests`.Unit {
     }
 }
 
-extension `Property.View.Typed Tests`.`Edge Case` {
+extension `Property.Inout.Typed Tests`.`Edge Case` {
 
     @Test
     func `sequential mutations each persist independently`() {

@@ -80,12 +80,12 @@ extension Property where Tag == Container<Int>.Merge.Keep, Base == Container<Int
 }
 
 extension Container where Element: Copyable {
-    public var forEach: Property<ForEach, Container<Element>>.Consuming<Element> {
+    public var forEach: Property<ForEach, Container<Element>>.Consume<Element> {
         _read {
-            yield Property<ForEach, Container<Element>>.Consuming<Element>(self)
+            yield Property<ForEach, Container<Element>>.Consume<Element>(self)
         }
         mutating _modify {
-            var property = Property<ForEach, Container<Element>>.Consuming<Element>(self)
+            var property = Property<ForEach, Container<Element>>.Consume<Element>(self)
             self = Container<Element>()
             defer {
                 if let restored = property.restore() {
@@ -97,7 +97,7 @@ extension Container where Element: Copyable {
     }
 }
 
-extension Property.Consuming
+extension Property.Consume
 where Tag == Container<Element>.ForEach, Base == Container<Element>, Element: Copyable {
     public func callAsFunction(_ body: (Element) -> Void) {
         guard let base = borrow() else { return }

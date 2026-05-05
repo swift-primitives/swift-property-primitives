@@ -2,16 +2,16 @@ import Property_Primitives_Test_Support
 import Testing
 
 @Suite
-struct `Property.View.Read.Typed Tests` {
+struct `Property.Borrow.Typed Tests` {
     @Suite struct Unit {}
     @Suite struct `Edge Case` {}
     @Suite struct Integration {}
 }
 
-extension `Property.View.Read.Typed Tests`.Unit {
+extension `Property.Borrow.Typed Tests`.Unit {
 
     @Test
-    func `view read typed basic usage`() {
+    func `borrow typed basic usage`() {
         var slice = Slice<Int>(count: 5)
 
         #expect(slice.peek.size == 5)
