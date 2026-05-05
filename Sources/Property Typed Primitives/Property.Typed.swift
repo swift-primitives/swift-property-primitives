@@ -66,6 +66,7 @@ extension Property where Base: ~Copyable {
 }
 
 extension Property.Typed where Base: ~Copyable {
+    /// Read/modify-yielding accessor onto the underlying base value.
     @inlinable
     public var base: Base {
         _read { yield _base }
