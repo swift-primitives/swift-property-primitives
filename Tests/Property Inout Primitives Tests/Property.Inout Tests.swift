@@ -98,3 +98,22 @@ extension `Property.Inout Tests`.Integration {
         #expect(sum == 10)
     }
 }
+
+extension `Property.Inout Tests`.Unit {
+
+    /// Compile-time admission: the new `init(unsafeRawAddress:mutating:)` is
+    /// only available when `Base: ~Copyable & ~Escapable`. If the type
+    /// constraint regresses to `~Copyable` only, this function fails to
+    /// compile. Mirrors `swift-ownership-primitives`' admission test shape.
+    @Test
+    func `Property.Inout~Escapable type-level admission via init(unsafeRawAddress:mutating:)`() {
+        // Closure exists for compile-time admission — never invoked.
+        let _ = { (storage: UnsafeMutableRawPointer, owner: inout Int) in
+            _ = unsafe Property<NEResource.Access, NEResource>.Inout(
+                unsafeRawAddress: storage,
+                mutating: &owner
+            )
+        }
+        #expect(true)
+    }
+}

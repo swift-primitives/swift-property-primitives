@@ -133,6 +133,52 @@ extension Property.Inout where Base: ~Copyable & ~Escapable {
     }
 }
 
+extension Property.Inout where Base: ~Copyable & ~Escapable {
+    /// Unsafely creates an exclusive mutable accessor using a raw address,
+    /// with lifetime based on the mutating owner.
+    ///
+    /// This is the only construction path available when `Base` is `~Escapable`,
+    /// because the typed `init(_ base: inout Base)` delegates through
+    /// `Ownership.Inout(mutating:)`, which uses `withUnsafeMutablePointer(to:)`
+    /// — gated `where Base: Escapable`. Mirrors
+    /// ``Ownership/Inout-swift.struct/init(unsafeRawAddress:mutating:)``
+    /// (the underlying storage init) — same shape, composed through Tagged.
+    ///
+    /// The caller-side mechanism for producing `pointer` from an `inout Base`
+    /// where `Base: ~Escapable` is Swift's implicit `inout T` →
+    /// `UnsafeMutableRawPointer` conversion at call-argument boundary, which
+    /// admits `~Escapable T`. A typical consumer pattern is a
+    /// `mutating _read` accessor on `Self: ~Copyable & ~Escapable`:
+    ///
+    /// ```swift
+    /// extension Container where Self: ~Copyable & ~Escapable {
+    ///     var forEach: Property<ForEach, Self>.Inout {
+    ///         @_lifetime(&self)
+    ///         mutating _read {
+    ///             yield unsafe Property<ForEach, Self>.Inout(
+    ///                 unsafeRawAddress: &self,
+    ///                 mutating: &self
+    ///             )
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - pointer: The raw address of the value to mutate.
+    ///   - owner: The owning instance whose mutation scope bounds this
+    ///     reference.
+    @unsafe
+    @inlinable
+    @_lifetime(&owner)
+    public init<Owner: ~Copyable & ~Escapable>(
+        unsafeRawAddress pointer: UnsafeMutableRawPointer,
+        mutating owner: inout Owner
+    ) {
+        self._storage = Tagged(_unchecked: unsafe Ownership.Inout(unsafeRawAddress: pointer, mutating: &owner))
+    }
+}
+
 // MARK: - Non-mutating pointer helpers
 
 extension Property where Base: ~Copyable & ~Escapable {

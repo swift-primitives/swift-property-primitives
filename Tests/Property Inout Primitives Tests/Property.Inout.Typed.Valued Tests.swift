@@ -34,6 +34,23 @@ extension `Property.Inout.Typed.Valued Tests`.Unit {
     }
 }
 
+extension `Property.Inout.Typed.Valued Tests`.Unit {
+
+    /// Compile-time admission: the new `init(unsafeRawAddress:mutating:)` is
+    /// only available when `Base: ~Copyable & ~Escapable`.
+    @Test
+    func `Property.Inout.Typed.Valued~Escapable type-level admission via init(unsafeRawAddress:mutating:)`() {
+        // Closure exists for compile-time admission — never invoked.
+        let _ = { (storage: UnsafeMutableRawPointer, owner: inout Int) in
+            _ = unsafe Property<NEResource.Access, NEResource>.Inout.Typed<Int>.Valued<3>(
+                unsafeRawAddress: storage,
+                mutating: &owner
+            )
+        }
+        #expect(true)
+    }
+}
+
 extension `Property.Inout.Typed.Valued Tests`.`Edge Case` {
 
     @Test

@@ -81,3 +81,39 @@ extension Property.Borrow where Base: ~Copyable & ~Escapable {
         _read { yield _storage.underlying }
     }
 }
+
+extension Property.Borrow where Base: ~Copyable & ~Escapable {
+    /// Unsafely creates a read-only accessor using a raw address, with
+    /// lifetime based on the borrowed owner.
+    ///
+    /// This is the only construction path available when `Base` is `~Escapable`,
+    /// because the typed `init(_ base: borrowing Base)` delegates through
+    /// `Ownership.Borrow(borrowing:)`, which uses `withUnsafePointer(to:)`
+    /// — gated `where Base: Escapable`. Mirrors
+    /// ``Ownership/Borrow/init(unsafeRawAddress:borrowing:)``
+    /// (the underlying storage init) — same shape, composed through Tagged.
+    ///
+    /// > Note: A non-mutating `_read` accessor on `Self: ~Copyable & ~Escapable`
+    /// > cannot produce `UnsafeRawPointer` from `borrow self` via any
+    /// > current user-accessible mechanism — `withUnsafePointer(to:)` is
+    /// > Escapable-gated. This init exists for compile-time admission and
+    /// > for callers that obtain the raw pointer from another source.
+    /// > A `mutating _read` accessor can use the implicit `inout T` →
+    /// > `UnsafeMutableRawPointer` conversion via `&self`, but the resulting
+    /// > raw pointer is mutable; consumers requiring borrow-form construction
+    /// > over a non-mutating context must defer until the language exposes
+    /// > a `~Escapable`-admitting borrow-pointer mechanism.
+    ///
+    /// - Parameters:
+    ///   - pointer: The raw address of the value to borrow.
+    ///   - owner: The owning instance whose lifetime scopes this borrow.
+    @unsafe
+    @inlinable
+    @_lifetime(borrow owner)
+    public init<Owner: ~Copyable & ~Escapable>(
+        unsafeRawAddress pointer: UnsafeRawPointer,
+        borrowing owner: borrowing Owner
+    ) {
+        self._storage = Tagged(_unchecked: unsafe Ownership.Borrow(unsafeRawAddress: pointer, borrowing: owner))
+    }
+}

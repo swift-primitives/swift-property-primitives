@@ -35,6 +35,27 @@ extension `Property.Borrow Tests`.Unit {
     }
 }
 
+extension `Property.Borrow Tests`.Unit {
+
+    /// Compile-time admission: the new `init(unsafeRawAddress:borrowing:)` is
+    /// only available when `Base: ~Copyable & ~Escapable`. The Borrow path
+    /// is compile-time-admission only in this dispatch — runtime call-site
+    /// pattern for non-mutating `_read` on `~Escapable Self` deferred until
+    /// a consumer surfaces. Mirrors `swift-ownership-primitives`'
+    /// `Ownership.Borrow` admission test shape.
+    @Test
+    func `Property.Borrow~Escapable type-level admission via init(unsafeRawAddress:borrowing:)`() {
+        // Closure exists for compile-time admission — never invoked.
+        let _ = { (storage: UnsafeRawPointer, owner: borrowing Int) in
+            _ = unsafe Property<NEResource.Inspect, NEResource>.Borrow(
+                unsafeRawAddress: storage,
+                borrowing: owner
+            )
+        }
+        #expect(true)
+    }
+}
+
 extension `Property.Borrow Tests`.`Edge Case` {
 
     @Test

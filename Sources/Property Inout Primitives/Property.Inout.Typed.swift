@@ -68,3 +68,25 @@ extension Property.Inout.Typed where Base: ~Copyable & ~Escapable, Element: ~Cop
         _read { yield _storage.underlying }
     }
 }
+
+extension Property.Inout.Typed where Base: ~Copyable & ~Escapable, Element: ~Copyable {
+    /// Unsafely creates a typed exclusive mutable accessor using a raw address,
+    /// with lifetime based on the mutating owner.
+    ///
+    /// This is the only construction path available when `Base` is `~Escapable`.
+    /// Mirrors ``Property/Inout-swift.struct/init(unsafeRawAddress:mutating:)``.
+    ///
+    /// - Parameters:
+    ///   - pointer: The raw address of the value to mutate.
+    ///   - owner: The owning instance whose mutation scope bounds this
+    ///     reference.
+    @unsafe
+    @inlinable
+    @_lifetime(&owner)
+    public init<Owner: ~Copyable & ~Escapable>(
+        unsafeRawAddress pointer: UnsafeMutableRawPointer,
+        mutating owner: inout Owner
+    ) {
+        self._storage = Tagged(_unchecked: unsafe Ownership.Inout(unsafeRawAddress: pointer, mutating: &owner))
+    }
+}

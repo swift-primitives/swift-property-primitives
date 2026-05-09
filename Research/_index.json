@@ -7,6 +7,17 @@
   "scope": "swift-property-primitives (swift-primitives)",
   "documents": [
     {
+      "file": "property-inout-raw-address-init.md",
+      "displayName": "property-inout-raw-address-init.md",
+      "topic": "CONVERGED (v1.0.0): Per-package execution note for adding raw-address-form `init(unsafeRawAddress:mutating:)` / `init(unsafeRawAddress:borrowing:)` to all 7 Property.{Inout,Borrow}[.Typed[.Valued[.Valued]]] variants in `where Base: ~Copyable & ~Escapable` extensions. Verbatim mirror of Ownership.Inout/Borrow precedent shipped at swift-ownership-primitives SHA 30f44a2 (lines 113-139, 257-284). Init bodies compose through Tagged + the inner Ownership.{Inout,Borrow}.init(unsafeRawAddress:...). Empirical finding (Appendix A): Swift's implicit `inout T` -> `UnsafeMutableRawPointer` conversion at call-argument boundary admits ~Escapable T — verified via `xcrun swiftc -typecheck` on Swift 6.3.1; this is the call-site mechanism that lets consumers (e.g., Collection.Protocol+ForEach) construct Property.Inout for ~Escapable Self via `Property<…>.Inout(unsafeRawAddress: &self, mutating: &self)` from a `mutating _read`. Borrow path is compile-time-admission only (matching Ownership.Borrow precedent). NEResource fixture reused verbatim from cohort. ~112 lines across 7 source files; ~90 lines across 2 test directories. Closes the parked Item B Candidate 2 partial-resolution finding from §L of escapable-base-upgrade.md.",
+      "date": "2026-05-09",
+      "status": "CONVERGED",
+      "statusDetail": "v1.0.0. Tier 1 per-package research. Authored 2026-05-09 in Phase 1 of HANDOFF-property-inout-raw-address-init-cascade.md. Phase 2 PUSH #1 implementation gated on per-action user authorization for the public-repo push. Lands FIRST in this cascade; downstream swift-collection-primitives PUSH #2 consumes the new APIs.",
+      "statusRaw": "CONVERGED (v1.0.0)",
+      "tier": 1,
+      "scope": "swift-property-primitives"
+    },
+    {
       "file": "escapable-base-upgrade.md",
       "displayName": "escapable-base-upgrade.md",
       "topic": "CONVERGED (v1.0.0): Per-package execution note for Property<Tag, Base>'s Base widening from ~Copyable to ~Copyable & ~Escapable. Type-level: Property becomes ~Copyable, ~Escapable; init(_ base: consuming Base) gains @_lifetime(copy base); conditional Copyable/Sendable conformances explicit on the orthogonal axis per cohort canonical pattern; new conditional Escapable conformance. DECISION: Property.Typed widens (rationale: structural symmetry with Property; cohort precedent; no structural blocker). CONFIRMED: Property.Consume does NOT widen (Copyable-only by construction). Cascade through 6 subtargets: Property Primitives Core (Property.swift + Property+Carrier.swift), Property Inout Primitives (4 files), Property Borrow Primitives (3 files), Property Typed Primitives (1 file), Property Consume Primitives (1 file). ~30 net new/changed lines across 11 source files; ~80 new test lines including NEResource fixture. Lands SECOND in cascade (after swift-ownership-primitives Ownership.Inout upgrade lands).",

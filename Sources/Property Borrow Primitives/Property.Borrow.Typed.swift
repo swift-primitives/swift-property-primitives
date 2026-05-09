@@ -66,3 +66,24 @@ extension Property.Borrow.Typed where Base: ~Copyable & ~Escapable, Element: ~Co
         _read { yield _storage.underlying }
     }
 }
+
+extension Property.Borrow.Typed where Base: ~Copyable & ~Escapable, Element: ~Copyable {
+    /// Unsafely creates a typed read-only accessor using a raw address, with
+    /// lifetime based on the borrowed owner.
+    ///
+    /// This is the only construction path available when `Base` is `~Escapable`.
+    /// Mirrors ``Property/Borrow/init(unsafeRawAddress:borrowing:)``.
+    ///
+    /// - Parameters:
+    ///   - pointer: The raw address of the value to borrow.
+    ///   - owner: The owning instance whose lifetime scopes this borrow.
+    @unsafe
+    @inlinable
+    @_lifetime(borrow owner)
+    public init<Owner: ~Copyable & ~Escapable>(
+        unsafeRawAddress pointer: UnsafeRawPointer,
+        borrowing owner: borrowing Owner
+    ) {
+        self._storage = Tagged(_unchecked: unsafe Ownership.Borrow(unsafeRawAddress: pointer, borrowing: owner))
+    }
+}

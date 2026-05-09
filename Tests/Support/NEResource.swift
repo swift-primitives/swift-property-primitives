@@ -2,11 +2,14 @@
 /// `swift-institute/Research/escapable-support-pair-either-product.md` v1.1.0.
 ///
 /// Verifies that `Property<Tag, Base>` and its View-family types admit
-/// `Base: ~Copyable & ~Escapable` at the type level. Construction is not
-/// exercised — `~Escapable` Base requires raw-address inits not yet exposed
-/// on `Property.Borrow` / `Property.Inout` (see `Ownership.Borrow` /
-/// `Ownership.Inout`'s `init(unsafeRawAddress:borrowing:)` /
-/// `init(unsafeRawAddress:mutating:)` for the analogous lower-tier shape).
+/// `Base: ~Copyable & ~Escapable` at both the type level and the
+/// construction level. Type-level admission is verified by the typealiases
+/// in `Property.Inout Tests.swift` / `Property.Borrow Tests.swift` etc.
+/// Construction-level admission is verified by the
+/// `*~Escapable type-level admission via init(unsafeRawAddress:...)`
+/// tests, which mirror `swift-ownership-primitives`' admission test shape:
+/// closure literals exercise the new init's signature; never invoked at
+/// runtime. See `swift-property-primitives/Research/property-inout-raw-address-init.md`.
 public struct NEResource: ~Escapable, ~Copyable {
     public let id: Int
 
