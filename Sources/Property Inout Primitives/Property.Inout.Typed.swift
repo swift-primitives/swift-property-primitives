@@ -2,7 +2,7 @@ public import Ownership_Inout_Primitives
 public import Property_Primitives_Core
 public import Tagged_Primitives
 
-extension Property.Inout where Base: ~Copyable {
+extension Property.Inout where Base: ~Copyable & ~Escapable {
     /// An exclusive mutable accessor on a `~Copyable` base with an `Element` parameter.
     ///
     /// `Property<Tag, Base>.Inout.Typed<Element>` is the `~Copyable` equivalent of
@@ -46,19 +46,21 @@ extension Property.Inout where Base: ~Copyable {
     public struct Typed<Element: ~Copyable>: ~Copyable, ~Escapable {
         @usableFromInline
         internal var _storage: Tagged<Tag, Ownership.Inout<Base>>
-
-        /// Creates a typed exclusive mutable accessor by borrowing the base value.
-        ///
-        /// - Parameter base: The value to borrow mutably.
-        @inlinable
-        @_lifetime(&base)
-        public init(_ base: inout Base) {
-            self._storage = Tagged(_unchecked: Ownership.Inout(mutating: &base))
-        }
     }
 }
 
 extension Property.Inout.Typed where Base: ~Copyable, Element: ~Copyable {
+    /// Creates a typed exclusive mutable accessor by borrowing the base value.
+    ///
+    /// - Parameter base: The value to borrow mutably.
+    @inlinable
+    @_lifetime(&base)
+    public init(_ base: inout Base) {
+        self._storage = Tagged(_unchecked: Ownership.Inout(mutating: &base))
+    }
+}
+
+extension Property.Inout.Typed where Base: ~Copyable & ~Escapable, Element: ~Copyable {
     /// The exclusive mutable reference to the base value.
     @inlinable
     public var base: Ownership.Inout<Base> {

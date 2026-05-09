@@ -1,6 +1,6 @@
 public import Property_Primitives_Core
 
-extension Property where Base: ~Copyable {
+extension Property where Base: ~Copyable & ~Escapable {
     /// A property with an `Element` parameter for property-based extensions.
     ///
     /// `Property<Tag, Base>.Typed<Element>` carries `Element` in its generic signature
@@ -37,7 +37,7 @@ extension Property where Base: ~Copyable {
     /// Property.Typed article in the `Property Typed Primitives` DocC catalog.
     /// For the broader type-family reference, see ``Property`` and the
     /// `Property_Primitives` umbrella catalog.
-    public struct Typed<Element>: ~Copyable {
+    public struct Typed<Element>: ~Copyable, ~Escapable {
         // Note: Cannot use @Inlined here due to swiftlang/swift#81624
         // (SILGen crash with property wrapper + ~Copyable cross-module)
         @usableFromInline
@@ -59,20 +59,24 @@ extension Property where Base: ~Copyable {
         ///
         /// - Parameter base: The value to wrap. Consumed by the initializer.
         @inlinable
+        @_lifetime(copy base)
         public init(_ base: consuming Base) {
             self._base = base
         }
     }
 }
 
-extension Property.Typed where Base: ~Copyable {
+extension Property.Typed where Base: ~Copyable & ~Escapable {
     /// Read/modify-yielding accessor onto the underlying base value.
     @inlinable
     public var base: Base {
+        @_lifetime(borrow self)
         _read { yield _base }
+        @_lifetime(&self)
         _modify { yield &_base }
     }
 }
 
-extension Property.Typed: Copyable where Base: Copyable {}
-extension Property.Typed: Sendable where Base: Sendable {}
+extension Property.Typed: Copyable where Base: Copyable & ~Escapable {}
+extension Property.Typed: Escapable where Base: Escapable & ~Copyable {}
+extension Property.Typed: Sendable where Base: Sendable & ~Copyable & ~Escapable {}

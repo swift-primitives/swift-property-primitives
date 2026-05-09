@@ -2,7 +2,7 @@ public import Ownership_Borrow_Primitives
 public import Property_Primitives_Core
 public import Tagged_Primitives
 
-extension Property.Borrow.Typed where Base: ~Copyable, Element: ~Copyable {
+extension Property.Borrow.Typed where Base: ~Copyable & ~Escapable, Element: ~Copyable {
     /// A ``Property/Borrow/Typed`` with a value-generic parameter.
     ///
     /// `Property<Tag, Base>.Borrow.Typed<Element>.Valued<n>` is the read-only
@@ -44,19 +44,21 @@ extension Property.Borrow.Typed where Base: ~Copyable, Element: ~Copyable {
     public struct Valued<let n: Int>: ~Copyable, ~Escapable {
         @usableFromInline
         internal var _storage: Tagged<Tag, Ownership.Borrow<Base>>
-
-        /// Creates a valued read-only accessor by borrowing the base value.
-        ///
-        /// - Parameter base: The value to borrow.
-        @inlinable
-        @_lifetime(borrow base)
-        public init(_ base: borrowing Base) {
-            self._storage = Tagged(_unchecked: Ownership.Borrow(borrowing: base))
-        }
     }
 }
 
 extension Property.Borrow.Typed.Valued where Base: ~Copyable, Element: ~Copyable {
+    /// Creates a valued read-only accessor by borrowing the base value.
+    ///
+    /// - Parameter base: The value to borrow.
+    @inlinable
+    @_lifetime(borrow base)
+    public init(_ base: borrowing Base) {
+        self._storage = Tagged(_unchecked: Ownership.Borrow(borrowing: base))
+    }
+}
+
+extension Property.Borrow.Typed.Valued where Base: ~Copyable & ~Escapable, Element: ~Copyable {
     /// The shared borrowed reference to the base value.
     @inlinable
     public var base: Ownership.Borrow<Base> {

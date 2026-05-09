@@ -2,7 +2,7 @@
 public import Property_Primitives_Core
 public import Tagged_Primitives
 
-extension Property where Base: ~Copyable {
+extension Property where Base: ~Copyable & ~Escapable {
     /// A read-only accessor on a `~Copyable` base.
     ///
     /// `Property<Tag, Base>.Borrow` is a thin wrapper over
@@ -57,19 +57,21 @@ extension Property where Base: ~Copyable {
     public struct Borrow: ~Copyable, ~Escapable {
         @usableFromInline
         internal var _storage: Tagged<Tag, Ownership.Borrow<Base>>
-
-        /// Creates a read-only accessor by borrowing the base value.
-        ///
-        /// - Parameter base: The value to borrow.
-        @inlinable
-        @_lifetime(borrow base)
-        public init(_ base: borrowing Base) {
-            self._storage = Tagged(_unchecked: Ownership.Borrow(borrowing: base))
-        }
     }
 }
 
 extension Property.Borrow where Base: ~Copyable {
+    /// Creates a read-only accessor by borrowing the base value.
+    ///
+    /// - Parameter base: The value to borrow.
+    @inlinable
+    @_lifetime(borrow base)
+    public init(_ base: borrowing Base) {
+        self._storage = Tagged(_unchecked: Ownership.Borrow(borrowing: base))
+    }
+}
+
+extension Property.Borrow where Base: ~Copyable & ~Escapable {
     /// The shared borrowed reference to the base value.
     ///
     /// Use `base.value` to read the underlying value.

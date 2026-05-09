@@ -1,6 +1,14 @@
 import Property_Primitives_Test_Support
 import Testing
 
+// MARK: - Type-level admission of ~Escapable Base
+//
+// If `Property.Borrow` regresses to require `Base: Escapable`, this typealias
+// fails to compile. NEResource is `~Copyable & ~Escapable` per the cohort's
+// canonical fixture pattern.
+private typealias _BorrowAdmitsNEResource = Property<NEResource.Inspect, NEResource>.Borrow
+private typealias _BorrowTypedAdmitsNEResource = Property<NEResource.Inspect, NEResource>.Borrow.Typed<Int>
+
 @Suite
 struct `Property.Borrow Tests` {
     @Suite struct Unit {}

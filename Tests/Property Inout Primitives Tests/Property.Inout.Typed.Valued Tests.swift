@@ -1,6 +1,12 @@
 import Property_Primitives_Test_Support
 import Testing
 
+// MARK: - Type-level admission of ~Escapable Base
+//
+// If `Property.Inout.Typed.Valued` regresses to require `Base: Escapable`,
+// this typealias fails to compile.
+private typealias _ValuedAdmitsNEResource = Property<NEResource.Access, NEResource>.Inout.Typed<Int>.Valued<3>
+
 @Suite
 struct `Property.Inout.Typed.Valued Tests` {
     @Suite struct Unit {}

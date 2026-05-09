@@ -7,6 +7,17 @@
   "scope": "swift-property-primitives (swift-primitives)",
   "documents": [
     {
+      "file": "escapable-base-upgrade.md",
+      "displayName": "escapable-base-upgrade.md",
+      "topic": "CONVERGED (v1.0.0): Per-package execution note for Property<Tag, Base>'s Base widening from ~Copyable to ~Copyable & ~Escapable. Type-level: Property becomes ~Copyable, ~Escapable; init(_ base: consuming Base) gains @_lifetime(copy base); conditional Copyable/Sendable conformances explicit on the orthogonal axis per cohort canonical pattern; new conditional Escapable conformance. DECISION: Property.Typed widens (rationale: structural symmetry with Property; cohort precedent; no structural blocker). CONFIRMED: Property.Consume does NOT widen (Copyable-only by construction). Cascade through 6 subtargets: Property Primitives Core (Property.swift + Property+Carrier.swift), Property Inout Primitives (4 files), Property Borrow Primitives (3 files), Property Typed Primitives (1 file), Property Consume Primitives (1 file). ~30 net new/changed lines across 11 source files; ~80 new test lines including NEResource fixture. Lands SECOND in cascade (after swift-ownership-primitives Ownership.Inout upgrade lands).",
+      "date": "2026-05-09",
+      "status": "CONVERGED",
+      "statusDetail": "v1.0.0. Tier 1 per-package research. Authored 2026-05-09 in Phase 1 of HANDOFF-property-primitives-escapable-upgrade.md cascade. Phase 2 implementation gated on (a) swift-ownership-primitives Ownership.Inout upgrade landing first, (b) per-action user authorization for the public-repo push. Cascade-order: lands SECOND.",
+      "statusRaw": "CONVERGED (v1.0.0)",
+      "tier": 1,
+      "scope": "swift-property-primitives"
+    },
+    {
       "file": "property-type-family.md",
       "displayName": "property-type-family.md",
       "topic": "Property type family unified abstraction",

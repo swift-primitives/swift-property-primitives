@@ -21,7 +21,7 @@
 
 public import Carrier_Primitives
 
-extension Property: Carrier.`Protocol` where Base: ~Copyable {
+extension Property: Carrier.`Protocol` where Base: ~Copyable & ~Escapable {
     /// The wrapped value type.
     public typealias Underlying = Base
 
@@ -31,6 +31,7 @@ extension Property: Carrier.`Protocol` where Base: ~Copyable {
     /// Borrowing access to the underlying value.
     @inlinable
     public var underlying: Base {
+        @_lifetime(borrow self)
         _read { yield _base }
     }
 }

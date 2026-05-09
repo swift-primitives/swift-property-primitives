@@ -2,7 +2,7 @@ public import Ownership_Inout_Primitives
 public import Property_Primitives_Core
 public import Tagged_Primitives
 
-extension Property.Inout.Typed where Base: ~Copyable, Element: ~Copyable {
+extension Property.Inout.Typed where Base: ~Copyable & ~Escapable, Element: ~Copyable {
     /// A ``Property/Inout-swift.struct/Typed`` with one value-generic parameter.
     ///
     /// `Property<Tag, Base>.Inout.Typed<Element>.Valued<n>` lifts a compile-time
@@ -42,19 +42,21 @@ extension Property.Inout.Typed where Base: ~Copyable, Element: ~Copyable {
     public struct Valued<let n: Int>: ~Copyable, ~Escapable {
         @usableFromInline
         internal var _storage: Tagged<Tag, Ownership.Inout<Base>>
-
-        /// Creates a valued exclusive mutable accessor by borrowing the base value.
-        ///
-        /// - Parameter base: The value to borrow mutably.
-        @inlinable
-        @_lifetime(&base)
-        public init(_ base: inout Base) {
-            self._storage = Tagged(_unchecked: Ownership.Inout(mutating: &base))
-        }
     }
 }
 
 extension Property.Inout.Typed.Valued where Base: ~Copyable, Element: ~Copyable {
+    /// Creates a valued exclusive mutable accessor by borrowing the base value.
+    ///
+    /// - Parameter base: The value to borrow mutably.
+    @inlinable
+    @_lifetime(&base)
+    public init(_ base: inout Base) {
+        self._storage = Tagged(_unchecked: Ownership.Inout(mutating: &base))
+    }
+}
+
+extension Property.Inout.Typed.Valued where Base: ~Copyable & ~Escapable, Element: ~Copyable {
     /// The exclusive mutable reference to the base value.
     @inlinable
     public var base: Ownership.Inout<Base> {
