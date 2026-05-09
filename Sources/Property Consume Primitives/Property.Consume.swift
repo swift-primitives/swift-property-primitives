@@ -1,6 +1,6 @@
 public import Property_Primitives_Core
 
-extension Property where Base: Copyable & Escapable {
+extension Property where Base: Copyable {
     /// A property that supports both borrowing and consuming access.
     ///
     /// `Property<Tag, Base>.Consume<Element>` enables call sites like

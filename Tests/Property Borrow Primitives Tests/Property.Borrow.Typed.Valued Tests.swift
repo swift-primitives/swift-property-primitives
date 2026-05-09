@@ -33,23 +33,6 @@ extension `Property.Borrow.Typed.Valued Tests`.Unit {
     }
 }
 
-extension `Property.Borrow.Typed.Valued Tests`.Unit {
-
-    /// Compile-time admission: the new `init(unsafeRawAddress:borrowing:)` is
-    /// only available when `Base: ~Copyable & ~Escapable`.
-    @Test
-    func `Property.Borrow.Typed.Valued~Escapable type-level admission via init(unsafeRawAddress:borrowing:)`() {
-        // Closure exists for compile-time admission — never invoked.
-        let _ = { (storage: UnsafeRawPointer, owner: borrowing Int) in
-            _ = unsafe Property<NEResource.Inspect, NEResource>.Borrow.Typed<Int>.Valued<5>(
-                unsafeRawAddress: storage,
-                borrowing: owner
-            )
-        }
-        #expect(true)
-    }
-}
-
 extension `Property.Borrow.Typed.Valued Tests`.`Edge Case` {
 
     @Test

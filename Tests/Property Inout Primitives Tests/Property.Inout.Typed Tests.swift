@@ -1,33 +1,11 @@
 import Property_Primitives_Test_Support
 import Testing
 
-// MARK: - Type-level admission of ~Escapable Base
-//
-// If `Property.Inout.Typed` regresses to require `Base: Escapable`, the
-// admission test below fails to compile.
-
 @Suite
 struct `Property.Inout.Typed Tests` {
     @Suite struct Unit {}
     @Suite struct `Edge Case` {}
     @Suite struct Integration {}
-}
-
-extension `Property.Inout.Typed Tests`.Unit {
-
-    /// Compile-time admission: the new `init(unsafeRawAddress:mutating:)` is
-    /// only available when `Base: ~Copyable & ~Escapable`.
-    @Test
-    func `Property.Inout.Typed~Escapable type-level admission via init(unsafeRawAddress:mutating:)`() {
-        // Closure exists for compile-time admission — never invoked.
-        let _ = { (storage: UnsafeMutableRawPointer, owner: inout Int) in
-            _ = unsafe Property<NEResource.Access, NEResource>.Inout.Typed<Int>(
-                unsafeRawAddress: storage,
-                mutating: &owner
-            )
-        }
-        #expect(true)
-    }
 }
 
 extension `Property.Inout.Typed Tests`.Unit {

@@ -1,14 +1,6 @@
 import Property_Primitives_Test_Support
 import Testing
 
-// MARK: - Type-level admission of ~Escapable Base
-//
-// If `Property.Inout` regresses to require `Base: Escapable`, this typealias
-// fails to compile. NEResource is `~Copyable & ~Escapable` per the cohort's
-// canonical fixture pattern.
-private typealias _InoutAdmitsNEResource = Property<NEResource.Access, NEResource>.Inout
-private typealias _InoutTypedAdmitsNEResource = Property<NEResource.Access, NEResource>.Inout.Typed<Int>
-
 @Suite
 struct `Property.Inout Tests` {
     @Suite struct Unit {}
@@ -96,24 +88,5 @@ extension `Property.Inout Tests`.Integration {
         }
 
         #expect(sum == 10)
-    }
-}
-
-extension `Property.Inout Tests`.Unit {
-
-    /// Compile-time admission: the new `init(unsafeRawAddress:mutating:)` is
-    /// only available when `Base: ~Copyable & ~Escapable`. If the type
-    /// constraint regresses to `~Copyable` only, this function fails to
-    /// compile. Mirrors `swift-ownership-primitives`' admission test shape.
-    @Test
-    func `Property.Inout~Escapable type-level admission via init(unsafeRawAddress:mutating:)`() {
-        // Closure exists for compile-time admission — never invoked.
-        let _ = { (storage: UnsafeMutableRawPointer, owner: inout Int) in
-            _ = unsafe Property<NEResource.Access, NEResource>.Inout(
-                unsafeRawAddress: storage,
-                mutating: &owner
-            )
-        }
-        #expect(true)
     }
 }

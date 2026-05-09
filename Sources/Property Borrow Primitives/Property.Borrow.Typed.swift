@@ -2,7 +2,7 @@ public import Ownership_Borrow_Primitives
 public import Property_Primitives_Core
 public import Tagged_Primitives
 
-extension Property.Borrow where Base: ~Copyable & ~Escapable {
+extension Property.Borrow where Base: ~Copyable {
     /// A read-only accessor on a `~Copyable` base with an `Element` parameter.
     ///
     /// `Property<Tag, Base>.Borrow.Typed<Element>` is the read-only
@@ -44,46 +44,23 @@ extension Property.Borrow where Base: ~Copyable & ~Escapable {
     public struct Typed<Element: ~Copyable>: ~Copyable, ~Escapable {
         @usableFromInline
         internal var _storage: Tagged<Tag, Ownership.Borrow<Base>>
+
+        /// Creates a typed read-only accessor by borrowing the base value.
+        ///
+        /// - Parameter base: The value to borrow.
+        @inlinable
+        @_lifetime(borrow base)
+        public init(_ base: borrowing Base) {
+            self._storage = Tagged(_unchecked: Ownership.Borrow(borrowing: base))
+        }
     }
 }
 
 extension Property.Borrow.Typed where Base: ~Copyable, Element: ~Copyable {
-    /// Creates a typed read-only accessor by borrowing the base value.
-    ///
-    /// - Parameter base: The value to borrow.
-    @inlinable
-    @_lifetime(borrow base)
-    public init(_ base: borrowing Base) {
-        self._storage = Tagged(_unchecked: Ownership.Borrow(borrowing: base))
-    }
-}
-
-extension Property.Borrow.Typed where Base: ~Copyable & ~Escapable, Element: ~Copyable {
     /// The shared borrowed reference to the base value.
     @inlinable
     public var base: Ownership.Borrow<Base> {
         @_lifetime(borrow self)
         _read { yield _storage.underlying }
-    }
-}
-
-extension Property.Borrow.Typed where Base: ~Copyable & ~Escapable, Element: ~Copyable {
-    /// Unsafely creates a typed read-only accessor using a raw address, with
-    /// lifetime based on the borrowed owner.
-    ///
-    /// This is the only construction path available when `Base` is `~Escapable`.
-    /// Mirrors ``Property/Borrow/init(unsafeRawAddress:borrowing:)``.
-    ///
-    /// - Parameters:
-    ///   - pointer: The raw address of the value to borrow.
-    ///   - owner: The owning instance whose lifetime scopes this borrow.
-    @unsafe
-    @inlinable
-    @_lifetime(borrow owner)
-    public init<Owner: ~Copyable & ~Escapable>(
-        unsafeRawAddress pointer: UnsafeRawPointer,
-        borrowing owner: borrowing Owner
-    ) {
-        self._storage = Tagged(_unchecked: unsafe Ownership.Borrow(unsafeRawAddress: pointer, borrowing: owner))
     }
 }

@@ -6,13 +6,6 @@ import Testing
 private typealias _PropertyIsCopyable = RequireCopyable<Property<Phantom, Int>>
 private typealias _PropertyIsSendable = RequireSendable<Property<Phantom, Int>>
 
-// MARK: - Type-level admission of ~Escapable Base
-//
-// If `Property<Tag, Base>` regresses to require `Base: Escapable`, these
-// typealiases fail to compile. NEResource is `~Copyable & ~Escapable` per the
-// cohort's canonical fixture pattern.
-private typealias _PropertyAdmitsNEResource = Property<NEResource.Inspect, NEResource>
-
 @Suite
 struct `Property Tests` {
     @Suite struct Unit {}

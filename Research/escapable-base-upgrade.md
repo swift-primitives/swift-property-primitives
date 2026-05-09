@@ -2,9 +2,9 @@
 
 <!--
 ---
-version: 1.0.0
+version: 1.1.0
 last_updated: 2026-05-09
-status: CONVERGED
+status: CONVERGED-PRUNED
 tier: 1
 scope: per-package
 preceded_by:
@@ -22,6 +22,18 @@ toolchains_verified:
 trigger: Cohort cascade Item B Candidate 2 — `Collection.Protocol`'s `forEach: Property<Collection.ForEach, Self>.Inout` accessor cannot admit `Self: ~Copyable & ~Escapable` because `Property<Tag, Base: ~Copyable>` constrains `Base` to implicit Escapable.
 ---
 -->
+
+## Status: CONVERGED-PRUNED (v1.1.0, 2026-05-09)
+
+> The design analysis below CONVERGED in Phase 1 of `HANDOFF-property-primitives-escapable-upgrade.md` (the predecessor detour, superseded) and the type-level admission shipped at swift-property-primitives `5bb2f67`. The downstream functional-construction work shipped at `be0e3a2` + `9ee0c37` per the follow-on `HANDOFF-property-inout-raw-address-init-cascade.md`. The Property tier source was subsequently **PRUNED** by the surgical follow-up `HANDOFF-escapable-property-tier-prune.md` (2026-05-09): the type-level Base widening, the conditional-conformance discipline applied to Copyable/Sendable/Escapable extensions, the Property.Typed widening, and the Property.Consume Sendable adjustment were all reverted in a single new commit on top of `9ee0c37`, returning Sources/+Tests/ to the pre-cascade `49dce56` state.
+>
+> **Why pruned**: see the rationale in `property-inout-raw-address-init.md` §Status — Property's value-add over raw Ownership is structurally view-of-self-locked, and view-of-self is blocked at the Swift language level until a relevant affordance ships. The §L Phase-2 implementation refinement here (relocating struct-body inits to narrower Escapable-implicit extensions) was correct under the cascade's design assumptions but is moot under the prune.
+>
+> **What survives**: this research note, preserved on disk verbatim. The design space (§A–§K), the empirical Phase-2 verification (§M, 48/48 → 55/55 verified clean on triple-toolchain at the cascade SHAs), the conditional-conformance discipline mandated by the cohort canonical pattern, and the cross-package readiness audit (Tagged + Carrier already admit ~Escapable Underlying) are all load-bearing learnings that survive the source prune. When the Swift toolchain ships the missing language affordance, this note is the resume-from-here pointer.
+>
+> **What does not survive**: the type-level admission of `~Escapable Base` on `Property<Tag, Base>`, Property.Typed's matching widening, Property.Consume's adjusted conditional Sendable, the conditional Copyable/Sendable/Escapable extensions on the orthogonal axis, and the relocated struct-body inits from §L. All reverted out of Sources/+Tests/ as of the prune commit (post-`9ee0c37`).
+>
+> **What the broader institute program retains**: `swift-ownership-primitives` `30f44a2` (Ownership.Inout admits ~Escapable Value) is **not pruned** — see `property-inout-raw-address-init.md` §Status for the rationale.
 
 ## Context
 

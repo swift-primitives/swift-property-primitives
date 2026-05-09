@@ -43,7 +43,7 @@
 /// `Property.Inout` (in `Property Inout Primitives`). For the full type
 /// family and decision guidance, see the `Property_Primitives` umbrella
 /// catalog.
-public struct Property<Tag, Base: ~Copyable & ~Escapable>: ~Copyable, ~Escapable {
+public struct Property<Tag, Base: ~Copyable>: ~Copyable {
     // Note: Cannot use @Inlined here due to swiftlang/swift#81624
     // (SILGen crash with property wrapper + ~Copyable cross-module)
     @usableFromInline
@@ -64,23 +64,19 @@ public struct Property<Tag, Base: ~Copyable & ~Escapable>: ~Copyable, ~Escapable
     ///
     /// - Parameter base: The value to wrap. Consumed by the initializer.
     @inlinable
-    @_lifetime(copy base)
     public init(_ base: consuming Base) {
         self._base = base
     }
 }
 
-extension Property where Base: ~Copyable & ~Escapable {
+extension Property where Base: ~Copyable {
     /// Read/modify-yielding accessor onto the underlying base value.
     @inlinable
     public var base: Base {
-        @_lifetime(borrow self)
         _read { yield _base }
-        @_lifetime(&self)
         _modify { yield &_base }
     }
 }
 
-extension Property: Copyable where Base: Copyable & ~Escapable {}
-extension Property: Escapable where Base: Escapable & ~Copyable {}
-extension Property: Sendable where Base: Sendable & ~Copyable & ~Escapable {}
+extension Property: Copyable where Base: Copyable {}
+extension Property: Sendable where Base: Sendable {}

@@ -1,12 +1,6 @@
 import Property_Primitives_Test_Support
 import Testing
 
-// MARK: - Type-level admission of ~Escapable Base
-//
-// If `Property.Inout.Typed.Valued` regresses to require `Base: Escapable`,
-// this typealias fails to compile.
-private typealias _ValuedAdmitsNEResource = Property<NEResource.Access, NEResource>.Inout.Typed<Int>.Valued<3>
-
 @Suite
 struct `Property.Inout.Typed.Valued Tests` {
     @Suite struct Unit {}
@@ -31,23 +25,6 @@ extension `Property.Inout.Typed.Valued Tests`.Unit {
         inline.access.resize(to: 7)
         #expect(inline.count == 7)
         #expect(inline.access.size == 7)
-    }
-}
-
-extension `Property.Inout.Typed.Valued Tests`.Unit {
-
-    /// Compile-time admission: the new `init(unsafeRawAddress:mutating:)` is
-    /// only available when `Base: ~Copyable & ~Escapable`.
-    @Test
-    func `Property.Inout.Typed.Valued~Escapable type-level admission via init(unsafeRawAddress:mutating:)`() {
-        // Closure exists for compile-time admission — never invoked.
-        let _ = { (storage: UnsafeMutableRawPointer, owner: inout Int) in
-            _ = unsafe Property<NEResource.Access, NEResource>.Inout.Typed<Int>.Valued<3>(
-                unsafeRawAddress: storage,
-                mutating: &owner
-            )
-        }
-        #expect(true)
     }
 }
 

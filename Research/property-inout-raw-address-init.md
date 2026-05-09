@@ -2,9 +2,9 @@
 
 <!--
 ---
-version: 1.0.0
+version: 1.1.0
 last_updated: 2026-05-09
-status: CONVERGED
+status: CONVERGED-PRUNED
 tier: 1
 scope: per-package
 preceded_by:
@@ -23,6 +23,18 @@ toolchains_verified:
 trigger: §L of `escapable-base-upgrade.md` documents that the type-level Property Base widening shipped at 5bb2f67 leaves the functional construction path requiring Escapable Base. `Property.Inout(_:)` inout-init delegates to `Ownership.Inout(mutating:)` which uses `withUnsafeMutablePointer(to:)` (stdlib-gated `where T: Escapable`). Consumers attempting `Property.Inout(&self)` from a mutating accessor on `Self: ~Copyable & ~Escapable` get `error: referencing initializer 'init(_:)' on 'Property.Inout' requires that 'Self' conform to 'Escapable'`.
 ---
 -->
+
+## Status: CONVERGED-PRUNED (v1.1.0, 2026-05-09)
+
+> The design analysis below CONVERGED in Phase 1 of `HANDOFF-property-inout-raw-address-init-cascade.md` and the implementation shipped at swift-property-primitives `be0e3a2` + `9ee0c37`. The Property tier source was subsequently **PRUNED** by the surgical follow-up `HANDOFF-escapable-property-tier-prune.md` (2026-05-09): the 7 raw-address-form inits, 7 admission tests, and the type-level Property Base widening from `5bb2f67` were reverted in a single new commit on top of `9ee0c37`, returning Sources/+Tests/ to the pre-cascade `49dce56` state.
+>
+> **Why pruned**: Property's distinguishing value-add over raw `Ownership.Inout/Borrow` is the fluent-accessor namespace pattern (`container.fluent.accessor`), which is structurally view-of-self. View-of-self is blocked at the Swift language level (`#ExclusivityViolation` on dual-`&self` arguments at the call boundary; the boundary-derived raw pointer is body-scoped and dies on function return). Without view-of-self, Property's `~Escapable Base` admission has no distinguishing consumer pattern over raw Ownership — the cascade was speculative tail. See §B + Appendix A for the empirical SIL reproduction.
+>
+> **What survives**: this research note, preserved on disk verbatim. The design space, the empirical findings, the structural-blocker analysis, and the language-affordance trigger condition are load-bearing learnings that survive the source prune. When the Swift toolchain ships a user-package mechanism for raw-pointer derivation from inout self without dual-borrow violation (e.g., `Builtin.addressOfBorrow` exposed at user level, or a `~Escapable`-admitting `withUnsafeMutablePointer` variant, or a `Reborrow<T>: ~Escapable`-style facility), this note is the resume-from-here pointer for re-shipping the cascade with confidence.
+>
+> **What does not survive**: the 7 init signatures + 7 admission tests + type-level Base widening shipped at `5bb2f67`/`be0e3a2`/`9ee0c37`. They are reverted out of Sources/+Tests/ as of the prune commit (post-`9ee0c37`). Re-shipping them requires re-attempting the cascade once the language affordance lands.
+>
+> **What the broader institute program retains**: `swift-ownership-primitives` `30f44a2` is **not pruned** — Ownership's `~Escapable Value` admission stays. Ownership-tier consumers (Buffer.Inout, Carrier composition, mapped-region patterns) are coherent with the separate-source storage/owner shape; view-of-self is not the gating consumer pattern at the Ownership tier. Cohort base (Pair / Either / Product `~Escapable` arms) and institute protocols (Equation / Hash / Comparison admit `~Escapable` conformers) also stay — proven consumers exist.
 
 ## Context
 
