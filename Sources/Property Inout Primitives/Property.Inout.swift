@@ -144,28 +144,38 @@ extension Property.Inout where Base: ~Copyable & ~Escapable {
     /// ``Ownership/Inout-swift.struct/init(unsafeRawAddress:mutating:)``
     /// (the underlying storage init) — same shape, composed through Tagged.
     ///
-    /// The caller-side mechanism for producing `pointer` from an `inout Base`
-    /// where `Base: ~Escapable` is Swift's implicit `inout T` →
-    /// `UnsafeMutableRawPointer` conversion at call-argument boundary, which
-    /// admits `~Escapable T`. A typical consumer pattern is a
-    /// `mutating _read` accessor on `Self: ~Copyable & ~Escapable`:
-    ///
-    /// ```swift
-    /// extension Container where Self: ~Copyable & ~Escapable {
-    ///     var forEach: Property<ForEach, Self>.Inout {
-    ///         @_lifetime(&self)
-    ///         mutating _read {
-    ///             yield unsafe Property<ForEach, Self>.Inout(
-    ///                 unsafeRawAddress: &self,
-    ///                 mutating: &self
-    ///             )
-    ///         }
-    ///     }
-    /// }
-    /// ```
+    /// > Important: This init is compile-time-admission scaffolding plus a
+    /// > runtime construction path for callers that supply `pointer` from a
+    /// > **non-self** source — a pre-existing `UnsafeMutableRawPointer`
+    /// > field, kernel-mapped memory, file-mapped storage, or any external
+    /// > pointer source independent of the `inout owner`. The view-of-self
+    /// > consumer pattern (`Property<...>.Inout(unsafeRawAddress: &self,
+    /// > mutating: &self)` from a `mutating _read` accessor on
+    /// > `Self: ~Copyable & ~Escapable`) is **uncompilable** under Swift's
+    /// > exclusive-access law: the implicit `inout T` →
+    /// > `UnsafeMutableRawPointer` conversion at the call boundary takes
+    /// > exclusive access on `&self`, and the explicit `mutating: &self`
+    /// > argument takes exclusive access on the same source — the two
+    /// > borrows conflict. Compounding this, the boundary-derived raw
+    /// > pointer is body-scoped (dies on function return), so storing it
+    /// > would dangle.
+    /// >
+    /// > Producing a stable raw pointer to ~Escapable inout in user-package
+    /// > code requires a Swift language affordance not currently exposed:
+    /// > `Builtin.addressOfBorrow` (stdlib-internal), or a future
+    /// > `~Escapable`-admitting `withUnsafeMutablePointer` variant, or a
+    /// > `Reborrow<T>: ~Escapable`-style facility. The cohort tracks this
+    /// > in `HANDOFF-escapable-cohort-followups.md` Item B Candidate 2 as
+    /// > DEFERRED-TOOLCHAIN. See
+    /// > `swift-collection-primitives/Research/escapable-protocol-foreach-count-view.md`
+    /// > v1.1.0 §J–§K for the empirical reproduction (`swiftc -emit-sil`)
+    /// > and Option B probe results.
     ///
     /// - Parameters:
-    ///   - pointer: The raw address of the value to mutate.
+    ///   - pointer: The raw address of the value to mutate. MUST be derived
+    ///     from a source independent of the `mutating owner` argument's
+    ///     storage; deriving it from `&owner` at the same call site
+    ///     violates Swift's exclusive-access law.
     ///   - owner: The owning instance whose mutation scope bounds this
     ///     reference.
     @unsafe

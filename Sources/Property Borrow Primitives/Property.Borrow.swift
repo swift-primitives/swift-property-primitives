@@ -93,16 +93,30 @@ extension Property.Borrow where Base: ~Copyable & ~Escapable {
     /// ``Ownership/Borrow/init(unsafeRawAddress:borrowing:)``
     /// (the underlying storage init) — same shape, composed through Tagged.
     ///
-    /// > Note: A non-mutating `_read` accessor on `Self: ~Copyable & ~Escapable`
-    /// > cannot produce `UnsafeRawPointer` from `borrow self` via any
-    /// > current user-accessible mechanism — `withUnsafePointer(to:)` is
-    /// > Escapable-gated. This init exists for compile-time admission and
-    /// > for callers that obtain the raw pointer from another source.
-    /// > A `mutating _read` accessor can use the implicit `inout T` →
-    /// > `UnsafeMutableRawPointer` conversion via `&self`, but the resulting
-    /// > raw pointer is mutable; consumers requiring borrow-form construction
-    /// > over a non-mutating context must defer until the language exposes
-    /// > a `~Escapable`-admitting borrow-pointer mechanism.
+    /// > Important: This init is compile-time-admission scaffolding plus a
+    /// > runtime construction path for callers that supply `pointer` from a
+    /// > **non-self** source — a pre-existing `UnsafeRawPointer` field,
+    /// > kernel-mapped memory, file-mapped storage, or any external pointer
+    /// > source independent of the `borrowing owner`. The view-of-self
+    /// > consumer pattern from a non-mutating `_read` accessor on
+    /// > `Self: ~Copyable & ~Escapable` is **uncompilable**:
+    /// > `withUnsafePointer(to:)` is Escapable-gated, and there is no
+    /// > user-package mechanism to derive `UnsafeRawPointer` from
+    /// > `borrow self` where `Self: ~Escapable`. From a `mutating _read`,
+    /// > the `Property<...>.Borrow(unsafeRawAddress: &self, borrowing: self)`
+    /// > shape is also uncompilable (dual-`&self` exclusivity violation
+    /// > between the implicit `inout T` → `UnsafeRawPointer` conversion
+    /// > and a separate borrow on `self`; plus boundary-scoped pointer
+    /// > lifetime).
+    /// >
+    /// > Producing a stable raw pointer to ~Escapable inout/borrow in
+    /// > user-package code requires a Swift language affordance not
+    /// > currently exposed: `Builtin.addressOfBorrow` (stdlib-internal),
+    /// > or a future `~Escapable`-admitting `withUnsafePointer` variant,
+    /// > or a `Reborrow<T>: ~Escapable`-style facility. The cohort tracks
+    /// > this as DEFERRED-TOOLCHAIN — see
+    /// > `swift-collection-primitives/Research/escapable-protocol-foreach-count-view.md`
+    /// > v1.1.0 §J–§K.
     ///
     /// - Parameters:
     ///   - pointer: The raw address of the value to borrow.
