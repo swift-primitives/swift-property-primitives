@@ -1,6 +1,6 @@
 public import Property_Primitives_Core
 
-extension Property.Consume {
+extension Property.Consume where Base: Copyable {
     // WORKAROUND: @unchecked Sendable on Property.Consume.State.
     // WHY: `final class` with mutable stored properties (`var _base: Base?`,
     //      `var _consumed: Bool`) cannot be auto-verified as Sendable. The
