@@ -113,7 +113,7 @@ extension Property where Base: ~Copyable {
             )
             let inoutRef = unsafe Ownership.Inout(ptr)
             let tagged = Tagged<Tag, Ownership.Inout<Base>>(_unchecked: inoutRef)
-            self._storage = unsafe _overrideLifetime(tagged, borrowing: base)
+            unsafe (self._storage = _overrideLifetime(tagged, borrowing: base))
         }
     }
 }

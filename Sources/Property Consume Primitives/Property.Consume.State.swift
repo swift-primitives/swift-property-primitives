@@ -36,17 +36,19 @@ extension Property.Consume {
             self._base = consume base
             self._consumed = false
         }
-
-        /// Whether the base has been consumed.
-        @inlinable
-        public var isConsumed: Bool { _consumed }
-
-        /// Borrows the base value for read access.
-        ///
-        /// Returns `nil` if already consumed.
-        @inlinable
-        public func borrow() -> Base? { _base }
     }
+}
+
+extension Property.Consume.State {
+    /// Whether the base has been consumed.
+    @inlinable
+    public var isConsumed: Bool { _consumed }
+
+    /// Borrows the base value for read access.
+    ///
+    /// Returns `nil` if already consumed.
+    @inlinable
+    public func borrow() -> Base? { _base }
 }
 
 extension Property.Consume.State: @unchecked Sendable where Base: Sendable {}
