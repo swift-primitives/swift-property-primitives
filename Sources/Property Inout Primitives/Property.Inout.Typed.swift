@@ -42,6 +42,9 @@ extension Property.Inout where Base: ~Copyable {
     /// For the `Copyable` equivalent, see `Property.Typed` (in
     /// `Property Typed Primitives`). For read-only access, see
     /// `Property.Borrow.Typed` (in `Property Borrow Primitives`).
+    // SAFETY: Transitive absorption of `Tagged`'s invariants;
+    // SAFETY: this wrapper's API never re-exposes the underlying unsafety,
+    // SAFETY: and lifetime / ownership constraints are inherited.
     @safe
     public struct Typed<Element: ~Copyable>: ~Copyable, ~Escapable {
         @usableFromInline

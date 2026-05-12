@@ -38,6 +38,9 @@ extension Property.Inout.Typed where Base: ~Copyable, Element: ~Copyable {
     /// ```
     ///
     /// For two value generics, see ``Property/Inout-swift.struct/Typed/Valued/Valued``.
+    // SAFETY: Transitive absorption of `Tagged`'s invariants;
+    // SAFETY: this wrapper's API never re-exposes the underlying unsafety,
+    // SAFETY: and lifetime / ownership constraints are inherited.
     @safe
     public struct Valued<let n: Int>: ~Copyable, ~Escapable {
         @usableFromInline

@@ -40,6 +40,9 @@ extension Property.Borrow where Base: ~Copyable {
     /// ```
     ///
     /// Switch to ``Property/Inout-swift.struct/Typed`` when extensions need mutation.
+    // SAFETY: Transitive absorption of `Tagged`'s invariants;
+    // SAFETY: this wrapper's API never re-exposes the underlying unsafety,
+    // SAFETY: and lifetime / ownership constraints are inherited.
     @safe
     public struct Typed<Element: ~Copyable>: ~Copyable, ~Escapable {
         @usableFromInline

@@ -33,6 +33,9 @@ extension Property.Inout.Typed.Valued where Base: ~Copyable, Element: ~Copyable 
     ///     mutating func front(_ element: consuming Element) throws(Error) { }
     /// }
     /// ```
+    // SAFETY: Transitive absorption of `Tagged`'s invariants;
+    // SAFETY: this wrapper's API never re-exposes the underlying unsafety,
+    // SAFETY: and lifetime / ownership constraints are inherited.
     @safe
     public struct Valued<let m: Int>: ~Copyable, ~Escapable {
         @usableFromInline
