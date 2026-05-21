@@ -151,6 +151,7 @@ let package = Package(
             name: "Property Primitives Test Support",
             dependencies: [
                 "Property Primitives",
+                .product(name: "Ownership Primitives Test Support", package: "swift-ownership-primitives"),
             ],
             path: "Tests/Support"
         ),
