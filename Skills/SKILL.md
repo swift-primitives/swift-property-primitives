@@ -61,36 +61,50 @@ catalogue).
 
 ## Setup: tags, typealias, imports
 
-### [PRP-002] Define tags as empty enums nested in your container
+### [PRP-002] Nest tags on your container; any type may be a tag
 
-**Statement**: Each accessor namespace on your container MUST have a corresponding
-empty enum tag, declared as a nested type on the container.
+**Statement**: Each accessor namespace is specialized on a `Tag` type. `Property<Tag,
+Base>` places **no constraint on `Tag`** — *any* type may be a tag. The two firm
+conventions are: declare the tag **nested on the container** (not top-level), and do
+not use a `*Tag` suffix. For a tag whose only job is to discriminate extensions and
+that carries no state, an **empty enum is the idiomatic default** (zero-size,
+uninstantiable). But a tag MAY also be a meaningful, usable type doing double duty —
+e.g. a value type that is simultaneously the `Property` tag *and* a real type in its
+own right.
 
 **Correct**:
 ```swift
 extension Stack where Element: Copyable {
-    public enum Push {}
+    public enum Push {}   // empty enum — idiomatic for a stateless discriminator
     public enum Pop {}
     public enum Peek {}
 }
+
+// Also valid — a tag that is itself a usable type (double duty). A single
+// generic type can be BOTH the `Property` tag AND a value type (e.g. a result
+// type conforming to `Sequence.Protocol`):
+public struct Map<Base, Output> { /* a usable Sequence type */ }
+let builder: Property<Map<S, O>, S> = .init(base)   // Map used as the tag
 ```
 
 **Incorrect**:
 ```swift
-// ❌ Tag declared at top level — not discoverable via dot-navigation.
+// ❌ Tag declared at top level — not discoverable via dot-navigation; pollutes
+//    the consuming module's namespace.
 public enum StackPush {}
 
 // ❌ Tag carries a *Tag suffix (forbidden per feedback_no_tag_suffix).
 public enum PushTag {}
-
-// ❌ Tag has cases or stored values — tags are phantom, empty.
-public enum Push { case immediate }
 ```
 
-**Rationale**: Nested tags are reachable via `Stack.Push` in extension where-clauses
-and at call sites. Top-level tags pollute the consuming module's namespace. The
-tag's only job is to discriminate extensions — it has no runtime state, so use an
-empty enum (`enum Push {}`), not a struct or class.
+**Rationale**: `Property<Tag, Base: ~Copyable>` constrains `Tag` to nothing, so the
+type system accepts any type — struct, class, enum (with or without cases), or a
+fully-applied generic type — as a tag (verified empirically, Swift 6.3.2). Empty
+enums are merely the idiomatic choice for *stateless* phantom discriminators because
+they are zero-size and cannot be instantiated; they are not a requirement. When the
+tag should also carry meaning or be usable as a value, use that type directly. The
+load-bearing conventions are nesting (dot-navigation + namespace hygiene) and the
+no-`*Tag`-suffix naming rule — **not** the kind of type.
 
 ---
 
