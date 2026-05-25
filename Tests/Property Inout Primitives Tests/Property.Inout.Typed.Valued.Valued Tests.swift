@@ -14,8 +14,8 @@ extension `Property.Inout.Typed.Valued.Valued Tests`.Unit {
     func `double valued accessor binds both value generics`() {
         var inner = Slice<Int>.Inline<4>.Inner<9>(count: 3)
 
-        #expect(inner.access.outerCapacity == 4)
-        #expect(inner.access.innerCapacity == 9)
+        #expect(inner.access.outer == 4)
+        #expect(inner.access.inner == 9)
         #expect(inner.access.size == 3)
     }
 
@@ -35,8 +35,8 @@ extension `Property.Inout.Typed.Valued.Valued Tests`.`Edge Case` {
     func `minimum value-generics n=1 m=1 are well-formed`() {
         var inner = Slice<Int>.Inline<1>.Inner<1>(count: 0)
 
-        #expect(inner.access.outerCapacity == 1)
-        #expect(inner.access.innerCapacity == 1)
+        #expect(inner.access.outer == 1)
+        #expect(inner.access.inner == 1)
         #expect(inner.access.size == 0)
 
         inner.access.resize(to: 1)

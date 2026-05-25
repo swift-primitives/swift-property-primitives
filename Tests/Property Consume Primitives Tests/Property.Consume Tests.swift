@@ -7,7 +7,7 @@ import Testing
 // Copyable — consume semantics require it). Only Sendable is
 // conditional, so only Sendable is asserted here.
 
-private typealias _ConsumeIsSendable = RequireSendable<Property<Phantom, Int>.Consume<Int>>
+private typealias _ConsumeIsSendable = Require.Sendable<Property<Phantom, Int>.Consume<Int>>
 
 @Suite
 struct `Property.Consume Tests` {

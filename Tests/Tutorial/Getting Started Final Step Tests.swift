@@ -18,6 +18,12 @@ public struct Stack<Element: Copyable>: Copyable {
 }
 
 extension Stack {
+    // Reviewed per the rule's canary prompt: Stack declares ≥ 5 siblings on
+    // the adopted Property concept — Push / push / Peek / peek + the
+    // Property.back / Property.Typed.back / Property.Typed.count /
+    // Property.Typed.isEmpty members in the extensions below. Genuine
+    // namespace adoption, not a rename bridge.
+    // swift-linter:disable:next namespace adoption typealias
     public typealias Property<Tag> =
         Property_Primitives.Property<Tag, Stack<Element>>
 }

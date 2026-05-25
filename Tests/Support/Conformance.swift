@@ -7,15 +7,19 @@
 ///
 /// Usage:
 /// ```swift
-/// private typealias _PropertyIsCopyable = RequireCopyable<Property<Phantom, Int>>
-/// private typealias _PropertyIsSendable = RequireSendable<Property<Phantom, Int>>
+/// private typealias _PropertyIsCopyable = Require.Copyable<Property<Phantom, Int>>
+/// private typealias _PropertyIsSendable = Require.Sendable<Property<Phantom, Int>>
 /// ```
 ///
-/// `RequireSendable` suppresses the default Copyable constraint on `T` so it
+/// `Require.Sendable` suppresses the default Copyable constraint on `T` so it
 /// accepts both Copyable and `~Copyable` types (e.g., `Property.Consume`).
 ///
 /// Uninhabited enums — zero runtime cost.
 
-public enum RequireCopyable<T: Copyable> {}
+public enum Require {}
 
-public enum RequireSendable<T: ~Copyable & Sendable> {}
+extension Require {
+    public enum Copyable<T: Swift.Copyable> {}
+
+    public enum Sendable<T: ~Swift.Copyable & Swift.Sendable> {}
+}

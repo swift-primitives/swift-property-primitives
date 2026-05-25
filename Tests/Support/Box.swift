@@ -2,6 +2,9 @@ public struct Box: ~Copyable {
     public var value: Int
     public var storage: (Int, Int, Int, Int)
 
+    // Box is a test fixture; the bare-Int `value` is the fixture's domain
+    // sample, not a typed-boundary surface. Test scaffolding.
+    // swift-linter:disable:next int public parameter
     public init(value: Int) {
         self.value = value
         self.storage = (1, 2, 3, 4)

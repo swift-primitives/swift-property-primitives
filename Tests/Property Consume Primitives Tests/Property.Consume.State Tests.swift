@@ -5,7 +5,7 @@ import Testing
 //
 // State is unconditionally @unchecked Sendable.
 
-private typealias _StateIsSendable = RequireSendable<Property<Phantom, Int>.Consume<Int>.State>
+private typealias _StateIsSendable = Require.Sendable<Property<Phantom, Int>.Consume<Int>.State>
 
 @Suite
 struct `Property.Consume.State Tests` {

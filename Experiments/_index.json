@@ -7,6 +7,18 @@
   "scope": "swift-property-primitives (swift-primitives)",
   "experiments": [
     {
+      "directory": "property-inout-specialization",
+      "displayName": "property-inout-specialization",
+      "topic": "Does a storage-generic Layer-2 operation reached THROUGH the real Property.Inout accessor stack (phantom-tag → Tagged<Tag, Ownership.Inout<Base>> → withUnsafePointer borrow → _modify coroutine) still specialize to zero witness-table dispatch on `pointer(at:)` in release across a module boundary, and stay correct? Decides the Layer-2-hoist reuse locus: concrete-Base vs protocol-Base Property.Inout accessors. Companion to swift-institute/Experiments/storage-protocol-specialization (the static-enum shape).",
+      "date": "2026-05-24",
+      "status": "CONFIRMED",
+      "statusDetail": "Release + cross-module run correct (10241024 / 10240512); neither variant tripped swiftlang/swift#81624 nor the borrow-init release miscompile. Variant A (concrete Base == LinearBuffer): the Property.Inout + Tagged + Ownership.Inout stack flattens away — defining-module `all` has 0 witness_method and a direct index_addr loop; specializes UNCONDITIONALLY (no @inlinable). The static-enum specialization result transfers fully through the real property stack. Variant B (generic Base: LinearBufferProtocol): defining-module `all` keeps 2 witness_method (LinearBufferProtocol.store + StorageProtocol.pointer), no specialized all<LinearBuffer> emitted; collapses only with @inlinable / same-package CMO — a resilient cross-PACKAGE consumer would witness-dispatch, and @inlinable on this ~Copyable path is exactly what Property.Inout.swift documents as miscompile-prone. DECISION: concrete-Base accessors forwarding to a shared generic-over-storage core (the shared algorithm living as StorageProtocol extension methods, not a public Buffer.Linear.Operations). Scope [EXP-020]: proves compiler capability; production refactor needs in-package SIL recheck.",
+      "statusRaw": "CONFIRMED (Variant A specializes unconditionally; Variant B needs @inlinable → reuse locus = concrete-Base)",
+      "buildStatusSwift63": "OK",
+      "tier": null,
+      "scope": null
+    },
+    {
       "directory": "property-view-lifetime-escape-reproduction",
       "displayName": "property-view-lifetime-escape-reproduction",
       "topic": "Reproduce and isolate the Swift 6.3.1 `error: lifetime-dependent value escapes its scope` at `base.value._buffer.peek.front` in the Property.View / Ownership.Inout / Ownership.Borrow nested-coroutine chain (depth \u2265 6); narrow the structural trigger; find the minimal accessor-shape fix.",

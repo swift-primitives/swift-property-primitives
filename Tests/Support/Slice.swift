@@ -1,6 +1,9 @@
 public struct Slice<Element: ~Copyable>: ~Copyable {
     public var count: Int
 
+    // Slice is a test fixture; bare-Int `count` is the fixture's domain
+    // sample, not a typed-boundary surface (would be Cardinal in real API).
+    // swift-linter:disable:next int public parameter
     public init(count: Int) {
         self.count = count
     }
@@ -53,6 +56,8 @@ extension Property.Inout.Typed where Tag == Slice<Int>.Access, Base == Slice<Int
         self.base.value.count
     }
 
+    // Fixture's Int newCount mirrors Slice's Int count — both are scaffolding.
+    // swift-linter:disable:next int public parameter
     public mutating func resize(to newCount: Int) {
         self.base.value.count = newCount
     }

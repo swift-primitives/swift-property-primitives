@@ -3,8 +3,8 @@ import Testing
 
 // MARK: - Compile-time conformance assertions
 
-private typealias _PropertyIsCopyable = RequireCopyable<Property<Phantom, Int>>
-private typealias _PropertyIsSendable = RequireSendable<Property<Phantom, Int>>
+private typealias _PropertyIsCopyable = Require.Copyable<Property<Phantom, Int>>
+private typealias _PropertyIsSendable = Require.Sendable<Property<Phantom, Int>>
 
 @Suite
 struct `Property Tests` {
