@@ -43,7 +43,7 @@
 /// `Property.Inout` (in `Property Inout Primitives`). For the full type
 /// family and decision guidance, see the `Property_Primitives` umbrella
 /// catalog.
-public struct Property<Tag, Base: ~Copyable>: ~Copyable {
+public struct Property<Tag: ~Copyable & ~Escapable, Base: ~Copyable>: ~Copyable {
     // Note: Cannot use @Inlined here due to swiftlang/swift#81624
     // (SILGen crash with property wrapper + ~Copyable cross-module)
     @usableFromInline
@@ -78,5 +78,5 @@ extension Property where Base: ~Copyable {
     }
 }
 
-extension Property: Copyable where Base: Copyable {}
-extension Property: Sendable where Base: Sendable {}
+extension Property: Copyable where Tag: ~Copyable & ~Escapable, Base: Copyable {}
+extension Property: Sendable where Tag: ~Copyable & ~Escapable, Base: Sendable {}
