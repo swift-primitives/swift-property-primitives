@@ -5,8 +5,8 @@ let package = Package(
     name: "property-view-ownership-inout-factoring",
     platforms: [.macOS(.v26)],
     dependencies: [
-        .package(path: "../../../swift-ownership-primitives"),
-        .package(path: "../../../swift-tagged-primitives"),
+        .package(url: "https://github.com/swift-primitives/swift-ownership-primitives.git", branch: "main"),
+        .package(url: "https://github.com/swift-primitives/swift-tagged-primitives.git", branch: "main"),
         .package(path: "../../../swift-property-primitives"),
     ],
     targets: [

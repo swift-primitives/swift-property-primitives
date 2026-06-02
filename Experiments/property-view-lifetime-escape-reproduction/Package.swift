@@ -5,10 +5,10 @@ let package = Package(
     name: "property-view-lifetime-escape-reproduction",
     platforms: [.macOS(.v26)],
     dependencies: [
-        .package(path: "../../../swift-ownership-primitives"),
-        .package(path: "../../../swift-tagged-primitives"),
+        .package(url: "https://github.com/swift-primitives/swift-ownership-primitives.git", branch: "main"),
+        .package(url: "https://github.com/swift-primitives/swift-tagged-primitives.git", branch: "main"),
         .package(path: "../../../swift-property-primitives"),
-        .package(path: "../../../swift-buffer-primitives"),
+        .package(url: "https://github.com/swift-primitives/swift-buffer-primitives.git", branch: "main"),
     ],
     targets: [
         .executableTarget(
