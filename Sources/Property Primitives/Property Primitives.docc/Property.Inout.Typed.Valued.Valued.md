@@ -13,7 +13,7 @@ parameter.
 `Property<Tag, Base>.Inout.Typed<Element>.Valued<n>.Valued<m>` lifts two
 compile-time integers to the type level so extension where-clauses can bind
 both alongside `Element` and `Base`. Required when containers carry two
-value generics, e.g. `Buffer<Element>.Linked<N>.Inline<capacity>`.
+value generics, e.g. `Buffer<Storage<Element>.Heap>.Linked<N>.Inline<capacity>`.
 
 ## Example
 
@@ -21,12 +21,12 @@ Two value generics in scope:
 
 ```swift
 extension Buffer.Linked.Inline where Element: ~Copyable {
-    var insert: Property<Buffer<Element>.Linked<N>.Insert, Self>
+    var insert: Property<Buffer<Storage<Element>.Heap>.Linked<N>.Insert, Self>
         .Inout.Typed<Element>.Valued<N>.Valued<capacity>
     {
         mutating _read  { yield .init(&self) }
         mutating _modify {
-            var accessor: Property<Buffer<Element>.Linked<N>.Insert, Self>
+            var accessor: Property<Buffer<Storage<Element>.Heap>.Linked<N>.Insert, Self>
                 .Inout.Typed<Element>.Valued<N>.Valued<capacity> = .init(&self)
             yield &accessor
         }
@@ -34,8 +34,8 @@ extension Buffer.Linked.Inline where Element: ~Copyable {
 }
 
 extension Property.Inout.Typed.Valued.Valued
-where Tag == Buffer<Element>.Linked<n>.Insert,
-      Base == Buffer<Element>.Linked<n>.Inline<m>,
+where Tag == Buffer<Storage<Element>.Heap>.Linked<n>.Insert,
+      Base == Buffer<Storage<Element>.Heap>.Linked<n>.Inline<m>,
       Element: ~Copyable {
     mutating func front(_ element: consuming Element) throws(Error) { }
 }

@@ -61,7 +61,7 @@ accessor type itself. Extensions on `Property.Inout.Typed` write
 `Copyable`-world `Property.Typed` exactly; only the storage mechanism
 (tagged exclusive borrow vs. by-value) differs.
 
-When the container also has value generics (`Buffer<Element>.Linked<N>`,
+When the container also has value generics (`Buffer<Storage<Element>.Heap>.Linked<N>`,
 `Array<Element>.Inline<capacity>`), append `.Valued<n>` for each lifted
 integer — see ``Property/Inout-swift.struct/Typed/Valued``.
 

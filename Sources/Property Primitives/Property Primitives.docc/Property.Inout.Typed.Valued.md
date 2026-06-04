@@ -47,7 +47,7 @@ where Tag == Sequence.ForEach, Base == Array<Element>.Inline<n>,
 
 Value generics lifted to the type level (`.Valued<n>`) can appear in
 extension where-clauses. The alternative — expressing the value generic only
-at method-level, e.g. `where Base == Buffer<Element>.Linked<n>` — causes the
+at method-level, e.g. `where Base == Buffer<Storage<Element>.Heap>.Linked<n>` — causes the
 compiler to add an implicit `Base: Copyable` constraint that breaks
 `~Copyable` support, because method-level generic constraints are resolved
 at a different phase than type-level generics.
@@ -60,7 +60,7 @@ to a single declaration per accessor; see the "Value-Generic Verbosity and
 the Tag-Enum-Accessor Pattern" article in the `Property_Primitives` umbrella
 catalog for the full trade-off analysis and canonical pattern.
 
-For two value generics (e.g. `Buffer<Element>.Linked<N>.Inline<capacity>`),
+For two value generics (e.g. `Buffer<Storage<Element>.Heap>.Linked<N>.Inline<capacity>`),
 chain a second suffix into ``Property/Inout-swift.struct/Typed/Valued/Valued``.
 
 ## Topics

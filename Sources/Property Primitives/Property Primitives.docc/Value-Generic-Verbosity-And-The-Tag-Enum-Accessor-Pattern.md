@@ -31,13 +31,13 @@ lifts the value generic to the type level where it can be bound cleanly:
 // Method-level — adds implicit Base: Copyable. BREAKS for ~Copyable bases.
 extension Property.Inout.Typed {
     mutating func front<let n: Int>(_ element: consuming Element)
-    where Base == Buffer<Element>.Linked<n>, Element: ~Copyable { ... }
+    where Base == Buffer<Storage<Element>.Heap>.Linked<n>, Element: ~Copyable { ... }
 }
 
 // Type-level via .Valued<n>. WORKS for ~Copyable bases.
 extension Property.Inout.Typed.Valued
-where Tag == Buffer<Element>.Linked<n>.Insert,
-      Base == Buffer<Element>.Linked<n>,
+where Tag == Buffer<Storage<Element>.Heap>.Linked<n>.Insert,
+      Base == Buffer<Storage<Element>.Heap>.Linked<n>,
       Element: ~Copyable {
     mutating func front(_ element: consuming Element) { ... }
 }
@@ -46,7 +46,7 @@ where Tag == Buffer<Element>.Linked<n>.Insert,
 ### Two value generics chain
 
 A container with two value generics — e.g.,
-`Buffer<Element>.Linked<N>.Inline<capacity>` — needs two suffixes. The chain
+`Buffer<Storage<Element>.Heap>.Linked<N>.Inline<capacity>` — needs two suffixes. The chain
 ``Property/Inout-swift.struct/Typed/Valued/Valued`` preserves positional
 meaning: the first `n` binds the first generic, the second `m` binds the
 second.
@@ -60,7 +60,7 @@ The chain accumulates. A container with two value generics produces accessor
 types like:
 
 ```swift
-Property<Buffer<Element>.Linked<N>.Insert, Buffer<Element>.Linked<N>.Inline<capacity>>
+Property<Buffer<Storage<Element>.Heap>.Linked<N>.Insert, Buffer<Storage<Element>.Heap>.Linked<N>.Inline<capacity>>
     .Inout.Typed<Element>.Valued<N>.Valued<capacity>
 ```
 
@@ -79,12 +79,12 @@ etc.
 ```swift
 extension Buffer.Linked where Element: ~Copyable {
     public enum Insert {
-        public typealias Accessor = Property<Insert, Buffer<Element>.Linked<N>>
+        public typealias Accessor = Property<Insert, Buffer<Storage<Element>.Heap>.Linked<N>>
             .Inout.Typed<Element>.Valued<N>
     }
 
     public enum Remove {
-        public typealias Accessor = Property<Remove, Buffer<Element>.Linked<N>>
+        public typealias Accessor = Property<Remove, Buffer<Storage<Element>.Heap>.Linked<N>>
             .Inout.Typed<Element>.Valued<N>
     }
 
@@ -115,8 +115,8 @@ the Accessor typealias for the child's specific Property type:
 ```swift
 extension Buffer.Linked.Inline where Element: ~Copyable {
     public enum Insert {
-        public typealias Accessor = Property<Buffer<Element>.Linked<N>.Insert,
-                                              Buffer<Element>.Linked<N>.Inline<capacity>>
+        public typealias Accessor = Property<Buffer<Storage<Element>.Heap>.Linked<N>.Insert,
+                                              Buffer<Storage<Element>.Heap>.Linked<N>.Inline<capacity>>
             .Inout.Typed<Element>.Valued<N>.Valued<capacity>
     }
 
