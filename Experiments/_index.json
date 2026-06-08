@@ -9,11 +9,11 @@
     {
       "directory": "property-inout-specialization",
       "displayName": "property-inout-specialization",
-      "topic": "Does a storage-generic Layer-2 operation reached THROUGH the real Property.Inout accessor stack (phantom-tag → Tagged<Tag, Ownership.Inout<Base>> → withUnsafePointer borrow → _modify coroutine) still specialize to zero witness-table dispatch on `pointer(at:)` in release across a module boundary, and stay correct? Decides the Layer-2-hoist reuse locus: concrete-Base vs protocol-Base Property.Inout accessors. Companion to swift-institute/Experiments/storage-protocol-specialization (the static-enum shape).",
+      "topic": "Does a storage-generic Layer-2 operation reached THROUGH the real Property.Inout accessor stack (phantom-tag \u2192 Tagged<Tag, Ownership.Inout<Base>> \u2192 withUnsafePointer borrow \u2192 _modify coroutine) still specialize to zero witness-table dispatch on `pointer(at:)` in release across a module boundary, and stay correct? Decides the Layer-2-hoist reuse locus: concrete-Base vs protocol-Base Property.Inout accessors. Companion to swift-institute/Experiments/storage-protocol-specialization (the static-enum shape).",
       "date": "2026-05-24",
       "status": "CONFIRMED",
-      "statusDetail": "Release + cross-module run correct (10241024 / 10240512); neither variant tripped swiftlang/swift#81624 nor the borrow-init release miscompile. Variant A (concrete Base == LinearBuffer): the Property.Inout + Tagged + Ownership.Inout stack flattens away — defining-module `all` has 0 witness_method and a direct index_addr loop; specializes UNCONDITIONALLY (no @inlinable). The static-enum specialization result transfers fully through the real property stack. Variant B (generic Base: LinearBufferProtocol): defining-module `all` keeps 2 witness_method (LinearBufferProtocol.store + StorageProtocol.pointer), no specialized all<LinearBuffer> emitted; collapses only with @inlinable / same-package CMO — a resilient cross-PACKAGE consumer would witness-dispatch, and @inlinable on this ~Copyable path is exactly what Property.Inout.swift documents as miscompile-prone. DECISION: concrete-Base accessors forwarding to a shared generic-over-storage core (the shared algorithm living as StorageProtocol extension methods, not a public Buffer.Linear.Operations). Scope [EXP-020]: proves compiler capability; production refactor needs in-package SIL recheck.",
-      "statusRaw": "CONFIRMED (Variant A specializes unconditionally; Variant B needs @inlinable → reuse locus = concrete-Base)",
+      "statusDetail": "Release + cross-module run correct (10241024 / 10240512); neither variant tripped swiftlang/swift#81624 nor the borrow-init release miscompile. Variant A (concrete Base == LinearBuffer): the Property.Inout + Tagged + Ownership.Inout stack flattens away \u2014 defining-module `all` has 0 witness_method and a direct index_addr loop; specializes UNCONDITIONALLY (no @inlinable). The static-enum specialization result transfers fully through the real property stack. Variant B (generic Base: LinearBufferProtocol): defining-module `all` keeps 2 witness_method (LinearBufferProtocol.store + StorageProtocol.pointer), no specialized all<LinearBuffer> emitted; collapses only with @inlinable / same-package CMO \u2014 a resilient cross-PACKAGE consumer would witness-dispatch, and @inlinable on this ~Copyable path is exactly what Property.Inout.swift documents as miscompile-prone. DECISION: concrete-Base accessors forwarding to a shared generic-over-storage core (the shared algorithm living as StorageProtocol extension methods, not a public Buffer.Linear.Operations). Scope [EXP-020]: proves compiler capability; production refactor needs in-package SIL recheck.",
+      "statusRaw": "CONFIRMED (Variant A specializes unconditionally; Variant B needs @inlinable \u2192 reuse locus = concrete-Base)",
       "buildStatusSwift63": "OK",
       "tier": null,
       "scope": null
@@ -288,6 +288,23 @@
         "swift-primitives/swift-tagged-primitives/Sources/Tagged Primitives/Tagged.swift",
         "swift-primitives/swift-property-primitives/Sources/Property View Primitives/Property.View.swift",
         "swift-institute/Blog/Draft/se-0519-first-class-references.md"
+      ]
+    },
+    {
+      "directory": "property-view-valued-storage-arg",
+      "purpose": "Can the multi-form Property.View nested-accessor surface (remove.first()/last()/all(), push/pop/peek) resolve for the value-generic composition Buffer<Storage.Small<n>>.{Linear,Ring}, where n is buried in the STORAGE arg (not the buffer's own generic as in the retired variant Buffer.Linear.Small<n>)? Cleave-3 #12a: the buffers were generalized over Storage.Small via a Creatable capability, the variants are being absorbed+retired into the composition, and the compound direct methods (removeAll/pushBack/popFront) added as a route-around must repay to [API-NAME-008] Property.View accessors. Six shapes probe where the .Valued<n> lift can be bound. Aimed (per supervisor) at a single storage-generic op extension.",
+      "date": "2026-06-05",
+      "toolchain": "Apple Swift 6.3.2",
+      "status": "CONFIRMED",
+      "statusDetail": "Q-OP CONFIRMED: op extension `Property.Inout.Typed.Valued where Base == Buffer<Small<E,n>>.Linear` binds n (Valued's own <let n:Int> param) and reaches the storage arg \u2014 ran, count 3->0. SHAPE_A/SHAPE_C REFUTED ('cannot find type n'): a `var remove` property OR tag-enum View typealias ON the buffer cannot introduce the value generic (properties can't carry generics; the buffer's only generic is S). SHAPE_M CONFIRMED: a method `func removeView<E,let m>() where S==Small<E,m>` binds m (with ~Copyable propagated) but yields a `.removeView()` parens surface + returning the inout-borrowing ~Escapable view needs @_lifetime. SHAPE_D CONFIRMED: a `var remove` property on a CONSUMER whose OWN generic is the value generic (StackSmall<E,cap>) type-checks the clean `.remove.all()`. SHAPE_E REFUTED ('cannot find type S'): the ideal single storage-generic op `where Base == Buffer<S>.Linear` is NOT expressible (free type variable, same wall as free n). CONCLUSION: the .Valued<n> lift is required to bind a value generic in a view op; an accessor returning .Valued<n> is expressible ONLY where n is the enclosing type's own generic (the retired variant, or the consumer). The storage-generic Buffer.Linear can return only plain .Inout.Typed, which cannot reach the .Valued ops. The clean buffer-direct property surface is not expressible for the composition \u2014 RATIFICATION-CLASS, surfaced to the seat.",
+      "statusRaw": "CONFIRMED (per-storage Valued ops + consumer-side property accessor work; single storage-generic extension and buffer-direct property accessor REFUTED)",
+      "supersededBy": null,
+      "crossRefs": [
+        "swift-primitives/swift-property-primitives/Sources/Property Inout Primitives/Property.Inout.Typed.Valued.swift",
+        "swift-primitives/swift-buffer-linear-primitives/Sources/Buffer Linear Primitive/Buffer.Linear+Lifecycle.swift",
+        "swift-primitives/swift-buffer-linear-primitives/Sources/Buffer Linear Primitive/Buffer.Linear.Remove.swift",
+        "swift-primitives/swift-buffer-linear-primitives/Sources/Buffer Linear Small Primitive/Buffer.Linear.Small.Remove.swift",
+        "swift-primitives/swift-property-primitives/Experiments/property-inout-specialization"
       ]
     }
   ],
