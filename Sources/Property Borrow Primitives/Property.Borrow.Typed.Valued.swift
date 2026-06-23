@@ -1,5 +1,5 @@
 public import Ownership_Borrow_Primitives
-public import Property_Primitives_Core
+public import Property_Primitive
 public import Tagged_Primitives
 
 extension Property.Borrow.Typed where Base: ~Copyable, Element: ~Copyable {

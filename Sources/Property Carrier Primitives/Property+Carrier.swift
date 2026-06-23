@@ -12,14 +12,18 @@
 // `Domain = Tag` (the phantom discriminator).
 // `Underlying = Base` (the wrapped value type).
 //
-// `var underlying` is a `_read` coroutine yielding the stored `_base`,
-// matching Carrier.`Protocol`'s `borrowing get` requirement for both
-// Copyable and ~Copyable Underlying.
+// `var underlying` is a `_read` coroutine yielding the public `base`
+// accessor (which itself yields the stored `_base`), matching
+// Carrier.`Protocol`'s `borrowing get` requirement for both Copyable and
+// ~Copyable Underlying. It yields through `base` rather than the
+// `internal _base` directly because this conformance now lives in a
+// separate module from the `Property` declaration.
 //
 // `init(_ underlying: consuming Base)` is satisfied by Property's
 // existing `init(_ base: consuming Base)` — same signature.
 
 public import Carrier_Primitives
+public import Property_Primitive
 
 extension Property: Carrier.`Protocol` where Base: ~Copyable {
     /// The wrapped value type.
@@ -31,6 +35,6 @@ extension Property: Carrier.`Protocol` where Base: ~Copyable {
     /// Borrowing access to the underlying value.
     @inlinable
     public var underlying: Base {
-        _read { yield _base }
+        _read { yield base }
     }
 }

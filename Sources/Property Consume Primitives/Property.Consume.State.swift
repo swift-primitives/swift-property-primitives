@@ -1,4 +1,4 @@
-public import Property_Primitives_Core
+public import Property_Primitive
 
 extension Property.Consume where Base: Copyable {
     // WORKAROUND: @unchecked Sendable on Property.Consume.State.

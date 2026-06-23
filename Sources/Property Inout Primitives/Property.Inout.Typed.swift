@@ -1,5 +1,5 @@
 public import Ownership_Inout_Primitives
-public import Property_Primitives_Core
+public import Property_Primitive
 public import Tagged_Primitives
 
 extension Property.Inout where Base: ~Copyable {

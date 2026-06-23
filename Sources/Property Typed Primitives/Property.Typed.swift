@@ -1,4 +1,4 @@
-public import Property_Primitives_Core
+public import Property_Primitive
 
 extension Property where Base: ~Copyable {
     /// A property with an `Element` parameter for property-based extensions.

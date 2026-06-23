@@ -13,6 +13,14 @@ let package = Package(
     ],
     products: [
         .library(
+            name: "Property Primitive",
+            targets: ["Property Primitive"]
+        ),
+        .library(
+            name: "Property Carrier Primitives",
+            targets: ["Property Carrier Primitives"]
+        ),
+        .library(
             name: "Property Primitives",
             targets: ["Property Primitives"]
         ),
@@ -43,10 +51,16 @@ let package = Package(
         .package(url: "https://github.com/swift-primitives/swift-carrier-primitives.git", branch: "main"),
     ],
     targets: [
-        // MARK: - Core
+        // MARK: - Root
         .target(
-            name: "Property Primitives Core",
+            name: "Property Primitive"
+        ),
+
+        // MARK: - Carrier sub-namespace
+        .target(
+            name: "Property Carrier Primitives",
             dependencies: [
+                "Property Primitive",
                 .product(name: "Carrier Primitives", package: "swift-carrier-primitives"),
             ]
         ),
@@ -55,19 +69,19 @@ let package = Package(
         .target(
             name: "Property Typed Primitives",
             dependencies: [
-                "Property Primitives Core",
+                "Property Primitive",
             ]
         ),
         .target(
             name: "Property Consume Primitives",
             dependencies: [
-                "Property Primitives Core",
+                "Property Primitive",
             ]
         ),
         .target(
             name: "Property Inout Primitives",
             dependencies: [
-                "Property Primitives Core",
+                "Property Primitive",
                 .product(name: "Ownership Inout Primitives", package: "swift-ownership-primitives"),
                 .product(name: "Tagged Primitives", package: "swift-tagged-primitives"),
             ]
@@ -75,7 +89,7 @@ let package = Package(
         .target(
             name: "Property Borrow Primitives",
             dependencies: [
-                "Property Primitives Core",
+                "Property Primitive",
                 .product(name: "Ownership Borrow Primitives", package: "swift-ownership-primitives"),
                 .product(name: "Tagged Primitives", package: "swift-tagged-primitives"),
             ]
@@ -85,7 +99,8 @@ let package = Package(
         .target(
             name: "Property Primitives",
             dependencies: [
-                "Property Primitives Core",
+                "Property Primitive",
+                "Property Carrier Primitives",
                 "Property Typed Primitives",
                 "Property Consume Primitives",
                 "Property Inout Primitives",
@@ -95,12 +110,12 @@ let package = Package(
 
         // MARK: - Tests
         .testTarget(
-            name: "Property Primitives Core Tests",
+            name: "Property Primitive Tests",
             dependencies: [
-                "Property Primitives Core",
+                "Property Primitive",
                 "Property Primitives Test Support",
             ],
-            path: "Tests/Property Primitives Core Tests"
+            path: "Tests/Property Primitive Tests"
         ),
         .testTarget(
             name: "Property Typed Primitives Tests",
