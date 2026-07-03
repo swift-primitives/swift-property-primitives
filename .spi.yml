@@ -1,4 +1,11 @@
 version: 1
 builder:
   configs:
-    - documentation_targets: [Property_Primitives]
+  - documentation_targets:
+    - Property Borrow Primitives
+    - Property Carrier Primitives
+    - Property Consume Primitives
+    - Property Inout Primitives
+    - Property Primitive
+    - Property Primitives
+    - Property Typed Primitives
