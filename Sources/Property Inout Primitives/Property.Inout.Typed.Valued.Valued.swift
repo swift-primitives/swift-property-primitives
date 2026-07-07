@@ -3,6 +3,9 @@ public import Property_Primitive
 public import Tagged_Primitives
 
 extension Property.Inout.Typed.Valued where Base: ~Copyable, Element: ~Copyable {
+    // SAFETY: Transitive absorption of `Tagged`'s invariants;
+    // SAFETY: this wrapper's API never re-exposes the underlying unsafety,
+    // SAFETY: and lifetime / ownership constraints are inherited.
     /// A ``Property/Inout-swift.struct/Typed/Valued`` with a second value-generic.
     ///
     /// `Property<Tag, Base>.Inout.Typed<Element>.Valued<n>.Valued<m>` lifts two
@@ -33,9 +36,6 @@ extension Property.Inout.Typed.Valued where Base: ~Copyable, Element: ~Copyable 
     ///     mutating func front(_ element: consuming Element) throws(Error) { }
     /// }
     /// ```
-    // SAFETY: Transitive absorption of `Tagged`'s invariants;
-    // SAFETY: this wrapper's API never re-exposes the underlying unsafety,
-    // SAFETY: and lifetime / ownership constraints are inherited.
     @safe
     public struct Valued<let m: Int>: ~Copyable, ~Escapable {
         @usableFromInline

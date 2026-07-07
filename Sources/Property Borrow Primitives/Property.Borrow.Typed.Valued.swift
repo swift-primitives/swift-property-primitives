@@ -3,6 +3,9 @@ public import Property_Primitive
 public import Tagged_Primitives
 
 extension Property.Borrow.Typed where Base: ~Copyable, Element: ~Copyable {
+    // SAFETY: Transitive absorption of `Tagged`'s invariants;
+    // SAFETY: this wrapper's API never re-exposes the underlying unsafety,
+    // SAFETY: and lifetime / ownership constraints are inherited.
     /// A ``Property/Borrow/Typed`` with a value-generic parameter.
     ///
     /// `Property<Tag, Base>.Borrow.Typed<Element>.Valued<n>` is the read-only
@@ -40,9 +43,6 @@ extension Property.Borrow.Typed where Base: ~Copyable, Element: ~Copyable {
     /// ```
     ///
     /// Switch to ``Property/Inout-swift.struct/Typed/Valued`` when mutation is needed.
-    // SAFETY: Transitive absorption of `Tagged`'s invariants;
-    // SAFETY: this wrapper's API never re-exposes the underlying unsafety,
-    // SAFETY: and lifetime / ownership constraints are inherited.
     @safe
     public struct Valued<let n: Int>: ~Copyable, ~Escapable {
         @usableFromInline

@@ -3,6 +3,9 @@ public import Property_Primitive
 public import Tagged_Primitives
 
 extension Property.Inout where Base: ~Copyable {
+    // SAFETY: Transitive absorption of `Tagged`'s invariants;
+    // SAFETY: this wrapper's API never re-exposes the underlying unsafety,
+    // SAFETY: and lifetime / ownership constraints are inherited.
     /// An exclusive mutable accessor on a `~Copyable` base with an `Element` parameter.
     ///
     /// `Property<Tag, Base>.Inout.Typed<Element>` is the `~Copyable` equivalent of
@@ -42,9 +45,6 @@ extension Property.Inout where Base: ~Copyable {
     /// For the `Copyable` equivalent, see `Property.Typed` (in
     /// `Property Typed Primitives`). For read-only access, see
     /// `Property.Borrow.Typed` (in `Property Borrow Primitives`).
-    // SAFETY: Transitive absorption of `Tagged`'s invariants;
-    // SAFETY: this wrapper's API never re-exposes the underlying unsafety,
-    // SAFETY: and lifetime / ownership constraints are inherited.
     @safe
     public struct Typed<Element: ~Copyable>: ~Copyable, ~Escapable {
         @usableFromInline

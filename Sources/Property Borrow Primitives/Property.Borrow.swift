@@ -3,6 +3,9 @@ public import Property_Primitive
 public import Tagged_Primitives
 
 extension Property where Base: ~Copyable {
+    // SAFETY: Transitive absorption of `Tagged`'s invariants;
+    // SAFETY: this wrapper's API never re-exposes the underlying unsafety,
+    // SAFETY: and lifetime / ownership constraints are inherited.
     /// A read-only accessor on a `~Copyable` base.
     ///
     /// `Property<Tag, Base>.Borrow` is a thin wrapper over
@@ -53,9 +56,6 @@ extension Property where Base: ~Copyable {
     ///
     /// Use this variant for read-only namespaces; switch to
     /// ``Property/Inout-swift.struct`` when extensions need to mutate or consume.
-    // SAFETY: Transitive absorption of `Tagged`'s invariants;
-    // SAFETY: this wrapper's API never re-exposes the underlying unsafety,
-    // SAFETY: and lifetime / ownership constraints are inherited.
     @safe
     public struct Borrow: ~Copyable, ~Escapable {
         @usableFromInline

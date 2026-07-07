@@ -3,6 +3,8 @@ public import Property_Primitive
 public import Tagged_Primitives
 
 extension Property where Base: ~Copyable {
+    // SAFETY: Encapsulates unsafe internals behind a safe API; see
+    // SAFETY: [MEM-SAFE-024] for the absorber-pattern taxonomy.
     /// An exclusive mutable accessor for `~Copyable` types.
     ///
     /// `Property<Tag, Base>.Inout` is a thin wrapper over
@@ -62,8 +64,6 @@ extension Property where Base: ~Copyable {
     /// use `Property.Borrow` (in `Property Borrow Primitives`).
     ///
     /// For the broader type-family reference, see ``Property``.
-    // SAFETY: Encapsulates unsafe internals behind a safe API; see
-    // SAFETY: [MEM-SAFE-024] for the absorber-pattern taxonomy.
     @safe
     public struct Inout: ~Copyable, ~Escapable {
         @usableFromInline

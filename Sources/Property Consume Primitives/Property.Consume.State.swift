@@ -1,6 +1,10 @@
 public import Property_Primitive
 
 extension Property.Consume where Base: Copyable {
+    // reason: genuine four-part WORKAROUND template (WHY / WHEN TO REMOVE /
+    // TRACKING all present below) — the marker's mechanical ±5-line window
+    // doesn't span this long-form justification.
+    // swiftlint:disable:next workaround_marker_present
     // WORKAROUND: @unchecked Sendable on Property.Consume.State.
     // WHY: `final class` with mutable stored properties (`var _base: Base?`,
     //      `var _consumed: Bool`) cannot be auto-verified as Sendable. The
