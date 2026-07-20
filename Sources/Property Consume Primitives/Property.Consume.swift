@@ -66,7 +66,7 @@ extension Property where Base: Copyable {
         ///
         /// - Parameter base: The value to wrap. Ownership is transferred to the state.
         @inlinable
-        public init(_ base: consuming Base) {
+        public init(_ base: consuming sending Base) {
             self._state = State(base)
         }
 
@@ -89,7 +89,7 @@ extension Property.Consume {
 
     /// Whether the base has been consumed.
     @inlinable
-    public var isConsumed: Bool { _state._consumed }
+    public var isConsumed: Bool { _state.isConsumed }
 }
 
 // MARK: - Borrowing Access
@@ -102,7 +102,7 @@ extension Property.Consume {
     /// - Returns: The base value, or `nil` if consumed.
     @inlinable
     public func borrow() -> Base? {
-        _state._base
+        _state.borrow()
     }
 }
 
@@ -118,13 +118,15 @@ extension Property.Consume {
     ///
     /// Returns `nil` if already consumed.
     ///
+    /// The check, the consumed-flag set, and the base clear happen atomically
+    /// under `State`'s internal lock (see `Property.Consume.State`'s Safety
+    /// Invariant), so this is race-safe when this `Consume`'s `State` is
+    /// shared with another `Consume` instance via `init(state:)`.
+    ///
     /// - Returns: The base value, or `nil` if already consumed.
     @inlinable
     public mutating func consume() -> Base? {
-        guard let base = _state._base else { return nil }
-        _state._consumed = true
-        _state._base = nil
-        return base
+        _state.consume()
     }
 }
 
@@ -147,8 +149,7 @@ extension Property.Consume {
     /// - Returns: The base value if the consuming path was not taken, `nil` if consumed.
     @inlinable
     public func restore() -> Base? {
-        guard !_state._consumed else { return nil }
-        return _state._base
+        _state.restore()
     }
 }
 
