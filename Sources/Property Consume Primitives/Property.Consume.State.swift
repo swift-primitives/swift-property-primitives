@@ -93,4 +93,9 @@ extension Property.Consume.State {
     }
 }
 
+// SAFETY: the `where Base: Sendable` clause is load-bearing, not decorative:
+// SAFETY: `Mutex<Storage>` is unconditionally Sendable, but `borrow()` hands a
+// SAFETY: copy of `base` out of the lock — without this clause a non-Sendable
+// SAFETY: `Base` could cross isolation regions through that copy with zero
+// SAFETY: compiler signal. Do not drop or widen the constraint.
 extension Property.Consume.State: @unchecked Sendable where Base: Sendable {}
