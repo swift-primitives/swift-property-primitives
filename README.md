@@ -138,12 +138,6 @@ DocC ships on [Swift Package Index](https://swiftpackageindex.com/swift-primitiv
 
 ---
 
-## Community
-
-<!-- BEGIN: discussion -->
-Discuss this package: [swift-institute/discussions/23](https://github.com/orgs/swift-institute/discussions/23)
-<!-- END: discussion -->
-
 ## License
 
 Apache 2.0. See [LICENSE](LICENSE).
