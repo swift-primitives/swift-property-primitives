@@ -1,11 +1,54 @@
 public import Property_Primitive
-public import Synchronization
+
+#if !hasFeature(Embedded)
+    public import Synchronization
+#else
+    /// Unsynchronized stand-in for `Synchronization.Mutex` on Embedded Swift,
+    /// where the `Synchronization` module exposes no `Mutex`.
+    ///
+    /// Mirrors the established ecosystem position in `Async.Mutex`
+    /// (`swift-async-primitives`, `Sources/Async Mutex Primitives`): embedded
+    /// targets have no OS kernel and typically no threading, so the lock
+    /// compiles to a no-op while preserving the `withLock` shape. Declared
+    /// here rather than taken as a dependency — `swift-async-primitives` sits
+    /// far above this package in the graph.
+    ///
+    /// A `final class` rather than a `struct` because `State._storage` is
+    /// `let`-bound and `withLock` needs `inout` access to the payload.
+    ///
+    /// ## Safety Invariant (Embedded only)
+    /// Mutual exclusion is provided by the single-threaded embedded execution
+    /// model, not by this type. The `@unchecked Sendable` conformance on
+    /// `Property.Consume.State` is correspondingly weaker under Embedded: it
+    /// rests on the absence of concurrent threads, whereas the non-embedded
+    /// build enforces it with a real lock. Do not lift this type into a
+    /// multi-threaded configuration.
+    @usableFromInline
+    internal final class _UnsynchronizedBox<Value: ~Copyable>: @unchecked Sendable {
+        @usableFromInline
+        internal var _value: Value
+
+        @inlinable
+        internal init(_ value: consuming sending Value) {
+            self._value = value
+        }
+
+        @inlinable
+        internal func withLock<Result: ~Copyable, E: Swift.Error>(
+            _ body: (inout sending Value) throws(E) -> sending Result
+        ) throws(E) -> sending Result {
+            try body(&_value)
+        }
+    }
+#endif
 
 extension Property.Consume where Base: Copyable {
     /// ## Safety Invariant (Category A — synchronized)
     /// `State` is a `final class` shared across `Consume` instances via
     /// `init(state:)`, so its mutable fields must be synchronized rather than
-    /// merely documented. `_storage` is a `Synchronization.Mutex<Storage>`;
+    /// merely documented. `_storage` is a `Synchronization.Mutex<Storage>`
+    /// (`_UnsynchronizedBox<Storage>` under Embedded, where mutual exclusion
+    /// comes from the single-threaded execution model instead — see above);
     /// every read and write of the wrapped base and the consumed flag flows
     /// through `_storage.withLock`, and `consume()` performs its
     /// check-then-set-then-clear sequence inside a single lock acquisition.
@@ -40,13 +83,22 @@ extension Property.Consume where Base: Copyable {
             }
         }
 
-        @usableFromInline
-        internal let _storage: Mutex<Storage>
+        #if !hasFeature(Embedded)
+            @usableFromInline
+            internal let _storage: Mutex<Storage>
+        #else
+            @usableFromInline
+            internal let _storage: _UnsynchronizedBox<Storage>
+        #endif
 
         /// Creates state wrapping the given base value.
         @inlinable
         public init(_ base: consuming sending Base) {
-            self._storage = Mutex(Storage(base: base))
+            #if !hasFeature(Embedded)
+                self._storage = Mutex(Storage(base: base))
+            #else
+                self._storage = _UnsynchronizedBox(Storage(base: base))
+            #endif
         }
     }
 }
