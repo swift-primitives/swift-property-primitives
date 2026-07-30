@@ -125,7 +125,7 @@ extension Property.Consume.State {
     ///
     /// Returns `nil` if already consumed.
     @inlinable
-    internal func consume() -> Base? {
+    package func consume() -> Base? {
         _storage.withLock { storage in
             guard let base = storage.base else { return nil }
             storage.consumed = true
@@ -138,7 +138,7 @@ extension Property.Consume.State {
     /// taken, `nil` if consumed — the consumed check and the base read
     /// happen inside a single lock acquisition.
     @inlinable
-    internal func restore() -> Base? {
+    package func restore() -> Base? {
         _storage.withLock { storage in
             storage.consumed ? nil : storage.base
         }
