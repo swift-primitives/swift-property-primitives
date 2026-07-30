@@ -9,6 +9,25 @@ import Testing
 
 private typealias _ConsumeIsSendable = Require.Sendable<Property<Phantom, Int>.Consume<Int>>
 
+// MARK: - #4 regression: the accessor pattern must compile over a non-Sendable Base
+//
+// `Property.Consume.init(_:)` once required `consuming sending Base`. That made
+// the accessor pattern the type documents — `_read { yield Consume(self) }` —
+// uncompilable for any non-Sendable Base, because `self` inside an accessor is
+// task-isolated and so never a disconnected value. The compile of this file is
+// half the test: `Reference` is a non-Sendable class, so `Container<Reference>`
+// is a non-Sendable Base flowing through `Container.forEach`.
+//
+// Do not make `Reference` Sendable — that would silently retire the guard.
+
+private final class Reference {
+    var value: Int
+
+    init(_ value: Int) {
+        self.value = value
+    }
+}
+
 @Suite
 struct `Property.Consume Tests` {
     @Suite struct Unit {}
@@ -160,6 +179,30 @@ extension `Property.Consume Tests`.Integration {
         #expect(firstPass == [5, 6])
         #expect(secondPass == [5, 6])
         #expect(container.count == 2)
+    }
+
+    @Test
+    func `borrow path via accessor works for a non-Sendable Base`() {
+        let container = Container(Reference(1), Reference(2))
+
+        var collected: [Int] = []
+        container.forEach { collected.append($0.value) }
+        let remaining = container.count
+
+        #expect(collected == [1, 2])
+        #expect(remaining == 2)
+    }
+
+    @Test
+    func `consume path via accessor works for a non-Sendable Base`() {
+        var container = Container(Reference(3), Reference(4))
+
+        var collected: [Int] = []
+        container.forEach.consuming { collected.append($0.value) }
+        let emptied = container.isEmpty
+
+        #expect(collected == [3, 4])
+        #expect(emptied)
     }
 
     @Test

@@ -5,7 +5,10 @@ import Testing
 
 // MARK: - Compile-time conformance assertions
 //
-// State is unconditionally @unchecked Sendable.
+// State is @unchecked Sendable only where Base: Sendable — the clause is
+// load-bearing (see the SAFETY note on the conformance). This asserts the
+// Sendable case; the non-Sendable case is asserted in `Property.Consume
+// Tests.swift`, which exercises the accessor pattern over a non-Sendable Base.
 
 private typealias _StateIsSendable = Require.Sendable<Property<Phantom, Int>.Consume<Int>.State>
 

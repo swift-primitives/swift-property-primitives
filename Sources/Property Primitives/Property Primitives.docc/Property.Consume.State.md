@@ -9,8 +9,9 @@ Reference-type state tracker for conditional restoration.
 
 ## Overview
 
-`Property.Consume.State` holds the wrapped base (`_base: Base?`) and the
-consumed flag (`_consumed: Bool`). It is the sole mutable storage of a
+`Property.Consume.State` holds the wrapped base (`nil` once consumed) and the
+consumed flag together, in one lock-guarded storage struct so that the two
+fields transition as a unit. It is the sole mutable storage of a
 ``Property/Consume`` instance; both the owning property and the `defer`
 block of a `_modify` accessor reference the same instance.
 
@@ -35,6 +36,23 @@ unconditionally restore, undoing the consume.
 so that the outer ``Property/Consume`` propagates Sendability through to
 its callers without over-constraining instantiations whose `Base` is not
 itself `Sendable`.
+
+## Ownership transfer
+
+``Property/Consume/State/init(_:)`` takes `consuming Base`, not
+`consuming sending Base`. The distinction matters because the accessor
+pattern that ``Property/Consume`` documents wraps the enclosing `self`, and
+`self` inside a property accessor is task-isolated — it is never a
+disconnected value, so a `sending` parameter could not accept it for any
+non-Sendable `Base`.
+
+Requiring only `consuming` is sound because the conditional `Sendable`
+conformance above is what governs cross-isolation reachability: for a
+non-Sendable `Base` the resulting state is not `Sendable`, so it stays in
+the caller's isolation region and its contents never cross a boundary. The
+lock's own `sending` requirement on its payload is discharged inside the
+type, by the internal storage struct's `@unchecked Sendable` conformance,
+rather than being pushed out onto every call site.
 
 ## Topics
 

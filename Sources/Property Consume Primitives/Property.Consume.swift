@@ -64,9 +64,19 @@ extension Property where Base: Copyable {
 
         /// Creates a consume accessor wrapping the given base value.
         ///
+        /// ## Ownership
+        /// The parameter is `consuming` but deliberately **not** `sending`. The
+        /// canonical usage above builds the accessor from `self` inside a
+        /// property accessor, where `self` is task-isolated and therefore never
+        /// a disconnected value; requiring `sending` would make the documented
+        /// pattern uncompilable for every non-Sendable `Base`. Nothing crosses
+        /// an isolation boundary at this call site: `Consume` — and the `State`
+        /// it allocates — is `Sendable` only when `Base` is, so for a
+        /// non-Sendable `Base` the accessor stays in the caller's region.
+        ///
         /// - Parameter base: The value to wrap. Ownership is transferred to the state.
         @inlinable
-        public init(_ base: consuming sending Base) {
+        public init(_ base: consuming Base) {
             self._state = State(base)
         }
 

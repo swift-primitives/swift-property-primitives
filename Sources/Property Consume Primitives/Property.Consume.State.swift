@@ -68,8 +68,27 @@ extension Property.Consume where Base: Copyable {
         /// The synchronized storage: the wrapped base value (`nil` once
         /// consumed) and the consumed flag, guarded by one lock so both
         /// fields transition together.
+        ///
+        /// ## Safety Invariant (Category A — synchronized)
+        /// `@unchecked Sendable` unconditionally, including for a non-Sendable
+        /// `Base`. `Storage` has exactly one use: the payload of the enclosing
+        /// `State`'s `_storage` lock. Every read and write of both fields goes
+        /// through `withLock`, so the lock — not `Base`'s own Sendability — is
+        /// what serializes access to them.
+        ///
+        /// Reachability of the payload from a second isolation region is
+        /// re-imposed one level up, by `State`'s conditional conformance
+        /// (`@unchecked Sendable where Base: Sendable`, below): a `State` over
+        /// a non-Sendable `Base` is not `Sendable`, so this `Storage` cannot be
+        /// reached from another region at all. This conformance therefore
+        /// asserts only what the lock already guarantees, and does not widen
+        /// the surface that `State`'s load-bearing `where` clause guards.
+        ///
+        /// Declaring it here is what lets the initializers below take a plain
+        /// `consuming Base` instead of `consuming sending Base` — see the
+        /// ownership note on `init(_:)`.
         @usableFromInline
-        internal struct Storage {
+        internal struct Storage: @unchecked Sendable {
             @usableFromInline
             internal var base: Base?
 
@@ -77,7 +96,7 @@ extension Property.Consume where Base: Copyable {
             internal var consumed: Bool
 
             @usableFromInline
-            internal init(base: consuming sending Base) {
+            internal init(base: consuming Base) {
                 self.base = base
                 self.consumed = false
             }
@@ -92,8 +111,20 @@ extension Property.Consume where Base: Copyable {
         #endif
 
         /// Creates state wrapping the given base value.
+        ///
+        /// ## Ownership
+        /// The parameter is `consuming` but deliberately **not** `sending`.
+        /// Nothing crosses an isolation boundary here: the `State` that comes
+        /// out is `Sendable` only when `Base` is (see the conditional
+        /// conformance at the bottom of this file), so for a non-Sendable
+        /// `Base` it stays in the caller's region, merged with `base`'s. A
+        /// `sending` requirement would instead demand a *disconnected*
+        /// argument, which the canonical accessor pattern documented on
+        /// ``Property/Consume`` can never supply — the `self` it wraps is
+        /// task-isolated. The lock's own `sending` requirement is satisfied
+        /// by `Storage`'s conformance above rather than pushed onto callers.
         @inlinable
-        public init(_ base: consuming sending Base) {
+        public init(_ base: consuming Base) {
             #if !hasFeature(Embedded)
                 self._storage = Mutex(Storage(base: base))
             #else
