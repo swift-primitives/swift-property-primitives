@@ -18,9 +18,13 @@ private typealias _ConsumeIsSendable = Require.Sendable<Property<Phantom, Int>.C
 // half the test: `NonSendableElement` is a non-Sendable class, so the container
 // below is a non-Sendable Base flowing through `Container.forEach`.
 //
-// Do not make `NonSendableElement` Sendable — that would silently retire the guard.
+// Do not make `NonSendableElement` Sendable — that would silently retire the
+// guard. Deliberately not `private`: `Property.Consume.State Tests.swift`
+// (same target) reuses it for the issue #7 negative-Sendability assertion on
+// `State`'s conditional conformance, rather than declaring a second
+// non-Sendable fixture class.
 
-private final class NonSendableElement {
+final class NonSendableElement {
     var value: Int
 
     init(_ value: Int) {

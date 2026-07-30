@@ -145,6 +145,12 @@ extension Property.Consume.State {
     /// Borrows the base value for read access.
     ///
     /// Returns `nil` if already consumed.
+    ///
+    /// ## Safety
+    /// Must keep returning a plain `Base?`. Never change this to `sending
+    /// Base?` — that is fact 2 of the SAFETY note on `State`'s conditional
+    /// `Sendable` conformance, below; it is the one edit that turns this type
+    /// from sound to racy while every existing test keeps compiling.
     @inlinable
     public func borrow() -> Base? {
         _storage.withLock { $0.base }
@@ -156,6 +162,10 @@ extension Property.Consume.State {
     /// this `State` cannot interleave with the transition.
     ///
     /// Returns `nil` if already consumed.
+    ///
+    /// ## Safety
+    /// Must keep returning a plain `Base?`, not `sending Base?` — see the
+    /// note on `borrow()` above and fact 2 of the SAFETY note below.
     @inlinable
     package func consume() -> Base? {
         _storage.withLock { storage in
@@ -169,6 +179,10 @@ extension Property.Consume.State {
     /// Atomically returns the base value if the consuming path was not
     /// taken, `nil` if consumed — the consumed check and the base read
     /// happen inside a single lock acquisition.
+    ///
+    /// ## Safety
+    /// Must keep returning a plain `Base?`, not `sending Base?` — see the
+    /// note on `borrow()` above and fact 2 of the SAFETY note below.
     @inlinable
     package func restore() -> Base? {
         _storage.withLock { storage in
@@ -177,9 +191,34 @@ extension Property.Consume.State {
     }
 }
 
-// SAFETY: the `where Base: Sendable` clause is load-bearing, not decorative:
-// SAFETY: `Mutex<Storage>` is unconditionally Sendable, but `borrow()` hands a
-// SAFETY: copy of `base` out of the lock — without this clause a non-Sendable
-// SAFETY: `Base` could cross isolation regions through that copy with zero
-// SAFETY: compiler signal. Do not drop or widen the constraint.
+// SAFETY: this conformance is sound only as the conjunction of three facts, none
+// SAFETY: of them sufficient alone (see swift-primitives/swift-property-primitives#7
+// SAFETY: for the probes that established this):
+// SAFETY:
+// SAFETY:   1. CONDITIONAL-CLAUSE STABILITY — the `where Base: Sendable` clause must
+// SAFETY:      never widen or be dropped. `Mutex<Storage>` (`_UnsynchronizedBox<Storage>`
+// SAFETY:      under Embedded) is unconditionally Sendable, but `borrow()` hands a copy
+// SAFETY:      of `base` out of the lock — without this clause a non-Sendable `Base`
+// SAFETY:      could cross isolation regions through that copy with zero compiler
+// SAFETY:      signal. CHECKED: `Require.isSendable` in `Property.Consume.State
+// SAFETY:      Tests.swift` asserts both directions — `State` is Sendable when `Base`
+// SAFETY:      is, and is not when `Base` isn't — so widening this clause fails that
+// SAFETY:      test instead of compiling silently.
+// SAFETY:   2. NO `sending`-TYPED PUBLIC RETURN MENTIONING `Base` — `borrow()`,
+// SAFETY:      `restore()`, and `consume()` must keep returning a plain `Base?`. Region
+// SAFETY:      isolation re-merges a plain return with `self`'s region at the call
+// SAFETY:      site; `sending Base?` would instead hand out a value disconnected from
+// SAFETY:      `self` while `State` stays reachable from the original region — the
+// SAFETY:      exact race this type exists to prevent. Adding `sending` to a return is
+// SAFETY:      source-compatible, so nothing here compiles differently and no runtime
+// SAFETY:      test observes it. NOT CHECKED LOCALLY: enforcement is a swift-linter
+// SAFETY:      rule (swift-foundations/swift-institute-linter-rules#29), not this
+// SAFETY:      package — see the per-member `## Safety` notes on the three accessors
+// SAFETY:      above.
+// SAFETY:   3. `Storage`'S SINGLE USE — its unconditional `@unchecked Sendable` must
+// SAFETY:      stay internal and serve only as the payload of this `_storage` lock.
+// SAFETY:      See the Safety Invariant on `Storage`, above.
+// SAFETY:
+// SAFETY: Do not drop or widen fact 1's constraint; do not add `sending` to a
+// SAFETY: `Base`-typed return per fact 2; do not give `Storage` a second use per fact 3.
 extension Property.Consume.State: @unchecked Sendable where Base: Sendable {}
