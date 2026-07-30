@@ -43,6 +43,12 @@ public import Property_Primitive
 #endif
 
 extension Property.Consume where Base: Copyable {
+    // TRACKING: Experiments/property-consuming-value-state (Option C REFUTED
+    //      2026-04-21, release-mode SIL crash on 6.3.1); companion benchmark
+    //      Experiments/property-consuming-state-allocation-benchmark (no perf
+    //      upside, REFUTED). A `~Copyable` value-type State remains blocked
+    //      on the upstream EarlyPerfInliner crash; the Mutex-guarded
+    //      reference type below is the sound fix within that constraint.
     /// ## Safety Invariant (Category A — synchronized)
     /// `State` is a `final class` shared across `Consume` instances via
     /// `init(state:)`, so its mutable fields must be synchronized rather than
@@ -57,12 +63,7 @@ extension Property.Consume where Base: Copyable {
     /// cannot observe a torn base/consumed pair or race on the transition —
     /// the prior `@unchecked Sendable` claim relied on non-atomic field
     /// access and was unsound for that sharing pattern.
-    // TRACKING: Experiments/property-consuming-value-state (Option C REFUTED
-    //      2026-04-21, release-mode SIL crash on 6.3.1); companion benchmark
-    //      Experiments/property-consuming-state-allocation-benchmark (no perf
-    //      upside, REFUTED). A `~Copyable` value-type State remains blocked
-    //      on the upstream EarlyPerfInliner crash; the Mutex-guarded
-    //      reference type below is the sound fix within that constraint.
+    ///
     /// State tracker for conditional restoration.
     public final class State {
         /// The synchronized storage: the wrapped base value (`nil` once
