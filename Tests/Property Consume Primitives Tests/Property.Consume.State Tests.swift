@@ -125,7 +125,9 @@ private func `F-003 torn-state mega-trial`(groups: Int, readerCount: Int, spin: 
 extension `Property.Consume.State Tests`.`Edge Case` {
 
     @Test
-    func `concurrent consume never exposes a torn consumed-and-base state to a sibling sharing State`() {
+    func
+        `concurrent consume never exposes a torn consumed-and-base state to a sibling sharing State`()
+    {
         var tornObservedAcrossAttempts = false
         for _ in 0..<8 {
             if `F-003 torn-state mega-trial`(groups: 200, readerCount: 4, spin: 20_000) {
@@ -160,7 +162,10 @@ extension `Property.Consume.State Tests`.Unit {
     @Test
     func `State is Sendable exactly where Base is Sendable, not before and not after`() {
         #expect(Require.isSendable(Property<Phantom, Int>.Consume<Int>.State.self) == true)
-        #expect(Require.isSendable(Property<Phantom, NonSendableElement>.Consume<Int>.State.self) == false)
+        #expect(
+            Require.isSendable(Property<Phantom, NonSendableElement>.Consume<Int>.State.self)
+                == false
+        )
     }
 }
 
