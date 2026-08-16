@@ -47,3 +47,19 @@ extension `Property.Inout.Typed Tests`.`Edge Case` {
         #expect(slice.count == 3)
     }
 }
+
+extension `Property.Inout.Typed Tests`.Integration {
+
+    /// Release-mode regression fixture for swift-property-primitives#13
+    /// (swift-ownership-primitives#13): a drain whose loop condition reads the
+    /// storage that the body mutates through a `Property.Inout.Typed` view, in
+    /// the swift-buffer-ring-primitives builder shape. At -O, with a
+    /// non-transparent view initializer, the condition load is hoisted and the
+    /// loop never observes the mutation.
+    @Test
+    func `condition-driven drain through inout view terminates`() {
+        var slice = Slice<Int>(count: 3)
+        #expect(slice.drainAll() == 3)
+        #expect(slice.count == 0)
+    }
+}

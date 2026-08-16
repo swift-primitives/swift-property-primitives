@@ -53,7 +53,12 @@ extension Property.Inout where Base: ~Copyable {
         /// Creates a typed exclusive mutable accessor by borrowing the base value.
         ///
         /// - Parameter base: The value to borrow mutably.
-        @inlinable
+        // `@_transparent`, not `@inlinable`: at -O the caller keeps `[noescape]` on
+        // its inout across the `mark_dependence [nonescaping]` result of a
+        // non-transparent lifetime-dependent init and hoists loads of the same
+        // storage; mandatory inlining keeps the address-take in the caller's frame.
+        // See swift-primitives/swift-ownership-primitives#13.
+        @_transparent
         @_lifetime(&base)
         public init(_ base: inout Base) {
             self._storage = Tagged(_unchecked: Ownership.Inout(mutating: &base))
