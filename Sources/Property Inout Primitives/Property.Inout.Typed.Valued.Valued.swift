@@ -41,10 +41,15 @@ extension Property.Inout.Typed.Valued where Base: ~Copyable, Element: ~Copyable 
         @usableFromInline
         internal var _storage: Tagged<Tag, Ownership.Inout<Base>>
 
+        // `@_transparent`, not `@inlinable`: at -O the caller keeps `[noescape]` on
+        // its inout across the `mark_dependence [nonescaping]` result of a
+        // non-transparent lifetime-dependent init and hoists loads of the same
+        // storage; mandatory inlining keeps the address-take in the caller's frame.
+        // See swift-primitives/swift-ownership-primitives#13.
         /// Creates a valued exclusive mutable accessor by borrowing the base value.
         ///
         /// - Parameter base: The value to borrow mutably.
-        @inlinable
+        @_transparent
         @_lifetime(&base)
         public init(_ base: inout Base) {
             self._storage = Tagged(_unchecked: Ownership.Inout(mutating: &base))

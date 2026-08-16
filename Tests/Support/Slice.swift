@@ -62,3 +62,32 @@ extension Property.Inout.Typed where Tag == Slice<Int>.Access, Base == Slice<Int
         self.base.value.count = newCount
     }
 }
+
+extension Property.Inout.Typed where Tag == Slice<Int>.Access, Base == Slice<Int>, Element == Int {
+    /// Removes one element — written through the view.
+    public mutating func removeOne() {
+        self.base.value.count -= 1
+    }
+}
+
+extension Property.Borrow.Typed where Tag == Slice<Int>.Peek, Base == Slice<Int> {
+    /// Whether the slice holds no elements — read through the borrow view.
+    public var isEmpty: Bool {
+        self.base.value.count == 0
+    }
+}
+
+extension Slice where Element == Int {
+    /// Drains `self` one element at a time, reading the condition through the
+    /// borrow view and mutating through the inout view. Returns the trip count.
+    @inlinable
+    public mutating func drainAll() -> Int {
+        var trips = 0
+        while !self.peek.isEmpty {
+            self.access.removeOne()
+            trips += 1
+            if trips > 100 { break }
+        }
+        return trips
+    }
+}
