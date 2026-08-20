@@ -155,7 +155,7 @@ extension Property where Base: ~Copyable {
         to property: borrowing T,
         _ body: (UnsafePointer<T>) -> R
     ) -> R {
-        unsafe withUnsafePointer(to: property, body)
+        withUnsafePointer(to: property, body)
     }
 
     /// Perform a read operation with a mutable pointer to a stored property.
@@ -169,6 +169,6 @@ extension Property where Base: ~Copyable {
         to property: inout T,
         mutating body: (UnsafeMutablePointer<T>) -> R
     ) -> R {
-        unsafe withUnsafeMutablePointer(to: &property, body)
+        withUnsafeMutablePointer(to: &property, body)
     }
 }
