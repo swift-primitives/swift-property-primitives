@@ -48,11 +48,7 @@ extension `Property.Inout Tests`.Unit {
 
     @Test
     func `unsafe borrowing init: single read across module boundary`() {
-        // Exercises Property.Inout(_ base: borrowing Base) — the @unsafe
-        // init — from this test module, which is separate from
-        // Property Inout Primitives. With the non-@inlinable workaround
-        // in place, the release-mode @in_guaranteed ABI is preserved and
-        // the stored pointer reads cleanly.
+
         let box = Box(value: 321)
         let accessor = unsafe Property<Box.Inspect, Box>.Inout(box)
         let first = accessor.base.value.value
@@ -61,10 +57,7 @@ extension `Property.Inout Tests`.Unit {
 
     @Test
     func `unsafe borrowing init: multiple reads stable across module boundary`() {
-        // Two successive reads against the same let-bound accessor exercise
-        // the exact shape that the single-file minimal-repro demonstrates
-        // crashes when @inlinable. With @inlinable removed, the
-        // cross-module call boundary preserves the pointer.
+
         let box = Box(value: 654)
         let accessor = unsafe Property<Box.Inspect, Box>.Inout(box)
         let first = accessor.base.value.value

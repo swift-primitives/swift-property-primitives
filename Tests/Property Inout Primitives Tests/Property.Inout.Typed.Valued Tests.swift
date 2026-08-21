@@ -32,9 +32,7 @@ extension `Property.Inout.Typed.Valued Tests`.`Edge Case` {
 
     @Test
     func `count is not constrained by the value generic n (phantom semantics)`() {
-        // The value generic lifts an integer to the type level for
-        // extension where-clause binding. It is NOT a runtime capacity
-        // constraint — count can exceed or underflow n without trapping.
+
         var overCapacity = Slice<Int>.Inline<3>(count: 100)
         var underCapacity = Slice<Int>.Inline<3>(count: 0)
 

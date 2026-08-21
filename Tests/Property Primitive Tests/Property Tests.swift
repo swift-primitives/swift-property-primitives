@@ -1,8 +1,6 @@
 import Property_Primitives_Test_Support
 import Testing
 
-// MARK: - Compile-time conformance assertions
-
 private typealias _PropertyIsCopyable = Require.Copyable<Property<Phantom, Int>>
 private typealias _PropertyIsSendable = Require.Sendable<Property<Phantom, Int>>
 

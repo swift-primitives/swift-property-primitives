@@ -60,12 +60,11 @@ let package = Package(
         ),
     ],
     targets: [
-        // MARK: - Root
+
         .target(
             name: "Property Primitive"
         ),
 
-        // MARK: - Carrier sub-namespace
         .target(
             name: "Property Carrier Primitives",
             dependencies: [
@@ -74,7 +73,6 @@ let package = Package(
             ]
         ),
 
-        // MARK: - Variants
         .target(
             name: "Property Typed Primitives",
             dependencies: [
@@ -107,7 +105,6 @@ let package = Package(
             ]
         ),
 
-        // MARK: - Umbrella
         .target(
             name: "Property Primitives",
             dependencies: [
@@ -120,7 +117,6 @@ let package = Package(
             ]
         ),
 
-        // MARK: - Tests
         .testTarget(
             name: "Property Primitive Tests",
             dependencies: [
@@ -162,9 +158,6 @@ let package = Package(
             path: "Tests/Property Borrow Primitives Tests"
         ),
 
-        // MARK: - Tutorial Verification
-        // Mirrors the final step of the Getting Started tutorial so that API
-        // drift breaks the test suite. Per [DOC-073] verification option A.
         .testTarget(
             name: "Property Primitives Tutorial Tests",
             dependencies: [
@@ -173,7 +166,6 @@ let package = Package(
             path: "Tests/Tutorial"
         ),
 
-        // MARK: - Test Support
         .target(
             name: "Property Primitives Test Support",
             dependencies: [

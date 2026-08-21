@@ -1,38 +1,12 @@
-// Property+Carrier.swift
-// Property<Tag, Base> conforms to Carrier.`Protocol` as a phantom-typed
-// wrapper — the Q2/Q4 (~Copyable) sibling to `Tagged<Tag, Underlying>`'s
-// Q1/Q3 role.
-//
-// Together with `Tagged: Carrier.\`Protocol\``, this conformance unifies
-// Property and Tagged in the Carrier family across all four Copyable ×
-// Escapable quadrants. APIs declared as
-// `func f<C: Carrier.\`Protocol\`>(_ c: C)` accept values of either
-// container uniformly.
-//
-// `Domain = Tag` (the phantom discriminator).
-// `Underlying = Base` (the wrapped value type).
-//
-// `var underlying` is a `_read` coroutine yielding the public `base`
-// accessor (which itself yields the stored `_base`), matching
-// Carrier.`Protocol`'s `borrowing get` requirement for both Copyable and
-// ~Copyable Underlying. It yields through `base` rather than the
-// `internal _base` directly because this conformance now lives in a
-// separate module from the `Property` declaration.
-//
-// `init(_ underlying: consuming Base)` is satisfied by Property's
-// existing `init(_ base: consuming Base)` — same signature.
-
 public import Carrier_Primitives
 public import Property_Primitive
 
 extension Property: Carrier.`Protocol` where Base: ~Copyable {
-    /// The wrapped value type.
+
     public typealias Underlying = Base
 
-    /// The phantom `Tag` IS the Carrier's `Domain`.
     public typealias Domain = Tag
 
-    /// Borrowing access to the underlying value.
     @inlinable
     public var underlying: Base {
         _read { yield base }

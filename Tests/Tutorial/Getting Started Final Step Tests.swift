@@ -1,14 +1,6 @@
 public import Property_Primitives
 import Testing
 
-// This file mirrors the final step of the Getting Started tutorial at
-// Sources/Property Primitives/Property Primitives.docc/Resources/step-05-use-it.swift.
-//
-// Per [DOC-073] verification option A: if the tutorial step's Property API
-// stops compiling — renamed types, changed signatures, removed overloads —
-// this file fails to build and the test suite breaks. The break is the
-// signal that the tutorial step is stale.
-
 public struct Stack<Element: Copyable>: Copyable {
     internal var _storage: [Element]
 
@@ -57,8 +49,6 @@ where Tag == Stack<Element>.Peek, Base == Stack<Element> {
     public var count: Int { base._storage.count }
     public var isEmpty: Bool { base._storage.isEmpty }
 }
-
-// Stack<Element> is generic, so use [SWIFT-TEST-003] parallel namespace.
 
 @Suite
 struct `Tutorial Getting Started Final Step Tests` {

@@ -1,28 +1,7 @@
 import Property_Primitives_Test_Support
 import Testing
 
-// MARK: - Compile-time conformance assertions
-//
-// Property.Consume is unconditionally ~Copyable (not conditionally
-// Copyable — consume semantics require it). Only Sendable is
-// conditional, so only Sendable is asserted here.
-
 private typealias _ConsumeIsSendable = Require.Sendable<Property<Phantom, Int>.Consume<Int>>
-
-// MARK: - #4 regression: the accessor pattern must compile over a non-Sendable Base
-//
-// `Property.Consume.init(_:)` once required `consuming sending Base`. That made
-// the accessor pattern the type documents — `_read { yield Consume(self) }` —
-// uncompilable for any non-Sendable Base, because `self` inside an accessor is
-// task-isolated and so never a disconnected value. The compile of this file is
-// half the test: `NonSendableElement` is a non-Sendable class, so the container
-// below is a non-Sendable Base flowing through `Container.forEach`.
-//
-// Do not make `NonSendableElement` Sendable — that would silently retire the
-// guard. Deliberately not `private`: `Property.Consume.State Tests.swift`
-// (same target) reuses it for the issue #7 negative-Sendability assertion on
-// `State`'s conditional conformance, rather than declaring a second
-// non-Sendable fixture class.
 
 final class NonSendableElement {
     var value: Int

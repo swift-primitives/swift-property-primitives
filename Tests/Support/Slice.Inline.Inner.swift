@@ -1,8 +1,7 @@
 extension Slice.Inline where Element: ~Copyable {
     public struct Inner<let m: Int>: ~Copyable {
         public var count: Int
-        // Fixture's Int count is scaffolding, not a typed-boundary surface.
-        // swift-linter:disable:next int public parameter
+
         public init(count: Int) { self.count = count }
     }
 }
@@ -36,8 +35,6 @@ where
     public var outer: Int { n }
     public var inner: Int { m }
 
-    // Fixture's Int newCount mirrors Slice.Inline.Inner's Int count — scaffolding.
-    // swift-linter:disable:next int public parameter
     public mutating func resize(to newCount: Int) {
         self.base.value.count = newCount
     }
