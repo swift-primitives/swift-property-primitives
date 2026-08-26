@@ -1,4 +1,4 @@
-public import Property_Primitives
+public import Property
 import Testing
 
 public struct Stack<Element: Copyable>: Copyable {
@@ -11,7 +11,7 @@ public struct Stack<Element: Copyable>: Copyable {
 
 extension Stack {
     public typealias Property<Tag> =
-        Property_Primitives.Property<Tag, Stack<Element>>
+        Property.Property<Tag, Stack<Element>>
 }
 
 extension Stack {

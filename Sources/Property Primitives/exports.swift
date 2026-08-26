@@ -1,6 +1,0 @@
-@_exported public import Property_Borrow_Primitives
-@_exported public import Property_Carrier_Primitives
-@_exported public import Property_Consume_Primitives
-@_exported public import Property_Inout_Primitives
-@_exported public import Property_Primitive
-@_exported public import Property_Typed_Primitives

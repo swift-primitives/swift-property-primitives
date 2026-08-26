@@ -1,4 +1,4 @@
-public import Carrier_Primitives
+public import Carrier
 public import Property_Primitive
 
 extension Property: Carrier.`Protocol` where Base: ~Copyable {

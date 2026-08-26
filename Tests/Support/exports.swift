@@ -1,2 +1,2 @@
-@_exported public import Property_Primitives
-@_exported public import Ownership_Primitives_Test_Support
+@_exported public import Property
+@_exported public import Ownership_Test_Support

@@ -1,6 +1,6 @@
-public import Ownership_Borrow_Primitives
+public import Ownership_Borrow
 public import Property_Primitive
-public import Tagged_Primitives
+public import Tagged
 
 extension Property.Borrow where Base: ~Copyable {
 

@@ -1,6 +1,6 @@
-@_exported public import Ownership_Inout_Primitives
+@_exported public import Ownership_Inout
 public import Property_Primitive
-public import Tagged_Primitives
+public import Tagged
 
 extension Property where Base: ~Copyable {
 

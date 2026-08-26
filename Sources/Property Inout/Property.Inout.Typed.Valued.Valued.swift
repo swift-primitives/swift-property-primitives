@@ -1,6 +1,6 @@
-public import Ownership_Inout_Primitives
+public import Ownership_Inout
 public import Property_Primitive
-public import Tagged_Primitives
+public import Tagged
 
 extension Property.Inout.Typed.Valued where Base: ~Copyable, Element: ~Copyable {
 
