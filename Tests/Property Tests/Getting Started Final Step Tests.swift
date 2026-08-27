@@ -9,9 +9,12 @@ public struct Stack<Element: Copyable>: Copyable {
     }
 }
 
+public typealias _GettingStartedProperty<Tag: ~Copyable & ~Escapable, Base: ~Copyable> =
+    Property<Tag, Base>
+
 extension Stack {
     public typealias Property<Tag> =
-        Property.Property<Tag, Stack<Element>>
+        _GettingStartedProperty<Tag, Stack<Element>>
 }
 
 extension Stack {
