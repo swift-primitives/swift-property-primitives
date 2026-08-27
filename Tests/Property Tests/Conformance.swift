@@ -1,3 +1,5 @@
+public import Property
+
 public enum Require {}
 
 extension Require {

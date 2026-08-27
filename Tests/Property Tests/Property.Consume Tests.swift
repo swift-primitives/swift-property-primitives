@@ -1,4 +1,4 @@
-import Property_Test_Support
+import Property
 import Testing
 
 private typealias _ConsumeIsSendable = Require.Sendable<Property<Phantom, Int>.Consume<Int>>
