@@ -11,7 +11,7 @@ public struct Stack<Element: Copyable>: Copyable {
 
 extension Stack {
     public typealias Property<Tag> =
-        Property.Property<Tag, Stack<Element>>
+        Property::Property<Tag, Stack<Element>>
 }
 
 extension Stack {
@@ -36,14 +36,14 @@ extension Stack {
     }
 }
 
-extension Property {
+extension Property::Property {
     public mutating func back<E>(_ element: E)
     where Tag == Stack<E>.Push, Base == Stack<E> {
         base._storage.append(element)
     }
 }
 
-extension Property.Typed
+extension Property::Property.Typed
 where Tag == Stack<Element>.Peek, Base == Stack<Element> {
     public var back: Element? { base._storage.last }
     public var count: Int { base._storage.count }

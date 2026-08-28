@@ -11,18 +11,18 @@ extension Slice.Inline.Inner where Element: ~Copyable {
 }
 
 extension Slice.Inline.Inner where Element: ~Copyable {
-    public var access: Property<Access, Slice<Element>.Inline<n>.Inner<m>>.Inout.Typed<Element>.Valued<n>.Valued<m> {
+    public var access: Property::Property<Access, Slice<Element>.Inline<n>.Inner<m>>.Inout.Typed<Element>.Valued<n>.Valued<m> {
         mutating _read {
-            yield Property<Access, Slice<Element>.Inline<n>.Inner<m>>.Inout.Typed<Element>.Valued<n>.Valued<m>(&self)
+            yield Property::Property<Access, Slice<Element>.Inline<n>.Inner<m>>.Inout.Typed<Element>.Valued<n>.Valued<m>(&self)
         }
         mutating _modify {
-            var accessor = Property<Access, Slice<Element>.Inline<n>.Inner<m>>.Inout.Typed<Element>.Valued<n>.Valued<m>(&self)
+            var accessor = Property::Property<Access, Slice<Element>.Inline<n>.Inner<m>>.Inout.Typed<Element>.Valued<n>.Valued<m>(&self)
             yield &accessor
         }
     }
 }
 
-extension Property.Inout.Typed.Valued.Valued
+extension Property::Property.Inout.Typed.Valued.Valued
 where
     Tag == Slice<Int>.Inline<n>.Inner<m>.Access,
     Base == Slice<Int>.Inline<n>.Inner<m>,

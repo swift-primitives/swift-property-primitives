@@ -1,8 +1,8 @@
 @_exported public import Ownership_Borrow
-public import Property_Primitive
+public import Property
 public import Tagged
 
-extension Property where Base: ~Copyable {
+extension Property::Property where Base: ~Copyable {
 
     @safe
     public struct Borrow: ~Copyable, ~Escapable {
@@ -17,7 +17,7 @@ extension Property where Base: ~Copyable {
     }
 }
 
-extension Property.Borrow where Base: ~Copyable {
+extension Property::Property.Borrow where Base: ~Copyable {
 
     @inlinable
     public var base: Ownership.Borrow<Base> {

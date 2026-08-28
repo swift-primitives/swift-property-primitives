@@ -1,4 +1,4 @@
-public import Property_Primitive
+public import Property
 
 #if !hasFeature(Embedded)
     public import Synchronization
@@ -23,7 +23,7 @@ public import Property_Primitive
     }
 #endif
 
-extension Property.Consume where Base: Copyable {
+extension Property::Property.Consume where Base: Copyable {
 
     public final class State {
 
@@ -61,7 +61,7 @@ extension Property.Consume where Base: Copyable {
     }
 }
 
-extension Property.Consume.State {
+extension Property::Property.Consume.State {
 
     @inlinable
     public var isConsumed: Bool {
@@ -91,4 +91,4 @@ extension Property.Consume.State {
     }
 }
 
-extension Property.Consume.State: @unchecked Sendable where Base: Sendable {}
+extension Property::Property.Consume.State: @unchecked Sendable where Base: Sendable {}

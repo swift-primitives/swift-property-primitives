@@ -1,3 +1,4 @@
+import Property_Inout
 import Property_Test_Support
 import Testing
 
@@ -14,7 +15,7 @@ extension `Property.Inout Tests`.Unit {
     func `pointer to stored property`() {
         let box = Box(value: 77)
 
-        let result = unsafe Property<Box.Inspect, Box>.pointer(
+        let result = unsafe Property::Property<Box.Inspect, Box>.pointer(
             to: box.value
         ) { pointer in
             unsafe pointer.pointee * 2
@@ -27,7 +28,7 @@ extension `Property.Inout Tests`.Unit {
     func `pointer mutating variant`() {
         var scalar = 50
 
-        unsafe Property<Box.Inspect, Box>.pointer(
+        unsafe Property::Property<Box.Inspect, Box>.pointer(
             to: &scalar,
             mutating: { pointer in
                 unsafe pointer.pointee += 25
@@ -40,7 +41,7 @@ extension `Property.Inout Tests`.Unit {
     @Test
     func `init from inout base enables value reads`() {
         var box = Box(value: 200)
-        let accessor = Property<Box.Inspect, Box>.Inout(&box)
+        let accessor = Property::Property<Box.Inspect, Box>.Inout(&box)
         let value = accessor.base.value.value
 
         #expect(value == 200)
@@ -50,7 +51,7 @@ extension `Property.Inout Tests`.Unit {
     func `unsafe borrowing init: single read across module boundary`() {
 
         let box = Box(value: 321)
-        let accessor = unsafe Property<Box.Inspect, Box>.Inout(box)
+        let accessor = unsafe Property::Property<Box.Inspect, Box>.Inout(box)
         let first = accessor.base.value.value
         #expect(first == 321)
     }
@@ -59,7 +60,7 @@ extension `Property.Inout Tests`.Unit {
     func `unsafe borrowing init: multiple reads stable across module boundary`() {
 
         let box = Box(value: 654)
-        let accessor = unsafe Property<Box.Inspect, Box>.Inout(box)
+        let accessor = unsafe Property::Property<Box.Inspect, Box>.Inout(box)
         let first = accessor.base.value.value
         let second = accessor.base.value.value
         #expect(first == 654)
@@ -73,7 +74,7 @@ extension `Property.Inout Tests`.Integration {
     func `pointer to tuple element`() {
         let box = Box(value: 10)
 
-        let sum = unsafe Property<Box.Inspect, Box>.pointer(
+        let sum = unsafe Property::Property<Box.Inspect, Box>.pointer(
             to: box.storage
         ) { pointer in
             let tuple = unsafe pointer.pointee

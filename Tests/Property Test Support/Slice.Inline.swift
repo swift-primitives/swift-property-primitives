@@ -12,24 +12,24 @@ extension Slice.Inline where Element: ~Copyable {
 }
 
 extension Slice.Inline where Element: ~Copyable {
-    public var access: Property<Access, Slice<Element>.Inline<n>>.Inout.Typed<Element>.Valued<n> {
+    public var access: Property::Property<Access, Slice<Element>.Inline<n>>.Inout.Typed<Element>.Valued<n> {
         mutating _read {
-            yield Property<Access, Slice<Element>.Inline<n>>.Inout.Typed<Element>.Valued<n>(&self)
+            yield Property::Property<Access, Slice<Element>.Inline<n>>.Inout.Typed<Element>.Valued<n>(&self)
         }
         mutating _modify {
-            var accessor = Property<Access, Slice<Element>.Inline<n>>.Inout.Typed<Element>.Valued<n>(&self)
+            var accessor = Property::Property<Access, Slice<Element>.Inline<n>>.Inout.Typed<Element>.Valued<n>(&self)
             yield &accessor
         }
     }
 
-    public var inspect: Property<Inspect, Slice<Element>.Inline<n>>.Borrow.Typed<Element>.Valued<n> {
+    public var inspect: Property::Property<Inspect, Slice<Element>.Inline<n>>.Borrow.Typed<Element>.Valued<n> {
         mutating _read {
-            yield Property<Inspect, Slice<Element>.Inline<n>>.Borrow.Typed<Element>.Valued<n>(self)
+            yield Property::Property<Inspect, Slice<Element>.Inline<n>>.Borrow.Typed<Element>.Valued<n>(self)
         }
     }
 }
 
-extension Property.Inout.Typed.Valued
+extension Property::Property.Inout.Typed.Valued
 where Tag == Slice<Int>.Inline<n>.Access, Base == Slice<Int>.Inline<n>, Element == Int {
     public var size: Int {
         self.base.value.count
@@ -42,7 +42,7 @@ where Tag == Slice<Int>.Inline<n>.Access, Base == Slice<Int>.Inline<n>, Element 
     }
 }
 
-extension Property.Borrow.Typed.Valued
+extension Property::Property.Borrow.Typed.Valued
 where Tag == Slice<Int>.Inline<n>.Inspect, Base == Slice<Int>.Inline<n>, Element == Int {
     public var size: Int {
         self.base.value.count

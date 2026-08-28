@@ -1,6 +1,6 @@
-public import Property_Primitive
+public import Property
 
-extension Property where Base: ~Copyable {
+extension Property::Property where Base: ~Copyable {
 
     public struct Typed<Element>: ~Copyable {
 
@@ -14,7 +14,7 @@ extension Property where Base: ~Copyable {
     }
 }
 
-extension Property.Typed where Base: ~Copyable {
+extension Property::Property.Typed where Base: ~Copyable {
 
     @inlinable
     public var base: Base {
@@ -23,5 +23,5 @@ extension Property.Typed where Base: ~Copyable {
     }
 }
 
-extension Property.Typed: Copyable where Base: Copyable {}
-extension Property.Typed: Sendable where Base: Sendable {}
+extension Property::Property.Typed: Copyable where Base: Copyable {}
+extension Property::Property.Typed: Sendable where Base: Sendable {}

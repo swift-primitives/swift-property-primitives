@@ -1,7 +1,8 @@
+import Property_Consume
 import Property_Test_Support
 import Testing
 
-private typealias _ConsumeIsSendable = Require.Sendable<Property<Phantom, Int>.Consume<Int>>
+private typealias _ConsumeIsSendable = Require.Sendable<Property::Property<Phantom, Int>.Consume<Int>>
 
 final class NonSendableElement {
     var value: Int
@@ -22,7 +23,7 @@ extension `Property.Consume Tests`.Unit {
 
     @Test
     func `borrow returns base when not consumed`() {
-        let consume = Property<Phantom, Int>.Consume<Int>(42)
+        let consume = Property::Property<Phantom, Int>.Consume<Int>(42)
         let borrowed = consume.borrow()
         let consumed = consume.isConsumed
 
@@ -32,7 +33,7 @@ extension `Property.Consume Tests`.Unit {
 
     @Test
     func `consume transfers ownership and marks consumed`() {
-        var consume = Property<Phantom, Int>.Consume<Int>(42)
+        var consume = Property::Property<Phantom, Int>.Consume<Int>(42)
         let taken = consume.consume()
         let consumed = consume.isConsumed
         let borrowed = consume.borrow()
@@ -44,7 +45,7 @@ extension `Property.Consume Tests`.Unit {
 
     @Test
     func `restore returns base when not consumed`() {
-        let consume = Property<Phantom, Int>.Consume<Int>(42)
+        let consume = Property::Property<Phantom, Int>.Consume<Int>(42)
         let restored = consume.restore()
 
         #expect(restored == 42)
@@ -52,7 +53,7 @@ extension `Property.Consume Tests`.Unit {
 
     @Test
     func `restore returns nil after consume`() {
-        var consume = Property<Phantom, Int>.Consume<Int>(42)
+        var consume = Property::Property<Phantom, Int>.Consume<Int>(42)
         let taken = consume.consume()
         let restored = consume.restore()
 
@@ -62,7 +63,7 @@ extension `Property.Consume Tests`.Unit {
 
     @Test
     func `double consume returns nil on second call`() {
-        var consume = Property<Phantom, Int>.Consume<Int>(77)
+        var consume = Property::Property<Phantom, Int>.Consume<Int>(77)
 
         let first = consume.consume()
         let second = consume.consume()
@@ -73,8 +74,8 @@ extension `Property.Consume Tests`.Unit {
 
     @Test
     func `init from state wraps existing state`() {
-        let state = Property<Phantom, Int>.Consume<Int>.State(11)
-        let consume = Property<Phantom, Int>.Consume<Int>(state: state)
+        let state = Property::Property<Phantom, Int>.Consume<Int>.State(11)
+        let consume = Property::Property<Phantom, Int>.Consume<Int>(state: state)
 
         let borrowed = consume.borrow()
         let consumed = consume.isConsumed
@@ -85,8 +86,8 @@ extension `Property.Consume Tests`.Unit {
 
     @Test
     func `state getter returns the wrapped State instance`() {
-        let state = Property<Phantom, Int>.Consume<Int>.State(22)
-        let consume = Property<Phantom, Int>.Consume<Int>(state: state)
+        let state = Property::Property<Phantom, Int>.Consume<Int>.State(22)
+        let consume = Property::Property<Phantom, Int>.Consume<Int>(state: state)
 
         #expect(consume.state === state)
     }
@@ -96,7 +97,7 @@ extension `Property.Consume Tests`.`Edge Case` {
 
     @Test
     func `restore is idempotent on non-consumed state`() {
-        let consume = Property<Phantom, Int>.Consume<Int>(33)
+        let consume = Property::Property<Phantom, Int>.Consume<Int>(33)
 
         let first = consume.restore()
         let second = consume.restore()
@@ -111,7 +112,7 @@ extension `Property.Consume Tests`.`Edge Case` {
 
     @Test
     func `isConsumed is sticky after consume + borrow sequence`() {
-        var consume = Property<Phantom, Int>.Consume<Int>(55)
+        var consume = Property::Property<Phantom, Int>.Consume<Int>(55)
 
         _ = consume.consume()
         _ = consume.borrow()

@@ -13,42 +13,42 @@ extension Slice where Element: ~Copyable {
 }
 
 extension Slice where Element: ~Copyable {
-    public var peek: Property<Peek, Slice<Element>>.Borrow.Typed<Element> {
+    public var peek: Property::Property<Peek, Slice<Element>>.Borrow.Typed<Element> {
         _read {
-            yield Property<Peek, Slice<Element>>.Borrow.Typed(self)
+            yield Property::Property<Peek, Slice<Element>>.Borrow.Typed(self)
         }
     }
 
-    public var borrow: Property<Borrow, Slice<Element>>.Borrow.Typed<Element> {
+    public var borrow: Property::Property<Borrow, Slice<Element>>.Borrow.Typed<Element> {
         _read {
-            yield Property<Borrow, Slice<Element>>.Borrow.Typed(self)
+            yield Property::Property<Borrow, Slice<Element>>.Borrow.Typed(self)
         }
     }
 
-    public var access: Property<Access, Slice<Element>>.Inout.Typed<Element> {
+    public var access: Property::Property<Access, Slice<Element>>.Inout.Typed<Element> {
         mutating _read {
-            yield Property<Access, Slice<Element>>.Inout.Typed<Element>(&self)
+            yield Property::Property<Access, Slice<Element>>.Inout.Typed<Element>(&self)
         }
         mutating _modify {
-            var accessor = Property<Access, Slice<Element>>.Inout.Typed<Element>(&self)
+            var accessor = Property::Property<Access, Slice<Element>>.Inout.Typed<Element>(&self)
             yield &accessor
         }
     }
 }
 
-extension Property.Borrow.Typed where Tag == Slice<Int>.Peek, Base == Slice<Int> {
+extension Property::Property.Borrow.Typed where Tag == Slice<Int>.Peek, Base == Slice<Int> {
     public var size: Int {
         self.base.value.count
     }
 }
 
-extension Property.Borrow.Typed where Tag == Slice<Int>.Borrow, Base == Slice<Int> {
+extension Property::Property.Borrow.Typed where Tag == Slice<Int>.Borrow, Base == Slice<Int> {
     public var size: Int {
         self.base.value.count
     }
 }
 
-extension Property.Inout.Typed where Tag == Slice<Int>.Access, Base == Slice<Int>, Element == Int {
+extension Property::Property.Inout.Typed where Tag == Slice<Int>.Access, Base == Slice<Int>, Element == Int {
     public var size: Int {
         self.base.value.count
     }
@@ -58,14 +58,14 @@ extension Property.Inout.Typed where Tag == Slice<Int>.Access, Base == Slice<Int
     }
 }
 
-extension Property.Inout.Typed where Tag == Slice<Int>.Access, Base == Slice<Int>, Element == Int {
+extension Property::Property.Inout.Typed where Tag == Slice<Int>.Access, Base == Slice<Int>, Element == Int {
 
     public mutating func removeOne() {
         self.base.value.count -= 1
     }
 }
 
-extension Property.Borrow.Typed where Tag == Slice<Int>.Peek, Base == Slice<Int> {
+extension Property::Property.Borrow.Typed where Tag == Slice<Int>.Peek, Base == Slice<Int> {
 
     public var isEmpty: Bool {
         self.base.value.count == 0

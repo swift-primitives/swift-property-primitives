@@ -1,8 +1,8 @@
 @_exported public import Ownership_Inout
-public import Property_Primitive
+public import Property
 public import Tagged
 
-extension Property where Base: ~Copyable {
+extension Property::Property where Base: ~Copyable {
 
     @safe
     public struct Inout: ~Copyable, ~Escapable {
@@ -28,7 +28,7 @@ extension Property where Base: ~Copyable {
     }
 }
 
-extension Property.Inout where Base: ~Copyable {
+extension Property::Property.Inout where Base: ~Copyable {
 
     @inlinable
     public var base: Ownership.Inout<Base> {
@@ -37,7 +37,7 @@ extension Property.Inout where Base: ~Copyable {
     }
 }
 
-extension Property where Base: ~Copyable {
+extension Property::Property where Base: ~Copyable {
 
     @inlinable
     public static func pointer<T, R>(

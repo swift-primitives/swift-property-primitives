@@ -1,6 +1,6 @@
-public import Property_Primitive
+public import Property
 
-extension Property where Base: Copyable {
+extension Property::Property where Base: Copyable {
 
     public struct Consume<Element>: ~Copyable {
         @usableFromInline
@@ -18,7 +18,7 @@ extension Property where Base: Copyable {
     }
 }
 
-extension Property.Consume {
+extension Property::Property.Consume {
 
     @inlinable
     public var state: State { _state }
@@ -27,7 +27,7 @@ extension Property.Consume {
     public var isConsumed: Bool { _state.isConsumed }
 }
 
-extension Property.Consume {
+extension Property::Property.Consume {
 
     @inlinable
     public func borrow() -> Base? {
@@ -35,7 +35,7 @@ extension Property.Consume {
     }
 }
 
-extension Property.Consume {
+extension Property::Property.Consume {
 
     @inlinable
     public mutating func consume() -> Base? {
@@ -43,7 +43,7 @@ extension Property.Consume {
     }
 }
 
-extension Property.Consume {
+extension Property::Property.Consume {
 
     @inlinable
     public func restore() -> Base? {
@@ -51,4 +51,4 @@ extension Property.Consume {
     }
 }
 
-extension Property.Consume: Sendable where Base: Sendable {}
+extension Property::Property.Consume: Sendable where Base: Sendable {}

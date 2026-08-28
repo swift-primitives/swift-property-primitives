@@ -1,9 +1,10 @@
 import Dispatch
+import Property_Consume
 import Property_Test_Support
 import Synchronization
 import Testing
 
-private typealias _StateIsSendable = Require.Sendable<Property<Phantom, Int>.Consume<Int>.State>
+private typealias _StateIsSendable = Require.Sendable<Property::Property<Phantom, Int>.Consume<Int>.State>
 
 @Suite
 struct `Property.Consume.State Tests` {
@@ -17,8 +18,8 @@ private func `F-003 torn-state mega-trial`(groups: Int, readerCount: Int, spin: 
     let group = DispatchGroup()
 
     for _ in 0..<groups {
-        let state = Property<Phantom, Int>.Consume<Int>.State(1)
-        let consumerLock = Mutex(Property<Phantom, Int>.Consume<Int>(state: state))
+        let state = Property::Property<Phantom, Int>.Consume<Int>.State(1)
+        let consumerLock = Mutex(Property::Property<Phantom, Int>.Consume<Int>(state: state))
         let readyCount = Atomic<Int>(0)
 
         for _ in 0..<readerCount {
@@ -69,7 +70,7 @@ extension `Property.Consume.State Tests`.Unit {
 
     @Test
     func `state init stores base and starts not consumed`() {
-        let state = Property<Phantom, Int>.Consume<Int>.State(99)
+        let state = Property::Property<Phantom, Int>.Consume<Int>.State(99)
 
         #expect(state.isConsumed == false)
         #expect(state.borrow() == 99)
@@ -77,7 +78,7 @@ extension `Property.Consume.State Tests`.Unit {
 
     @Test
     func `state borrow returns base across repeated calls`() {
-        let state = Property<Phantom, Int>.Consume<Int>.State(7)
+        let state = Property::Property<Phantom, Int>.Consume<Int>.State(7)
 
         #expect(state.borrow() == 7)
         #expect(state.borrow() == 7)
@@ -87,9 +88,9 @@ extension `Property.Consume.State Tests`.Unit {
 
     @Test
     func `State is Sendable exactly where Base is Sendable, not before and not after`() {
-        #expect(Require.isSendable(Property<Phantom, Int>.Consume<Int>.State.self) == true)
+        #expect(Require.isSendable(Property::Property<Phantom, Int>.Consume<Int>.State.self) == true)
         #expect(
-            Require.isSendable(Property<Phantom, NonSendableElement>.Consume<Int>.State.self)
+            Require.isSendable(Property::Property<Phantom, NonSendableElement>.Consume<Int>.State.self)
                 == false
         )
     }
@@ -99,9 +100,9 @@ extension `Property.Consume.State Tests`.Integration {
 
     @Test
     func `shared state reflects consumption across Consume instances`() {
-        let state = Property<Phantom, Int>.Consume<Int>.State(50)
-        let observer = Property<Phantom, Int>.Consume<Int>(state: state)
-        var consumer = Property<Phantom, Int>.Consume<Int>(state: state)
+        let state = Property::Property<Phantom, Int>.Consume<Int>.State(50)
+        let observer = Property::Property<Phantom, Int>.Consume<Int>(state: state)
+        var consumer = Property::Property<Phantom, Int>.Consume<Int>(state: state)
 
         let beforeConsume = observer.borrow()
         #expect(beforeConsume == 50)

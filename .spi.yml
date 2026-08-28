@@ -6,6 +6,5 @@ builder:
     - Property Carrier
     - Property Consume
     - Property Inout
-    - Property Primitive
     - Property
     - Property Typed

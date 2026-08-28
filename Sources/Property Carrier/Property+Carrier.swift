@@ -1,7 +1,7 @@
-public import Carrier
-public import Property_Primitive
+public import Carrier_Protocol
+public import Property
 
-extension Property: Carrier.`Protocol` where Base: ~Copyable {
+extension Property::Property: Carrier.`Protocol` where Base: ~Copyable {
 
     public typealias Underlying = Base
 

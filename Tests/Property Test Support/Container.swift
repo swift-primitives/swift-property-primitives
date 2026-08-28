@@ -32,30 +32,30 @@ extension Container {
 }
 
 extension Container {
-    public var push: Property<Push, Container<Element>> {
-        _read { yield Property(self) }
+    public var push: Property::Property<Push, Container<Element>> {
+        _read { yield Property::Property(self) }
         _modify {
-            var property: Property<Push, Container<Element>> = Property(self)
+            var property: Property::Property<Push, Container<Element>> = Property::Property(self)
             self = Container()
             defer { self = property.base }
             yield &property
         }
     }
 
-    public var pop: Property<Pop, Container<Element>> {
-        _read { yield Property(self) }
+    public var pop: Property::Property<Pop, Container<Element>> {
+        _read { yield Property::Property(self) }
         _modify {
-            var property: Property<Pop, Container<Element>> = Property(self)
+            var property: Property::Property<Pop, Container<Element>> = Property::Property(self)
             self = Container()
             defer { self = property.base }
             yield &property
         }
     }
 
-    public var merge: Property<Merge.Keep, Container<Element>> {
-        _read { yield Property(self) }
+    public var merge: Property::Property<Merge.Keep, Container<Element>> {
+        _read { yield Property::Property(self) }
         _modify {
-            var property: Property<Merge.Keep, Container<Element>> = Property(self)
+            var property: Property::Property<Merge.Keep, Container<Element>> = Property::Property(self)
             self = Container()
             defer { self = property.base }
             yield &property
@@ -63,21 +63,21 @@ extension Container {
     }
 }
 
-extension Property where Tag == Container<Int>.Push, Base == Container<Int> {
+extension Property::Property where Tag == Container<Int>.Push, Base == Container<Int> {
 
     public mutating func back(_ element: Int) {
         self.base.storage.append(element)
     }
 }
 
-extension Property where Tag == Container<Int>.Pop, Base == Container<Int> {
+extension Property::Property where Tag == Container<Int>.Pop, Base == Container<Int> {
 
     public mutating func back() -> Int {
         self.base.storage.removeLast()
     }
 }
 
-extension Property where Tag == Container<Int>.Merge.Keep, Base == Container<Int> {
+extension Property::Property where Tag == Container<Int>.Merge.Keep, Base == Container<Int> {
 
     public mutating func from(_ other: borrowing Container<Int>) {
         _ = other.count
@@ -85,12 +85,12 @@ extension Property where Tag == Container<Int>.Merge.Keep, Base == Container<Int
 }
 
 extension Container where Element: Copyable {
-    public var forEach: Property<ForEach, Container<Element>>.Consume<Element> {
+    public var forEach: Property::Property<ForEach, Container<Element>>.Consume<Element> {
         _read {
-            yield Property<ForEach, Container<Element>>.Consume<Element>(self)
+            yield Property::Property<ForEach, Container<Element>>.Consume<Element>(self)
         }
         mutating _modify {
-            var property = Property<ForEach, Container<Element>>.Consume<Element>(self)
+            var property = Property::Property<ForEach, Container<Element>>.Consume<Element>(self)
             self = Container<Element>()
             defer {
                 if let restored = property.restore() {
@@ -102,7 +102,7 @@ extension Container where Element: Copyable {
     }
 }
 
-extension Property.Consume
+extension Property::Property.Consume
 where Tag == Container<Element>.ForEach, Base == Container<Element>, Element: Copyable {
     public func callAsFunction(_ body: (Element) -> Void) {
         guard let base = borrow() else { return }

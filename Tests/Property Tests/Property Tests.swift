@@ -1,8 +1,9 @@
+import Property
 import Property_Test_Support
 import Testing
 
-private typealias _PropertyIsCopyable = Require.Copyable<Property<Phantom, Int>>
-private typealias _PropertyIsSendable = Require.Sendable<Property<Phantom, Int>>
+private typealias _PropertyIsCopyable = Require.Copyable<Property::Property<Phantom, Int>>
+private typealias _PropertyIsSendable = Require.Sendable<Property::Property<Phantom, Int>>
 
 @Suite
 struct `Property Tests` {
@@ -15,7 +16,7 @@ extension `Property Tests`.Unit {
 
     @Test
     func `owned property basic usage`() {
-        var property = Property<Phantom, Int>(42)
+        var property = Property::Property<Phantom, Int>(42)
         #expect(property.base == 42)
 
         property.base = 100

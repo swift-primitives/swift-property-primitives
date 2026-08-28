@@ -1,8 +1,8 @@
 public import Ownership_Inout
-public import Property_Primitive
+public import Property
 public import Tagged
 
-extension Property.Inout where Base: ~Copyable {
+extension Property::Property.Inout where Base: ~Copyable {
 
     @safe
     public struct Typed<Element: ~Copyable>: ~Copyable, ~Escapable {
@@ -17,7 +17,7 @@ extension Property.Inout where Base: ~Copyable {
     }
 }
 
-extension Property.Inout.Typed where Base: ~Copyable, Element: ~Copyable {
+extension Property::Property.Inout.Typed where Base: ~Copyable, Element: ~Copyable {
 
     @inlinable
     public var base: Ownership.Inout<Base> {

@@ -1,3 +1,4 @@
+import Property_Borrow
 import Property_Test_Support
 import Testing
 
@@ -22,7 +23,7 @@ extension `Property.Borrow.Typed.Valued Tests`.Unit {
     func `borrowing init from let-bound valued base`() {
         let inline = Slice<Int>.Inline<5>(count: 3)
 
-        let accessor = Property<
+        let accessor = Property::Property<
             Slice<Int>.Inline<5>.Inspect,
             Slice<Int>.Inline<5>
         >.Borrow.Typed<Int>.Valued<5>(inline)

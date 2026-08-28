@@ -14,20 +14,20 @@ extension Box {
 }
 
 extension Box {
-    public var inspect: Property<Inspect, Box>.Borrow {
+    public var inspect: Property::Property<Inspect, Box>.Borrow {
         _read {
-            yield Property<Inspect, Box>.Borrow(self)
+            yield Property::Property<Inspect, Box>.Borrow(self)
         }
     }
 
-    public var borrow: Property<Borrow, Box>.Borrow {
+    public var borrow: Property::Property<Borrow, Box>.Borrow {
         _read {
-            yield Property<Borrow, Box>.Borrow(self)
+            yield Property::Property<Borrow, Box>.Borrow(self)
         }
     }
 }
 
-extension Property.Borrow where Tag == Box.Inspect, Base == Box {
+extension Property::Property.Borrow where Tag == Box.Inspect, Base == Box {
     public var current: Int {
         self.base.value.value
     }
@@ -37,7 +37,7 @@ extension Property.Borrow where Tag == Box.Inspect, Base == Box {
     }
 }
 
-extension Property.Borrow where Tag == Box.Borrow, Base == Box {
+extension Property::Property.Borrow where Tag == Box.Borrow, Base == Box {
     public var current: Int {
         self.base.value.value
     }

@@ -9,7 +9,7 @@ public struct Property<Tag: ~Copyable & ~Escapable, Base: ~Copyable>: ~Copyable 
     }
 }
 
-extension Property where Base: ~Copyable {
+extension Property::Property where Base: ~Copyable {
 
     @inlinable
     public var base: Base {
@@ -18,5 +18,5 @@ extension Property where Base: ~Copyable {
     }
 }
 
-extension Property: Copyable where Tag: ~Copyable & ~Escapable, Base: Copyable {}
-extension Property: Sendable where Tag: ~Copyable & ~Escapable, Base: Sendable {}
+extension Property::Property: Copyable where Tag: ~Copyable & ~Escapable, Base: Copyable {}
+extension Property::Property: Sendable where Tag: ~Copyable & ~Escapable, Base: Sendable {}

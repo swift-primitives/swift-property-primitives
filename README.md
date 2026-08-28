@@ -1,18 +1,18 @@
 # Property
 
 ![Development Status](https://img.shields.io/badge/status-active--development-blue.svg)
-[![CI](https://github.com/swift-molecules/swift-property/actions/workflows/ci.yml/badge.svg)](https://github.com/swift-molecules/swift-property/actions/workflows/ci.yml)
+[![CI](https://github.com/swift-atoms/swift-property/actions/workflows/ci.yml/badge.svg)](https://github.com/swift-atoms/swift-property/actions/workflows/ci.yml)
 
 Fluent accessor namespaces — `base.namespace.method(_:)` — declared as extensions on one `Property<Tag, Base>` family. `Property` is generic over the base type: collections, parsers, I/O sessions, configuration contexts, or any value that benefits from namespaced operations, whether `Copyable` or `~Copyable`.
 
-Use `Property<Tag, Base>` for accessor namespaces on a base value (this package). Use [`Tagged<Tag, RawValue>`](https://github.com/swift-molecules/swift-tagged) for domain-typed raw values (sibling molecule).
+Use `Property<Tag, Base>` for accessor namespaces on a base value (this package). Use [`Tagged<Tag, RawValue>`](https://github.com/swift-atoms/swift-tagged) for domain-typed raw values (sibling primitive).
 
 ---
 
 ## Key Features
 
-- **One type family, five variants** — `Property`, `Property.Typed`, `Property.Consuming`, `Property.View`, `Property.View.Read` span `Copyable`/`~Copyable` bases and method-vs-property extension shapes.
-- **`~Copyable` mutation through `_read`** — `Property.View` yields a writable pointer from a non-mutating `_read` coroutine, so `base.namespace.method(x)` works on a `~Copyable` base accessed from a `let` namespace.
+- **One type family, five variants** — `Property`, `Property.Typed`, `Property.Consume`, `Property.Inout`, and `Property.Borrow` span `Copyable`/`~Copyable` bases and method-vs-property extension shapes.
+- **`~Copyable` mutation through `_read`** — `Property.Inout` yields a writable pointer from a non-mutating `_read` coroutine, so `base.namespace.method(x)` works on a `~Copyable` base accessed from a `let` namespace.
 - **CoW-safe `_modify` recipe** — The five-step coroutine (uniqueness → transfer → clear → restore → yield) preserves copy-on-write uniqueness without auxiliary flag state.
 - **Zero runtime footprint** — All views are `~Copyable, ~Escapable` with `@inlinable` accessors; no heap allocation on non-consuming paths.
 
@@ -23,7 +23,7 @@ Use `Property<Tag, Base>` for accessor namespaces on a base value (this package)
 A `Stack<Element>` exposes a `peek` namespace via a `Property.Typed` accessor. The phantom `Peek` tag selects which property extensions apply at the call site:
 
 ```swift
-import Property
+import Property_Typed
 
 public struct Stack<Element: Copyable>: Copyable {
     internal var _storage: [Element]
@@ -31,7 +31,7 @@ public struct Stack<Element: Copyable>: Copyable {
 }
 
 extension Stack {
-    public typealias Property<Tag> = Property.Property<Tag, Stack<Element>>
+    public typealias Property<Tag> = Property::Property<Tag, Stack<Element>>
 }
 
 extension Stack {
@@ -42,7 +42,7 @@ extension Stack {
     }
 }
 
-extension Property.Typed where Tag == Stack<Element>.Peek, Base == Stack<Element> {
+extension Property::Property.Typed where Tag == Stack<Element>.Peek, Base == Stack<Element> {
     public var back: Element?  { base._storage.last }
     public var depth: Int      { base._storage.count }
     public var isEmpty: Bool   { base._storage.isEmpty }
@@ -54,9 +54,9 @@ print(stack.peek.depth)     // 3
 print(stack.peek.isEmpty)   // false
 ```
 
-Four pieces: a `Stack` with stored storage and the canonical init in its type body; a foundational `Property<Tag>` typealias adopting the library type into Stack's namespace (reused by every namespace Stack declares); a per-namespace extension nesting the phantom `Peek` tag and the single-line `peek` accessor; a constrained extension on `Property.Typed` adding properties to the namespace. Third-party code can extend `stack.peek.*` with additional properties via more `extension Property.Typed where …` blocks without owning Stack — that's the value over a hand-rolled `var peek: PeekNamespace`.
+Four pieces: a `Stack` with stored storage and the canonical init in its type body; a foundational `Property<Tag>` typealias adopting the library type into Stack's namespace (reused by every namespace Stack declares); a per-namespace extension nesting the phantom `Peek` tag and the single-line `peek` accessor; a constrained extension on `Property::Property.Typed` adding properties to the namespace. Third-party code can extend `stack.peek.*` with additional properties via more `extension Property::Property.Typed where …` blocks without owning Stack — that's the value over a hand-rolled `var peek: PeekNamespace`.
 
-For *mutating* namespaces (`stack.push.back(10)` and friends), the accessor uses a `_read` / `_modify` pair with a CoW-safe transfer recipe that preserves copy-on-write semantics. See the [Getting Started tutorial](https://swiftpackageindex.com/swift-molecules/swift-property/main/tutorials/property/gettingstarted) for the full Stack with `push` and `pop`, and the [CoW-Safe Mutation Recipe](https://swiftpackageindex.com/swift-molecules/swift-property/main/documentation/property/cow-safe-mutation-recipe) article for the recipe's five steps.
+For *mutating* namespaces (`stack.push.back(10)` and friends), the accessor uses a `_read` / `_modify` pair with a CoW-safe transfer recipe that preserves copy-on-write semantics. See the [Getting Started tutorial](https://swiftpackageindex.com/swift/swift-property/main/tutorials/property/gettingstarted) for the full Stack with `push` and `pop`, and the [CoW-Safe Mutation Recipe](https://swiftpackageindex.com/swift/swift-property/main/documentation/property/cow-safe-mutation-recipe) article for the recipe's five steps.
 
 ---
 
@@ -66,22 +66,23 @@ Add the dependency to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/swift-molecules/swift-property.git", branch: "main")
+    .package(url: "https://github.com/swift-atoms/swift-property.git", branch: "main")
 ]
 ```
 
-Add the umbrella product to your target (recommended for most consumers — re-exports every variant):
+Add the specific products your target uses:
 
 ```swift
 .target(
     name: "App",
     dependencies: [
-        .product(name: "Property", package: "swift-property")
+        .product(name: "Property Typed", package: "swift-property"),
+        .product(name: "Property Inout", package: "swift-property"),
     ]
 )
 ```
 
-For narrower compile-time surface, depend on an individual variant product — `Property View`, `Property View Read`, or `Property Consuming`.
+Available products are the base `Property` module and the focused `Property Carrier`, `Property Typed`, `Property Consume`, `Property Inout`, and `Property Borrow` layers.
 
 Requires Swift 6.3.1 and macOS 26 / iOS 26 / tvOS 26 / watchOS 26 / visionOS 26 (or the corresponding Linux / Windows toolchain).
 
@@ -89,31 +90,17 @@ Requires Swift 6.3.1 and macOS 26 / iOS 26 / tvOS 26 / watchOS 26 / visionOS 26 
 
 ## Architecture
 
-Intra-package target graph — variant decomposition along the ownership / access-model axis:
-
-```
-┌────────────────────────────────────────────────────────────┐
-│              Property (umbrella)                │
-├─────────────────┬──────────────┬──────────────┬────────────┤
-│ View Read       │ View         │ Consuming    │ Typed      │
-│ ~Copyable RO    │ ~Copyable RW │ Copyable     │ Copyable   │
-│ pointer         │ pointer      │ state-tracked│ property   │
-├─────────────────┴──────────────┴──────────────┴────────────┤
-│ Property Core (Property)                        │
-│                   (internal; no product)                   │
-└────────────────────────────────────────────────────────────┘
-```
+The package exposes a base module plus focused layers along the ownership and access-model axes. Each layer depends on and re-exports the base module; there is no all-variants convergence product.
 
 | Product | Contents | When to import |
 |---------|----------|----------------|
-| `Property` | Umbrella — `@_exported` re-export of all variants | Prototyping, tests, small consumers willing to pay the umbrella surface cost |
+| `Property` | `Property<Tag, Base>` | Base value and namespace type |
+| `Property Carrier` | `Property: Carrier.Protocol` | Carrier integration |
 | `Property Typed` | `Property.Typed` | Phantom-typed `Copyable` property values |
-| `Property Consuming` | `Property.Consuming` (state-tracked) | Consume-style namespaces over `~Copyable` bases |
-| `Property View` | `Property.View`, `.Typed`, `.Typed.Valued`, `.Typed.Valued.Valued` | Borrow-style mutating accessors over `~Copyable` bases |
-| `Property View Read` | `Property.View.Read`, `.Typed`, `.Typed.Valued` | Borrow-style read-only accessors |
+| `Property Consume` | `Property.Consume` (state-tracked) | Consume-style namespaces over `Copyable` bases |
+| `Property Inout` | `Property.Inout`, `.Typed`, `.Typed.Valued`, `.Typed.Valued.Valued` | Mutating accessors over `~Copyable` bases |
+| `Property Borrow` | `Property.Borrow`, `.Typed`, `.Typed.Valued` | Read-only accessors over `~Copyable` bases |
 | `Property Test Support` | Test fixtures | Test target only |
-
-Internal `Property Core` target hosts the `Property` type; not a public product.
 
 ---
 
@@ -131,7 +118,7 @@ Internal `Property Core` target hosts the `Property` type; not a public product.
 
 ## Documentation
 
-DocC ships on [Swift Package Index](https://swiftpackageindex.com/swift-molecules/swift-property/main/documentation/property) after publication. Two entry points:
+DocC ships on [Swift Package Index](https://swiftpackageindex.com/swift/swift-property/main/documentation/property) after publication. Two entry points:
 
 - **Getting Started** — a seven-minute interactive tutorial that builds the full Stack from this Quick Start.
 - **Choosing a Property Variant** — decision matrix across the five variants.

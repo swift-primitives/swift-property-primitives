@@ -1,8 +1,8 @@
 # .github/metadata.yaml
-# Triaged 2026-04-29 — refined for the swift-molecules 0.1.0 release-cohort path.
-description: "Fluent accessor molecules for Swift."
+# Triaged 2026-04-29 — refined for the swift-atoms 0.1.0 release-cohort path.
+description: "Fluent accessor primitives for Swift."
 topics:
-  - molecules
+  - primitives
   - property
   - accessors
   - type-safety
