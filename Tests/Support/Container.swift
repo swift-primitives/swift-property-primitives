@@ -1,5 +1,3 @@
-public import Property
-
 public struct Container<Element>: Copyable where Element: Copyable {
     internal var storage: [Element]
 

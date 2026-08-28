@@ -1,3 +1,4 @@
+public import Property_Primitive
 
 extension Property where Base: ~Copyable {
 

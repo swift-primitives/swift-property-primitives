@@ -1,5 +1,5 @@
 import Dispatch
-import Property
+import Property_Test_Support
 import Synchronization
 import Testing
 

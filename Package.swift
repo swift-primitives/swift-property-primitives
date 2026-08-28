@@ -13,39 +13,169 @@ let package = Package(
     ],
     products: [
         .library(
+            name: "Property Primitive",
+            targets: ["Property Primitive"]
+        ),
+        .library(
+            name: "Property Carrier",
+            targets: ["Property Carrier"]
+        ),
+        .library(
             name: "Property",
             targets: ["Property"]
         ),
         .library(
-            name: "Property Standard Library Integration",
-            targets: ["Property Standard Library Integration"]
+            name: "Property Typed",
+            targets: ["Property Typed"]
         ),
         .library(
-            name: "Property Apple Foundation Integration",
-            targets: ["Property Apple Foundation Integration"]
+            name: "Property Consume",
+            targets: ["Property Consume"]
+        ),
+        .library(
+            name: "Property Inout",
+            targets: ["Property Inout"]
+        ),
+        .library(
+            name: "Property Borrow",
+            targets: ["Property Borrow"]
+        ),
+        .library(
+            name: "Property Test Support",
+            targets: ["Property Test Support"]
         ),
     ],
-    dependencies: [],
+    dependencies: [
+        .package(
+            url: "https://github.com/swift-molecules/swift-ownership.git",
+            branch: "main"
+        ),
+        .package(
+            url: "https://github.com/swift-molecules/swift-tagged.git",
+            branch: "main"
+        ),
+        .package(
+            url: "https://github.com/swift-molecules/swift-carrier.git",
+            branch: "main"
+        ),
+    ],
     targets: [
+
         .target(
-            name: "Property",
-            dependencies: []
+            name: "Property Primitive"
         ),
+
         .target(
-            name: "Property Standard Library Integration",
-            dependencies: ["Property"]
-        ),
-        .target(
-            name: "Property Apple Foundation Integration",
+            name: "Property Carrier",
             dependencies: [
-                "Property",
-                "Property Standard Library Integration",
+                "Property Primitive",
+                .product(name: "Carrier", package: "swift-carrier"),
             ]
         ),
+
+        .target(
+            name: "Property Typed",
+            dependencies: [
+                "Property Primitive"
+            ]
+        ),
+        .target(
+            name: "Property Consume",
+            dependencies: [
+                "Property Primitive"
+            ]
+        ),
+        .target(
+            name: "Property Inout",
+            dependencies: [
+                "Property Primitive",
+                .product(name: "Ownership Inout", package: "swift-ownership"),
+                .product(name: "Tagged", package: "swift-tagged"),
+            ]
+        ),
+        .target(
+            name: "Property Borrow",
+            dependencies: [
+                "Property Primitive",
+                .product(
+                    name: "Ownership Borrow",
+                    package: "swift-ownership"
+                ),
+                .product(name: "Tagged", package: "swift-tagged"),
+            ]
+        ),
+
+        .target(
+            name: "Property",
+            dependencies: [
+                "Property Primitive",
+                "Property Carrier",
+                "Property Typed",
+                "Property Consume",
+                "Property Inout",
+                "Property Borrow",
+            ]
+        ),
+
         .testTarget(
-            name: "Property Tests",
-            dependencies: ["Property"],
-            path: "Tests/Property Tests"
+            name: "Property Primitive Tests",
+            dependencies: [
+                "Property Primitive",
+                "Property Test Support",
+            ],
+            path: "Tests/Property Primitive Tests"
+        ),
+        .testTarget(
+            name: "Property Typed Tests",
+            dependencies: [
+                "Property Typed",
+                "Property Test Support",
+            ],
+            path: "Tests/Property Typed Tests"
+        ),
+        .testTarget(
+            name: "Property Consume Tests",
+            dependencies: [
+                "Property Consume",
+                "Property Test Support",
+            ],
+            path: "Tests/Property Consume Tests"
+        ),
+        .testTarget(
+            name: "Property Inout Tests",
+            dependencies: [
+                "Property Inout",
+                "Property Test Support",
+            ],
+            path: "Tests/Property Inout Tests"
+        ),
+        .testTarget(
+            name: "Property Borrow Tests",
+            dependencies: [
+                "Property Borrow",
+                "Property Test Support",
+            ],
+            path: "Tests/Property Borrow Tests"
+        ),
+
+        .testTarget(
+            name: "Property Tutorial Tests",
+            dependencies: [
+                "Property"
+            ],
+            path: "Tests/Tutorial"
+        ),
+
+        .target(
+            name: "Property Test Support",
+            dependencies: [
+                "Property",
+                .product(
+                    name: "Ownership Test Support",
+                    package: "swift-ownership"
+                ),
+            ],
+            path: "Tests/Support"
         ),
     ],
     swiftLanguageModes: [.v6]
