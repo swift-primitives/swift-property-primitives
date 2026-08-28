@@ -3,7 +3,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "swift-property-primitives",
+    name: "swift-property",
     platforms: [
         .macOS(.v27),
         .iOS(.v27),
@@ -13,169 +13,147 @@ let package = Package(
     ],
     products: [
         .library(
-            name: "Property Primitive",
-            targets: ["Property Primitive"]
+            name: "Property",
+            targets: ["Property"]
         ),
         .library(
-            name: "Property Carrier Primitives",
-            targets: ["Property Carrier Primitives"]
+            name: "Property Carrier",
+            targets: ["Property Carrier"]
         ),
         .library(
-            name: "Property Primitives",
-            targets: ["Property Primitives"]
+            name: "Property Typed",
+            targets: ["Property Typed"]
         ),
         .library(
-            name: "Property Typed Primitives",
-            targets: ["Property Typed Primitives"]
+            name: "Property Consume",
+            targets: ["Property Consume"]
         ),
         .library(
-            name: "Property Consume Primitives",
-            targets: ["Property Consume Primitives"]
+            name: "Property Inout",
+            targets: ["Property Inout"]
         ),
         .library(
-            name: "Property Inout Primitives",
-            targets: ["Property Inout Primitives"]
+            name: "Property Borrow",
+            targets: ["Property Borrow"]
         ),
         .library(
-            name: "Property Borrow Primitives",
-            targets: ["Property Borrow Primitives"]
-        ),
-        .library(
-            name: "Property Primitives Test Support",
-            targets: ["Property Primitives Test Support"]
+            name: "Property Test Support",
+            targets: ["Property Test Support"]
         ),
     ],
     dependencies: [
         .package(
-            url: "https://github.com/swift-primitives/swift-ownership-primitives.git",
+            url: "https://github.com/swift-atoms/swift-ownership.git",
             branch: "main"
         ),
         .package(
-            url: "https://github.com/swift-primitives/swift-tagged-primitives.git",
+            url: "https://github.com/swift-atoms/swift-tagged.git",
             branch: "main"
         ),
         .package(
-            url: "https://github.com/swift-primitives/swift-carrier-primitives.git",
+            url: "https://github.com/swift-atoms/swift-carrier.git",
             branch: "main"
         ),
     ],
     targets: [
 
         .target(
-            name: "Property Primitive"
+            name: "Property",
+            dependencies: []
         ),
 
         .target(
-            name: "Property Carrier Primitives",
+            name: "Property Carrier",
             dependencies: [
-                "Property Primitive",
-                .product(name: "Carrier Primitives", package: "swift-carrier-primitives"),
+                .target(name: "Property"),
+                .product(name: "Carrier Protocol", package: "swift-carrier"),
             ]
         ),
 
         .target(
-            name: "Property Typed Primitives",
+            name: "Property Typed",
             dependencies: [
-                "Property Primitive"
+                .target(name: "Property")
             ]
         ),
         .target(
-            name: "Property Consume Primitives",
+            name: "Property Consume",
             dependencies: [
-                "Property Primitive"
+                .target(name: "Property")
             ]
         ),
         .target(
-            name: "Property Inout Primitives",
+            name: "Property Inout",
             dependencies: [
-                "Property Primitive",
-                .product(name: "Ownership Inout Primitives", package: "swift-ownership-primitives"),
-                .product(name: "Tagged Primitives", package: "swift-tagged-primitives"),
+                .target(name: "Property"),
+                .product(name: "Ownership Inout", package: "swift-ownership"),
+                .product(name: "Tagged", package: "swift-tagged"),
             ]
         ),
         .target(
-            name: "Property Borrow Primitives",
+            name: "Property Borrow",
             dependencies: [
-                "Property Primitive",
+                .target(name: "Property"),
                 .product(
-                    name: "Ownership Borrow Primitives",
-                    package: "swift-ownership-primitives"
+                    name: "Ownership Borrow",
+                    package: "swift-ownership"
                 ),
-                .product(name: "Tagged Primitives", package: "swift-tagged-primitives"),
-            ]
-        ),
-
-        .target(
-            name: "Property Primitives",
-            dependencies: [
-                "Property Primitive",
-                "Property Carrier Primitives",
-                "Property Typed Primitives",
-                "Property Consume Primitives",
-                "Property Inout Primitives",
-                "Property Borrow Primitives",
+                .product(name: "Tagged", package: "swift-tagged"),
             ]
         ),
 
         .testTarget(
-            name: "Property Primitive Tests",
+            name: "Property Tests",
             dependencies: [
-                "Property Primitive",
-                "Property Primitives Test Support",
-            ],
-            path: "Tests/Property Primitive Tests"
+                .target(name: "Property"),
+                .target(name: "Property Test Support"),
+            ]
         ),
         .testTarget(
-            name: "Property Typed Primitives Tests",
+            name: "Property Carrier Tests",
             dependencies: [
-                "Property Typed Primitives",
-                "Property Primitives Test Support",
-            ],
-            path: "Tests/Property Typed Primitives Tests"
+                .target(name: "Property Carrier"),
+            ]
         ),
         .testTarget(
-            name: "Property Consume Primitives Tests",
+            name: "Property Typed Tests",
             dependencies: [
-                "Property Consume Primitives",
-                "Property Primitives Test Support",
-            ],
-            path: "Tests/Property Consume Primitives Tests"
+                .target(name: "Property Typed"),
+                .target(name: "Property Test Support"),
+            ]
         ),
         .testTarget(
-            name: "Property Inout Primitives Tests",
+            name: "Property Consume Tests",
             dependencies: [
-                "Property Inout Primitives",
-                "Property Primitives Test Support",
-            ],
-            path: "Tests/Property Inout Primitives Tests"
+                .target(name: "Property Consume"),
+                .target(name: "Property Test Support"),
+            ]
         ),
         .testTarget(
-            name: "Property Borrow Primitives Tests",
+            name: "Property Inout Tests",
             dependencies: [
-                "Property Borrow Primitives",
-                "Property Primitives Test Support",
-            ],
-            path: "Tests/Property Borrow Primitives Tests"
+                .target(name: "Property Inout"),
+                .target(name: "Property Test Support"),
+            ]
         ),
-
         .testTarget(
-            name: "Property Primitives Tutorial Tests",
+            name: "Property Borrow Tests",
             dependencies: [
-                "Property Primitives"
-            ],
-            path: "Tests/Tutorial"
+                .target(name: "Property Borrow"),
+                .target(name: "Property Test Support"),
+            ]
         ),
 
         .target(
-            name: "Property Primitives Test Support",
+            name: "Property Test Support",
             dependencies: [
-                "Property Primitives",
-                .product(
-                    name: "Ownership Primitives Test Support",
-                    package: "swift-ownership-primitives"
-                ),
+                .target(name: "Property"),
+                .target(name: "Property Typed"),
+                .target(name: "Property Consume"),
+                .target(name: "Property Inout"),
+                .target(name: "Property Borrow"),
             ],
-            path: "Tests/Support"
+            path: "Tests/Property Test Support"
         ),
     ],
     swiftLanguageModes: [.v6]

@@ -1,0 +1,87 @@
+public struct Slice<Element: ~Copyable>: ~Copyable {
+    public var count: Int
+
+    public init(count: Int) {
+        self.count = count
+    }
+}
+
+extension Slice where Element: ~Copyable {
+    public enum Peek {}
+    public enum Borrow {}
+    public enum Access {}
+}
+
+extension Slice where Element: ~Copyable {
+    public var peek: Property::Property<Peek, Slice<Element>>.Borrow.Typed<Element> {
+        _read {
+            yield Property::Property<Peek, Slice<Element>>.Borrow.Typed(self)
+        }
+    }
+
+    public var borrow: Property::Property<Borrow, Slice<Element>>.Borrow.Typed<Element> {
+        _read {
+            yield Property::Property<Borrow, Slice<Element>>.Borrow.Typed(self)
+        }
+    }
+
+    public var access: Property::Property<Access, Slice<Element>>.Inout.Typed<Element> {
+        mutating _read {
+            yield Property::Property<Access, Slice<Element>>.Inout.Typed<Element>(&self)
+        }
+        mutating _modify {
+            var accessor = Property::Property<Access, Slice<Element>>.Inout.Typed<Element>(&self)
+            yield &accessor
+        }
+    }
+}
+
+extension Property::Property.Borrow.Typed where Tag == Slice<Int>.Peek, Base == Slice<Int> {
+    public var size: Int {
+        self.base.value.count
+    }
+}
+
+extension Property::Property.Borrow.Typed where Tag == Slice<Int>.Borrow, Base == Slice<Int> {
+    public var size: Int {
+        self.base.value.count
+    }
+}
+
+extension Property::Property.Inout.Typed where Tag == Slice<Int>.Access, Base == Slice<Int>, Element == Int {
+    public var size: Int {
+        self.base.value.count
+    }
+
+    public mutating func resize(to newCount: Int) {
+        self.base.value.count = newCount
+    }
+}
+
+extension Property::Property.Inout.Typed where Tag == Slice<Int>.Access, Base == Slice<Int>, Element == Int {
+
+    public mutating func removeOne() {
+        self.base.value.count -= 1
+    }
+}
+
+extension Property::Property.Borrow.Typed where Tag == Slice<Int>.Peek, Base == Slice<Int> {
+
+    public var isEmpty: Bool {
+        self.base.value.count == 0
+    }
+}
+
+extension Slice where Element == Int {
+
+    @inlinable
+    public mutating func drainAll() -> Int {
+        var trips = 0
+        while !self.peek.isEmpty {
+            self.access.removeOne()
+            trips += 1
+            if trips > 100 { break }
+        }
+        return trips
+    }
+}

@@ -2,10 +2,9 @@ version: 1
 builder:
   configs:
   - documentation_targets:
-    - Property Borrow Primitives
-    - Property Carrier Primitives
-    - Property Consume Primitives
-    - Property Inout Primitives
-    - Property Primitive
-    - Property Primitives
-    - Property Typed Primitives
+    - Property Borrow
+    - Property Carrier
+    - Property Consume
+    - Property Inout
+    - Property
+    - Property Typed
