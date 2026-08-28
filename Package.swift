@@ -106,12 +106,14 @@ let package = Package(
             name: "Property Tests",
             dependencies: [
                 .target(name: "Property"),
+                .target(name: "Property Typed"),
                 .target(name: "Property Test Support"),
             ]
         ),
         .testTarget(
             name: "Property Carrier Tests",
             dependencies: [
+                .target(name: "Property"),
                 .target(name: "Property Carrier"),
             ]
         ),
